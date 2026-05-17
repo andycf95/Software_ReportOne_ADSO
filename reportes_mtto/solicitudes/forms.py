@@ -6,6 +6,7 @@ class SolicitudForm(ModelForm):
         model = Solicitud
         fields = ['titulo',
             'descripcion',
+            'estado',
             'criticidad',
             'activo',
             'sistema_activo',

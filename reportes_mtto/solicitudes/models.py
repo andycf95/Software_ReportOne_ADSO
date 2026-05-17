@@ -37,3 +37,16 @@ class Solicitud(models.Model):
 
     def __str__(self):
         return self.titulo
+    
+    
+class Seguimiento(models.Model):
+    solicitud = models.ForeignKey(
+            Solicitud,
+            on_delete=models.CASCADE,
+            related_name='seguimientos'
+        )
+    comentario = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Seguimiento de {self.solicitud.titulo}"

@@ -1,12 +1,32 @@
-
-{% extends "base.html" %} {% block content %}
-
+{% extends "base.html" %} {% block content %} {% if solicitud %}
+<h1>Editar Solicitud</h1>
+{% else %}
 <h1>Crear Solicitud</h1>
+{% endif %}
 
-<form  method="POST">
+<form method="POST" {% if solicitud %} action="{% url 'solicitudes:editar' id=solicitud.id %}"
+    {% else %}
+        action="{% url 'solicitudes:crear' %}"
+    {% endif %}
+>
     {% csrf_token %}
-    {{ form}}
+    
+    {{ form }} 
+    
+    {% if solicitud %}
+
+        <hr />
+        <h3>Agregar seguimiento</h3>
+        
+        <textarea name="comentario"></textarea>
+        
+        <br /><br />
+        
+        <button type="submit">Actualizar</button>
+    {% else %}
+    <br /><br />
     <button type="submit">Guardar</button>
+    {% endif %}
 </form>
 
 {% endblock %}

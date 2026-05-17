@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Solicitud
+from .models import Solicitud, Seguimiento
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import SolicitudForm
 from django.shortcuts import redirect
@@ -27,7 +27,7 @@ def crear_solicitud(request):
             print(form.errors)
     else:
         form = SolicitudForm()
-    return render(request, 'solicitud_form.html', {'form': form})
+    return render(request, 'solicitud_form.html', {'form': form, 'solicitud': None})
 
 def detalle_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud,id=id)
@@ -35,11 +35,38 @@ def detalle_solicitud(request, id):
 
 def editar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
+    estado_anterior = solicitud.get_estado_display().lower()  # Obtener la representación legible del estado antes de la actualización
     form = SolicitudForm(request.POST or None, instance=solicitud)
     if request.method == 'POST' and form.is_valid():
-        form.save()
+        solicitud_actualizada = form.save()
+        comentario = request.POST.get('comentario')
+        nuevo_estado = solicitud_actualizada.get_estado_display().lower()  # Obtener la representación legible del estado
+        texto_seguimiento = ''
+
+        # Detectar cambio de estado
+        if estado_anterior != nuevo_estado:
+
+            texto_seguimiento += (
+                f'<strong>Estado:</strong> '
+                f'{estado_anterior} → {nuevo_estado}<br><br>'
+            )
+            
+        #Comentario manual
+        if comentario:
+
+            texto_seguimiento += (
+                f'<strong>Comentario:</strong> '
+                f'{comentario} '
+            )
+            
+        #Crea un solo comentario de seguimiento si hay cambios de estado o comentario manual
+        if texto_seguimiento:
+            Seguimiento.objects.create(
+                solicitud=solicitud,
+                comentario=texto_seguimiento
+            )
         return redirect('solicitudes:lista')
-    return render(request, 'solicitud_form.html', {'form': form})
+    return render(request, 'solicitud_form.html', {'form': form, 'solicitud': solicitud})
 
 def eliminar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)

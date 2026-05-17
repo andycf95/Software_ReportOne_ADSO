@@ -9,8 +9,19 @@
         <p>{{ solicitud.activo }}</p>
         <p>{{ solicitud.get_criticidad_display}}</p>        
         <p>{{ solicitud.sistema_activo }}</p>        
+        <p>{{ seguimiento.subsistema_activo }}</p>        
         <p>{{ solicitud.subsistema_activo }}</p>        
 
+<h3>Historial de orden</h3>
+
+{% for s in solicitud.seguimientos.all %}
+    <div>
+        <p>{{ s.comentario|safe }}</p>
+        <small>{{ s.fecha }}</small>
+    </div>
+{% empty %}
+    <p>No hay seguimientos aún.</p>
+{% endfor %}
 
     <a href="{% url 'solicitudes:editar' id=solicitud.id %}">
     <button type="button">Editar</button>
