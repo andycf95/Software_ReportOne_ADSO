@@ -40,3 +40,10 @@ def editar_solicitud(request, id):
         form.save()
         return redirect('solicitudes:lista')
     return render(request, 'solicitud_form.html', {'form': form})
+
+def eliminar_solicitud(request, id):
+    solicitud = get_object_or_404(Solicitud, id=id)
+    if request.method == 'POST':
+        solicitud.delete()
+    return redirect('solicitudes:lista')
+    
