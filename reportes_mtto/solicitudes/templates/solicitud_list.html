@@ -1,0 +1,28 @@
+
+{% extends "base.html" %} {% block content %}
+
+<h1>Lista de solicitudes</h1>
+
+<ul>
+{% for solicitud in solicitudes %}
+    <li >
+        <a href="{% url 'solicitudes:solicitud' id=solicitud.id %}">
+            <h1>{{ solicitud.titulo }}</h1>
+        </a>
+        <p>{{ solicitud.descripcion }}</p>
+        <p>{{ solicitud.fecha_creacion }}</p>
+        
+    </li>
+
+    <a href="{% url 'solicitudes:editar' id=solicitud.id %}">
+    <button type="button">Editar</button>
+</a>
+{% empty %}
+    <li>No hay solicitudes disponibles.</li>
+{% endfor %}
+</ul>
+
+
+
+{% endblock %}
+

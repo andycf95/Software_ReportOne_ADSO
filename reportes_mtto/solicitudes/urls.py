@@ -4,5 +4,8 @@ from . import views
 app_name = 'solicitudes'
 
 urlpatterns = [
-    path('crear/', views.create_solicitud, name='create'),
+    path('', views.lista_solicitudes, name='lista'),
+    path('crear/', views.crear_solicitud, name='crear'),
+    path('solicitud/<int:id>/', views.detalle_solicitud, name='solicitud'),
+    path('solicitud/<int:id>/editar/', views.editar_solicitud, name='editar'),
 ]

@@ -20,63 +20,20 @@ class Solicitud(models.Model):
             
     ]
 
-    usuario = models.CharField(
-        max_length=100
-    )
-
-    activo = models.CharField(
-        max_length=100
-    )
-
-    sistemaActivo = models.CharField(
-        max_length=100
-    )
-
-    subsistemaActivo = models.CharField(
-        max_length=100
-    )
-
-    titulo = models.CharField(
-        max_length=100
-    )
-
+    usuario = models.CharField(max_length=100)
+    activo = models.CharField(max_length=100)
+    sistema_activo = models.CharField(max_length=100)
+    subsistema_activo = models.CharField(max_length=100)
+    titulo = models.CharField(max_length=100)
     descripcion = models.TextField()
-    
-    repuestosNecesarios = models.TextField()
-
-    criticidad = models.IntegerField(
-        max_length=10,
-        choices=CRITICIDAD
-    )
-
-    estado = models.CharField(
-        max_length=20,
-        choices=ESTADOS,
-        default='PENDIENTE'
-    )
-
-    fechaCreacion = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    fechaActualizacion = models.DateTimeField(
-        auto_now=True
-    )
-
-    fechaCierre = models.DateTimeField(
-        null=True,
-        blank=True
-    )
-
-    trabajoRealizado = models.TextField(
-        null=True,
-        blank=True
-    )
-
-    observacionesCierre = models.TextField(
-        null=True,
-        blank=True
-    )
+    repuestos_necesarios = models.TextField()
+    criticidad = models.IntegerField(max_length=10, choices=CRITICIDAD, default=1)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    fecha_cierre = models.DateTimeField(null=True, blank=True)
+    trabajo_realizado = models.TextField(null=True, blank=True)
+    observaciones_cierre = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return self.titulo

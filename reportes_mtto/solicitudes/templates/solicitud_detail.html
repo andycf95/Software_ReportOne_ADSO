@@ -1,0 +1,25 @@
+
+{% extends "base.html" %} {% block content %}
+
+<h1>Detalle de la solicitud</h1>
+
+        <h2>{{ solicitud.titulo }}</h1>
+        <p>{{ solicitud.descripcion }}</p>
+        <p>{{ solicitud.fecha_creacion }}</p>
+        <p>{{ solicitud.activo }}</p>
+        <p>{{ solicitud.get_criticidad_display}}</p>        
+        <p>{{ solicitud.sistema_activo }}</p>        
+        <p>{{ solicitud.subsistema_activo }}</p>        
+
+
+    <a href="{% url 'solicitudes:editar' id=solicitud.id %}">
+    <button type="button">Editar</button>
+    </a>
+
+    <li>No hay solicitudes disponibles.</li>
+
+</ul>
+
+
+
+{% endblock %}
