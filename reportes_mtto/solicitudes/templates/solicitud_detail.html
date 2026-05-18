@@ -3,172 +3,146 @@
 {% block content %}
 
 <div class="container mt-5">
-
     <div class="row justify-content-center">
-
         <div class="col-lg-8">
-
             <!-- TARJETA PRINCIPAL -->
-
             <div class="card shadow-sm border-0 mb-4">
-
                 <div class="card-body p-4">
-
                     <div class="d-flex justify-content-between align-items-center mb-4">
-
                         <h2 class="mb-0">
                             {{ solicitud.titulo }}
                         </h2>
+                        
                         <div class="d-flex gap-2">
+                            {% if solicitud.estado != 'CERRADA' %}
                             <a href="{% url 'solicitudes:editar' id=solicitud.id %}">
                                 <button class="btn btn-warning">
                                     Editar
                                 </button>
                             </a>
+                        {% endif %}
                             <a href="{% url 'solicitudes:lista' %}">
                                 <button class="btn btn-primary">
                                     Volver
                                 </button>
-                        </a>
+                            </a>
+                        
                         </div>
                     </div>
-
                     <!-- DESCRIPCION -->
-
                     <div class="mb-4">
-
-                        <h6 class="text-muted">
-                            Descripción
-                        </h6>
-
+                        <h6 class="text-muted"> Descripción</h6>
                         <p>
                             {{ solicitud.descripcion }}
                         </p>
-
                     </div>
-
                     <!-- INFORMACION -->
-
                     <div class="row">
-
                         <div class="col-md-6 mb-3">
-
-                            <h6 class="text-muted">
-                                Fecha de creación
-                            </h6>
-
+                            <h6 class="text-muted"> Fecha de creación </h6>
                             <p>
                                 {{ solicitud.fecha_creacion | date:"d/m/Y"}}
                             </p>
-
                         </div>
-
                         <div class="col-md-6 mb-3">
-
-                            <h6 class="text-muted">
-                                Estado
-                            </h6>
-
+                            <h6 class="text-muted"> Estado </h6>
                             <span class="badge bg-primary">
                                 {{ solicitud.get_estado_display | capfirst }}
                             </span>
-
                         </div>
-
                         <div class="col-md-6 mb-3">
-
-                            <h6 class="text-muted">
-                                Criticidad
-                            </h6>
-
+                            <h6 class="text-muted"> Criticidad </h6>
                             <span class="badge bg-danger">
                                 {{ solicitud.get_criticidad_display }}
                             </span>
-
                         </div>
-
                         <div class="col-md-6 mb-3">
-
-                            <h6 class="text-muted">
-                                Activo
-                            </h6>
-
+                            <h6 class="text-muted"> Activo </h6>
                             <p>
                                 {{ solicitud.activo }}
                             </p>
-
                         </div>
-
                         <div class="col-md-6 mb-3">
-
                             <h6 class="text-muted">
                                 Sistema
                             </h6>
-
                             <p>
                                 {{ solicitud.sistema_activo }}
                             </p>
-
                         </div>
-
                         <div class="col-md-6 mb-3">
-
-                            <h6 class="text-muted">
-                                Subsistema
-                            </h6>
-
+                            <h6 class="text-muted"> Subsistema </h6>
                             <p>
                                 {{ solicitud.subsistema_activo }}
                             </p>
-
                         </div>
-
+                        {% if solicitud.estado == "CERRADA" %}
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted"> Fecha de cierre </h6>
+                            <p>
+                                {{ solicitud.fecha_cierre | date:"d/m/Y" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted"> Trabajo realizado </h6>
+                            <p>
+                                {{ solicitud.trabajo_realizado}}
+                            </p>
+                        </div>
+                        {% endif %}
                     </div>
-
                 </div>
-
             </div>
-
             <!-- HISTORIAL -->
-
-            <div class="card shadow-sm border-0">
-
+            <div class="card shadow-sm border-0 mt-4">
                 <div class="card-body p-4">
-
                     <h4 class="mb-4">
                         Historial de seguimiento
                     </h4>
-
-                    {% for s in solicitud.seguimientos.all %}
-
-                        <div class="border rounded p-3 mb-3">
-
-                            <p class="mb-2">
-                                {{ s.comentario|safe }}
+                    <div class="border rounded p-3 mb-3">
+                            <label class="fw-bold"> Fecha de creación </label>
+                            <p class="mb-0">
+                                {{ solicitud.fecha_creacion|date:"d/m/Y" }}
                             </p>
-
-                            <small class="text-muted">
-                                {{ s.fecha | date:"d/m/Y"}}
-                            </small>
-
+                    </div>
+                    {% for s in solicitud.seguimientos.all %}
+                        <div class="border rounded p-3 mb-3">
+                            <p class="mb-2"> {{ s.comentario|safe }} </p>
+                            <small class="text-muted"> {{ s.fecha|date:"d/m/Y H:i" }} </small>
                         </div>
-
-                    {% empty %}
-
-                        <div class="alert alert-light border">
-                            No hay seguimientos aún.
-                        </div>
-
                     {% endfor %}
-
                 </div>
-
             </div>
-
+            <!-- INFORMACION DE CIERRE -->
+            {% if solicitud.estado == 'CERRADA' %}
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-body p-4">
+                        <h4 class="mb-4 text-success"> Información de cierre </h4>
+                        <div class="mb-3">
+                            <label class="fw-bold"> Fecha de cierre </label>
+                            <p class="mb-0">
+                                {{ solicitud.fecha_cierre|date:"d/m/Y" }}
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">
+                                Trabajo realizado
+                            </label>
+                            <p class="mb-0">
+                                {{ solicitud.trabajo_realizado }}
+                            </p>
+                        </div>
+                        <div>
+                            <label class="fw-bold"> Observaciones de cierre </label>
+                            <p class="mb-0">
+                                {{ solicitud.observaciones_cierre }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-
     </div>
-
 </div>
 
 {% endblock %}

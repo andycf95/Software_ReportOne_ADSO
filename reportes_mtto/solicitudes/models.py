@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-
+#Se crea modelo para solicitud de mantenimiento, con campos para título, descripción, estado, criticidad, activo, sistema activo y subsistema activo
 class Solicitud(models.Model):
 
     ESTADOS = [
@@ -12,11 +12,11 @@ class Solicitud(models.Model):
     ]
 
     CRITICIDAD = [
-            (1, '1 - Baja'),
-            (2, '2 - Media'),
-            (3, '3 - Alta'),
-            (4, '4 - Crítica'),
-            (5, '5 - Emergencia'),
+            (1, 'Baja'),
+            (2, 'Media'),
+            (3, 'Alta'),
+            (4, 'Crítica'),
+            (5, 'Emergencia'),
             
     ]
 
@@ -33,12 +33,12 @@ class Solicitud(models.Model):
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     fecha_cierre = models.DateTimeField(null=True, blank=True)
     trabajo_realizado = models.TextField(null=True, blank=True)
-    observaciones_cierre = models.TextField(null=True, blank=True)
+    observaciones_cierre = models.TextField(null=True, blank=True) 
 
     def __str__(self):
         return self.titulo
     
-    
+# Agregar clase para seguimiento de solicitudes, con relación a la clase Solicitud y campos para comentario y fecha de seguimiento
 class Seguimiento(models.Model):
     solicitud = models.ForeignKey(
             Solicitud,
