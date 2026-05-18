@@ -1,34 +1,174 @@
+{% extends "base.html" %}
 
-{% extends "base.html" %} {% block content %}
+{% block content %}
 
-<h1>Detalle de la solicitud</h1>
+<div class="container mt-5">
 
-        <h2>{{ solicitud.titulo }}</h1>
-        <p>{{ solicitud.descripcion }}</p>
-        <p>{{ solicitud.fecha_creacion }}</p>
-        <p>{{ solicitud.activo }}</p>
-        <p>{{ solicitud.get_criticidad_display}}</p>        
-        <p>{{ solicitud.sistema_activo }}</p>        
-        <p>{{ seguimiento.subsistema_activo }}</p>        
-        <p>{{ solicitud.subsistema_activo }}</p>        
+    <div class="row justify-content-center">
 
-<h3>Historial de orden</h3>
+        <div class="col-lg-8">
 
-{% for s in solicitud.seguimientos.all %}
-    <div>
-        <p>{{ s.comentario|safe }}</p>
-        <small>{{ s.fecha }}</small>
+            <!-- TARJETA PRINCIPAL -->
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+
+                        <h2 class="mb-0">
+                            {{ solicitud.titulo }}
+                        </h2>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'solicitudes:editar' id=solicitud.id %}">
+                                <button class="btn btn-warning">
+                                    Editar
+                                </button>
+                            </a>
+                            <a href="{% url 'solicitudes:lista' %}">
+                                <button class="btn btn-primary">
+                                    Volver
+                                </button>
+                        </a>
+                        </div>
+                    </div>
+
+                    <!-- DESCRIPCION -->
+
+                    <div class="mb-4">
+
+                        <h6 class="text-muted">
+                            Descripción
+                        </h6>
+
+                        <p>
+                            {{ solicitud.descripcion }}
+                        </p>
+
+                    </div>
+
+                    <!-- INFORMACION -->
+
+                    <div class="row">
+
+                        <div class="col-md-6 mb-3">
+
+                            <h6 class="text-muted">
+                                Fecha de creación
+                            </h6>
+
+                            <p>
+                                {{ solicitud.fecha_creacion | date:"d/m/Y"}}
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <h6 class="text-muted">
+                                Estado
+                            </h6>
+
+                            <span class="badge bg-primary">
+                                {{ solicitud.get_estado_display | capfirst }}
+                            </span>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <h6 class="text-muted">
+                                Criticidad
+                            </h6>
+
+                            <span class="badge bg-danger">
+                                {{ solicitud.get_criticidad_display }}
+                            </span>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <h6 class="text-muted">
+                                Activo
+                            </h6>
+
+                            <p>
+                                {{ solicitud.activo }}
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <h6 class="text-muted">
+                                Sistema
+                            </h6>
+
+                            <p>
+                                {{ solicitud.sistema_activo }}
+                            </p>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <h6 class="text-muted">
+                                Subsistema
+                            </h6>
+
+                            <p>
+                                {{ solicitud.subsistema_activo }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- HISTORIAL -->
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <h4 class="mb-4">
+                        Historial de seguimiento
+                    </h4>
+
+                    {% for s in solicitud.seguimientos.all %}
+
+                        <div class="border rounded p-3 mb-3">
+
+                            <p class="mb-2">
+                                {{ s.comentario|safe }}
+                            </p>
+
+                            <small class="text-muted">
+                                {{ s.fecha | date:"d/m/Y"}}
+                            </small>
+
+                        </div>
+
+                    {% empty %}
+
+                        <div class="alert alert-light border">
+                            No hay seguimientos aún.
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-{% empty %}
-    <p>No hay seguimientos aún.</p>
-{% endfor %}
 
-    <a href="{% url 'solicitudes:editar' id=solicitud.id %}">
-    <button type="button">Editar</button>
-    </a>
-
-</ul>
-
-
+</div>
 
 {% endblock %}

@@ -1,32 +1,130 @@
-{% extends "base.html" %} {% block content %} {% if solicitud %}
-<h1>Editar Solicitud</h1>
-{% else %}
-<h1>Crear Solicitud</h1>
-{% endif %}
+{% extends "base.html" %}
 
-<form method="POST" {% if solicitud %} action="{% url 'solicitudes:editar' id=solicitud.id %}"
-    {% else %}
-        action="{% url 'solicitudes:crear' %}"
-    {% endif %}
->
-    {% csrf_token %}
-    
-    {{ form }} 
-    
-    {% if solicitud %}
+{% block content %}
 
-        <hr />
-        <h3>Agregar seguimiento</h3>
-        
-        <textarea name="comentario"></textarea>
-        
-        <br /><br />
-        
-        <button type="submit">Actualizar</button>
-    {% else %}
-    <br /><br />
-    <button type="submit">Guardar</button>
-    {% endif %}
-</form>
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    {% if solicitud %}
+                        <h3 class="mb-4">Editar Solicitud</h3>
+                    {% else %}
+                        <h3 class="mb-4">Crear Solicitud</h3>
+                    {% endif %}
+
+                    <form method="POST"
+
+                        {% if solicitud %}
+                            action="{% url 'solicitudes:editar' id=solicitud.id %}"
+                        {% else %}
+                            action="{% url 'solicitudes:crear' %}"
+                        {% endif %}
+                    >
+
+                        {% csrf_token %}
+
+                        <!-- TITULO -->
+
+                        <div class="mb-3">
+                            <label class="form-label">Título</label>
+                            {{ form.titulo }}
+                        </div>
+
+                        <!-- DESCRIPCION -->
+
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            {{ form.descripcion }}
+                        </div>
+
+                        <!-- FILA 1 -->
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Estado</label>
+                                {{ form.estado }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Criticidad</label>
+                                {{ form.criticidad }}
+                            </div>
+
+                        </div>
+
+                        <!-- FILA 2 -->
+
+                        <div class="row">
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Activo</label>
+                                {{ form.activo }}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Sistema</label>
+                                {{ form.sistema_activo }}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Subsistema</label>
+                                {{ form.subsistema_activo }}
+                            </div>
+
+                        </div>
+
+                        {% if solicitud %}
+
+                            <hr>
+
+                            <h5 class="mb-3">Seguimiento</h5>
+
+                            <div class="mb-3">
+
+                                <textarea
+                                    name="comentario"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Agregar comentario..."
+                                ></textarea>
+
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="btn btn-warning"
+                            >
+                                Actualizar
+                            </button>
+
+                        {% else %}
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+                                Guardar
+                            </button>
+
+                        {% endif %}
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}

@@ -1,43 +1,159 @@
 {% extends "base.html" %}
+
 {% block content %}
 
-<h1>Lista de solicitudes</h1>
-
-<ul>
-
-{% for solicitud in solicitudes %}
-
-    <li>
-
-        <!-- DETALLE -->
-        <a href="{% url 'solicitudes:solicitud' id=solicitud.id %}">
-            <h2>{{ solicitud.titulo }}</h2>
+<div class="container mt-5">
+    <!-- CABECERA -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            Lista de solicitudes
+        </h2>
+        <a href="{% url 'solicitudes:crear' %}">
+            <button class="btn btn-primary">
+                Nueva Solicitud
+            </button>
         </a>
-
-        <p>{{ solicitud.descripcion }}</p>
-        <p>{{ solicitud.fecha_creacion }}</p>
-
-        <!-- EDITAR -->
-        <a href="{% url 'solicitudes:editar' id=solicitud.id %}">
-            <button type="button">Editar</button>
-        </a>
-
-        <!-- ELIMINAR -->
-        <form method="POST" action="{% url 'solicitudes:eliminar' solicitud.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit">Eliminar</button>
-        </form>
-
-    </li>
-
-    <hr>
-
-{% empty %}
-
-    <li>No hay solicitudes disponibles.</li>
-
-{% endfor %}
-
-</ul>
+    </div>
+    <!-- TABLA -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Título</th>
+                        <th>Activo</th>
+                        <th>Estado</th>
+                        <th>Criticidad</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for solicitud in solicitudes %}
+                        <tr>
+                            <!-- TITULO -->
+                            <td>
+                                <a href="{% url 'solicitudes:solicitud' id=solicitud.id %}" class="text-decoration-none fw-semibold">
+                                    {{ solicitud.titulo }}
+                                </a>
+                            </td>
+                            <!-- ACTIVO -->
+                            <td>
+                                {{ solicitud.activo }}
+                            </td>
+                            <!-- ESTADO -->
+                            <td>
+                                    {{ solicitud.get_estado_display }}
+                            </td>
+                            <!-- CRITICIDAD -->
+                            <td>
+                            {% if solicitud.criticidad == 1 %}
+                                <span class="badge bg-success">
+                                    {{ solicitud.get_criticidad_display }}
+                                </span>
+                            {% elif solicitud.criticidad == 2 %}
+                                <span class="badge bg-info">
+                                    {{ solicitud.get_criticidad_display }}
+                                </span>
+                            {% elif solicitud.criticidad == 3 %}
+                                <span class="badge bg-warning text-dark">
+                                    {{ solicitud.get_criticidad_display }}
+                                </span>
+                            {% elif solicitud.criticidad == 4 %}
+                                <span class="badge bg-danger">
+                                    {{ solicitud.get_criticidad_display }}
+                                </span>
+                            {% elif solicitud.criticidad == 5 %}
+                                <span class="badge bg-dark">
+                                    {{ solicitud.get_criticidad_display }}
+                                </span>
+                            {% endif %}
+                            </td>
+                            <!-- FECHA -->
+                            <td>
+                                <small class="text-muted">
+                                    {{ solicitud.fecha_creacion|date:"d/m/Y" }}
+                                </small>
+                            </td>
+                            <!-- ACCIONES -->
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'solicitudes:editar' id=solicitud.id %}">
+                                        <button class="btn btn-warning btn-sm">
+                                            Editar
+                                        </button>
+                                    </a>
+                                    <form method="POST" action="{% url 'solicitudes:eliminar' solicitud.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar esta solicitud?');">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center p-4">
+                                No hay solicitudes disponibles.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- PAGINACIÓN -->
+            <div class="d-flex justify-content-center mt-3 mb-3">
+                <nav aria-label="Paginación solicitudes">
+                    <ul class="pagination pagination-sm mb-0">
+                        <!-- ANTERIOR -->
+                        {% if solicitudes.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ solicitudes.previous_page_number }}">
+                                    &laquo;
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">
+                                    &laquo;
+                                </span>
+                            </li>
+                        {% endif %}
+                        <!-- NÚMEROS -->
+                        {% for num in solicitudes.paginator.page_range %}
+                            {% if num >= solicitudes.number|add:-1 and num <= solicitudes.number|add:1 %}
+                                {% if solicitudes.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link"> {{ num }} </span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">
+                                            {{ num }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <!-- SIGUIENTE -->
+                        {% if solicitudes.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ solicitudes.next_page_number }}">
+                                    &raquo;
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">
+                                    &raquo;
+                                </span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

@@ -12,11 +12,11 @@
 
     <!-- Botones -->
     <div class="d-grid gap-2 d-md-block">
-      <a href="#" class="btn btn-primary btn-lg me-md-2">
-        Crear Nueva Solicitud
+      <a href="{% url 'solicitudes:lista' %}" class="btn btn-primary btn-lg me-md-2">
+        Lista de Solicitudes
       </a>
 
-      <a href="#" class="btn btn-secondary btn-lg"> Ver Historial </a>
+      <a href="{% url 'solicitudes:crear' %}" class="btn btn btn-success btn-lg"> Crear Nueva Solicitud </a>
     </div>
   </div>
 </div>

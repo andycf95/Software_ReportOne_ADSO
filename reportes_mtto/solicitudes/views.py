@@ -5,7 +5,7 @@ from .forms import SolicitudForm
 from django.shortcuts import redirect
 # Create your views here.
 
-#Se crea vista para crear solicitud de mantenimiento
+#Se crea vista para listar solicitud de mantenimiento
 
 def lista_solicitudes(request):
     solicitudes_list = Solicitud.objects.all().order_by('-id')
@@ -17,6 +17,7 @@ def lista_solicitudes(request):
         solicitudes = paginator.page(1)
     return render(request, 'solicitud_list.html', {'solicitudes': solicitudes})
 
+#Se crea vista para crear solicitud de mantenimiento
 def crear_solicitud(request):
     if request.method == 'POST':
         form = SolicitudForm(request.POST)
@@ -29,18 +30,21 @@ def crear_solicitud(request):
         form = SolicitudForm()
     return render(request, 'solicitud_form.html', {'form': form, 'solicitud': None})
 
+
+#Se crea vista para mostrar detalle de solicitud de mantenimiento
 def detalle_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud,id=id)
     return render(request, 'solicitud_detail.html', {'solicitud': solicitud})
 
+#Se crea vista para editar solicitud de mantenimiento, detectando cambios de estado y agregando comentarios de seguimiento
 def editar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
-    estado_anterior = solicitud.get_estado_display().lower()  # Obtener la representación legible del estado antes de la actualización
+    estado_anterior = solicitud.get_estado_display().capitalize() # Obtener la representación legible del estado antes de la actualización
     form = SolicitudForm(request.POST or None, instance=solicitud)
     if request.method == 'POST' and form.is_valid():
         solicitud_actualizada = form.save()
         comentario = request.POST.get('comentario')
-        nuevo_estado = solicitud_actualizada.get_estado_display().lower()  # Obtener la representación legible del estado
+        nuevo_estado = solicitud_actualizada.get_estado_display().capitalize()  # Obtener la representación legible del estado
         texto_seguimiento = ''
 
         # Detectar cambio de estado
@@ -68,6 +72,7 @@ def editar_solicitud(request, id):
         return redirect('solicitudes:lista')
     return render(request, 'solicitud_form.html', {'form': form, 'solicitud': solicitud})
 
+#Se crea vista para eliminar solicitud de mantenimiento
 def eliminar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
     if request.method == 'POST':
