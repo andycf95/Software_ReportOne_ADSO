@@ -3,28 +3,60 @@
 {% block content %}
 
 <div class="container mt-4">
-    <h3>Cerrar solicitud</h3>
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label class="form-label">
-                Trabajo realizado
-            </label>
-            <textarea name="trabajo_realizado" class="form-control" rows="4" required></textarea>
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-7">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+
+                    <h3 class="mb-4">Cerrar solicitud</h3>
+
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Trabajo realizado
+                            </label>
+                            <textarea 
+                                name="trabajo_realizado" 
+                                class="form-control" 
+                                rows="4" 
+                                required>{{ request.POST.trabajo_realizado }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Observaciones de cierre
+                            </label>
+                            <textarea 
+                                name="observaciones_cierre" 
+                                class="form-control" 
+                                rows="4">{{ request.POST.observaciones_cierre }}</textarea>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'solicitudes:editar' solicitud.id %}" class="btn btn-secondary">
+                                Cancelar
+                            </a>
+
+                            <button type="submit" class="btn btn-success">
+                                Confirmar cierre
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
         </div>
-        <div class="mb-3">
-            <label class="form-label">
-                Observaciones de cierre
-            </label>
-            <textarea name="observaciones_cierre" class="form-control" rows="4"></textarea>
-        </div>
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-success"> Confirmar cierre </button>
-            <a href="{% url 'solicitudes:editar' solicitud.id %}" class="btn btn-secondary">
-                Cancelar
-            </a>
-        </div>
-    </form>
+    </div>
 </div>
 
 {% endblock %}

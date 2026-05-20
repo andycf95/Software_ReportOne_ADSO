@@ -7,7 +7,6 @@ class SolicitudForm(ModelForm):
         model = Solicitud
         fields = ['titulo',
             'descripcion',
-            'estado',
             'criticidad',
             'activo',
             'sistema_activo',
@@ -15,32 +14,35 @@ class SolicitudForm(ModelForm):
         
         widgets = {
 
-    'titulo': forms.TextInput(attrs={
-        'class': 'form-control'
-    }),
+            'titulo': forms.TextInput(attrs={
+                'class': 'form-control'
+            }),
 
-    'descripcion': forms.Textarea(attrs={
-        'class': 'form-control',
-        'rows': 4
-    }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4
+            }),
 
-    'estado': forms.Select(attrs={
-        'class': 'form-select'
-    }),
 
-    'criticidad': forms.Select(attrs={
-        'class': 'form-select'
-    }),
+            'criticidad': forms.Select(attrs={
+                'class': 'form-select'
+            }),
 
-    'activo': forms.TextInput(attrs={
-        'class': 'form-control'
-    }),
+            'activo': forms.TextInput(attrs={
+                'class': 'form-control'
+            }),
 
-    'sistema_activo': forms.TextInput(attrs={
-        'class': 'form-control'
-    }),
+            'sistema_activo': forms.TextInput(attrs={
+                'class': 'form-control'
+            }),
 
-    'subsistema_activo': forms.TextInput(attrs={
-        'class': 'form-control'
-    }),
-}
+            'subsistema_activo': forms.TextInput(attrs={
+                'class': 'form-control'
+            }),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.estado != 'PENDIENTE':
+            for field in self.fields.values():
+                field.widget.attrs['disabled'] = True

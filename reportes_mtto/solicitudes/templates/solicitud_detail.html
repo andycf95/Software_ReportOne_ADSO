@@ -9,9 +9,15 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="mb-0">
-                            {{ solicitud.titulo }}
-                        </h2>
+                        <div>
+                            <h2 class="mb-0">
+                                {{ solicitud.titulo }}
+                            </h2>
+
+                            <small class="text-muted">
+                                {{ solicitud.codigo }}
+                            </small>
+                        </div>
                         
                         <div class="d-flex gap-2">
                             {% if solicitud.estado != 'CERRADA' %}
@@ -77,18 +83,18 @@
                             </p>
                         </div>
                         {% if solicitud.estado == "CERRADA" %}
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-muted"> Fecha de cierre </h6>
-                            <p>
-                                {{ solicitud.fecha_cierre | date:"d/m/Y" }}
-                            </p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <h6 class="text-muted"> Trabajo realizado </h6>
-                            <p>
-                                {{ solicitud.trabajo_realizado}}
-                            </p>
-                        </div>
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted"> Fecha de cierre </h6>
+                                <p>
+                                    {{ solicitud.fecha_cierre | date:"d/m/Y" }}
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted"> Cierre técnico </h6>
+                                <a href="{% url 'solicitudes:detalle_cierre' solicitud.id %}" class="btn btn-outline-primary btn-sm">
+                                    Ver detalle del cierre
+                                </a>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
@@ -113,34 +119,7 @@
                     {% endfor %}
                 </div>
             </div>
-            <!-- INFORMACION DE CIERRE -->
-            {% if solicitud.estado == 'CERRADA' %}
-                <div class="card shadow-sm border-0 mt-4">
-                    <div class="card-body p-4">
-                        <h4 class="mb-4 text-success"> Información de cierre </h4>
-                        <div class="mb-3">
-                            <label class="fw-bold"> Fecha de cierre </label>
-                            <p class="mb-0">
-                                {{ solicitud.fecha_cierre|date:"d/m/Y" }}
-                            </p>
-                        </div>
-                        <div class="mb-3">
-                            <label class="fw-bold">
-                                Trabajo realizado
-                            </label>
-                            <p class="mb-0">
-                                {{ solicitud.trabajo_realizado }}
-                            </p>
-                        </div>
-                        <div>
-                            <label class="fw-bold"> Observaciones de cierre </label>
-                            <p class="mb-0">
-                                {{ solicitud.observaciones_cierre }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}
+
         </div>
     </div>
 </div>

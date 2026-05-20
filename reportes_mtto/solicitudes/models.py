@@ -20,6 +20,7 @@ class Solicitud(models.Model):
             
     ]
 
+    codigo = models.CharField(max_length=20, unique=True, blank=True, null=True)
     usuario = models.CharField(max_length=100)
     activo = models.CharField(max_length=100)
     sistema_activo = models.CharField(max_length=100)
@@ -33,10 +34,19 @@ class Solicitud(models.Model):
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     fecha_cierre = models.DateTimeField(null=True, blank=True)
     trabajo_realizado = models.TextField(null=True, blank=True)
-    observaciones_cierre = models.TextField(null=True, blank=True) 
+    observaciones_cierre = models.TextField(null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        creando = self.pk is None
+
+        super().save(*args, **kwargs)
+
+        if creando and not self.codigo:
+            self.codigo = f"RQ-{self.id:03d}"
+            super().save(update_fields=['codigo'])
 
     def __str__(self):
-        return self.titulo
+        return f"{self.codigo} - {self.titulo}"
     
 # Agregar clase para seguimiento de solicitudes, con relación a la clase Solicitud y campos para comentario y fecha de seguimiento
 class Seguimiento(models.Model):

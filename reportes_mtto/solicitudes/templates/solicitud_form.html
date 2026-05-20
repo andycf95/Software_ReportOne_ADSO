@@ -8,7 +8,12 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     {% if solicitud %}
-                        <h3 class="mb-4">Editar Solicitud</h3>
+                        <div class="mb-3">
+                            <h3 class="mb-1">Editar Solicitud</h3>
+                            <small class="text-muted">
+                                {{ solicitud.codigo }}
+                            </small>
+                        </div>
                     {% else %}
                         <h3 class="mb-4">Crear Solicitud</h3>
                     {% endif %}
@@ -33,40 +38,50 @@
                         <!-- FILA 1 -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Estado</label>
-                                {{ form.estado }}
-                            </div>
-                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Criticidad</label>
                                 {{ form.criticidad }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Activo</label>
+                                {{ form.activo }}
                             </div>
                         </div>
                         <!-- FILA 2 -->
                         <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Activo</label>
-                                {{ form.activo }}
-                            </div>
-                            <div class="col-md-4 mb-3">
+                            
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Sistema</label>
                                 {{ form.sistema_activo }}
                             </div>
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Subsistema</label>
                                 {{ form.subsistema_activo }}
                             </div>
                         </div>
                         {% if solicitud %}
-                            <hr>
-                            <h5 class="mb-3">Seguimiento</h5>
-                            <div class="mb-3">
-                                <textarea name="comentario" class="form-control" rows="3" placeholder="Agregar comentario..." ></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-warning">
-                                Actualizar
-                            </button>
-                            {% if solicitud and solicitud.estado != 'CERRADA' %}
-                                <a href="{% url 'solicitudes:cerrar' solicitud.id %}" class="btn btn-success">
+                            {% if solicitud.estado != 'PENDIENTE' %}
+                                <hr>
+                                <h5 class="mb-3">Seguimiento</h5>
+                                <div class="mb-3">
+                                    <textarea
+                                        name="comentario"
+                                        class="form-control"
+                                        rows="3" 
+                                        placeholder="Agrega un comentario de seguimiento..."></textarea>
+                                    </textarea>
+                                </div>
+                                <button type="submit" class="btn btn-warning">
+                                    Actualizar
+                                </button>
+                            {% endif %}
+                            {% if solicitud.estado == 'PENDIENTE' %}
+                                <a href="{% url 'solicitudes:cambiar_estado_en_proceso' solicitud.id %}"
+                                class="btn btn-primary">
+                                    Iniciar proceso
+                                </a>
+                            {% elif solicitud.estado == 'EN_PROCESO' %}
+                                <a href="{% url 'solicitudes:cerrar' solicitud.id %}"
+                                class="btn btn-success">
                                     Cerrar orden
                                 </a>
                             {% endif %}

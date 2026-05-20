@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-9">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h3 class="mb-1">Detalle del cierre técnico</h3>
+                            <p class="text-muted mb-0">
+                                {{ solicitud.codigo }}
+                            </p>
+                        </div>
+
+                        <span class="badge bg-success">
+                            {{ solicitud.estado }}
+                        </span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted">Activo</h6>
+                            <p class="mb-0">{{ solicitud.activo }}</p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted">Sistema</h6>
+                            <p class="mb-0">{{ solicitud.sistema_activo }}</p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted">Subsistema</h6>
+                            <p class="mb-0">{{ solicitud.subsistema_activo }}</p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted">Fecha de cierre</h6>
+                            <p class="mb-0">
+                                {{ solicitud.fecha_cierre|date:"d/m/Y H:i" }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-4">
+                        <h5 class="mb-2">Trabajo realizado</h5>
+                        <div class="bg-light border rounded p-3">
+                            {% if solicitud.trabajo_realizado %}
+                                <p class="mb-0">{{ solicitud.trabajo_realizado|linebreaksbr }}</p>
+                            {% else %}
+                                <p class="text-muted mb-0">No se registró trabajo realizado.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="mb-2">Observaciones de cierre</h5>
+                        <div class="bg-light border rounded p-3">
+                            {% if solicitud.observaciones_cierre %}
+                                <p class="mb-0">{{ solicitud.observaciones_cierre|linebreaksbr }}</p>
+                            {% else %}
+                                <p class="text-muted mb-0">No se registraron observaciones de cierre.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a href="{% url 'solicitudes:solicitud' solicitud.id %}" class="btn btn-secondary">
+                            Volver al detalle
+                        </a>
+
+                        <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary">
+                            Volver a solicitudes
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
