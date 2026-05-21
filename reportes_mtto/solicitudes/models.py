@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -44,7 +45,28 @@ class Solicitud(models.Model):
         if creando and not self.codigo:
             self.codigo = f"RQ-{self.id:03d}"
             super().save(update_fields=['codigo'])
+            
+    def iniciar_proceso(self):
+        if self.estado != 'PENDIENTE':
+            raise ValueError('Solo una solicitud pendiente puede iniciar proceso.')
+        self.estado = 'EN_PROCESO'
+        self.save()
+        
+    def cerrar(self, trabajo_realizado, observaciones_cierre=""):
+        if self.estado != 'EN_PROCESO':
+            raise ValueError('Solo una solicitud en proceso puede cerrarse.')
 
+        self.trabajo_realizado = trabajo_realizado
+        self.observaciones_cierre = observaciones_cierre
+        self.fecha_cierre = timezone.now()
+        self.estado = 'CERRADA'
+        self.save()
+        
+    def delete(self, *args, **kwargs):
+        if self.estado != 'PENDIENTE':
+            raise ValueError('Solo se pueden eliminar solicitudes pendientes.')
+        super().delete(*args, **kwargs)    
+        
     def __str__(self):
         return f"{self.codigo} - {self.titulo}"
     

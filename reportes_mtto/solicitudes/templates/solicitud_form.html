@@ -17,7 +17,7 @@
                     {% else %}
                         <h3 class="mb-4">Crear Solicitud</h3>
                     {% endif %}
-                    <form method="POST"
+                    <form id="form-solicitud" method="POST"
                         {% if solicitud %}
                             action="{% url 'solicitudes:editar' id=solicitud.id %}"
                         {% else %}
@@ -58,39 +58,44 @@
                                 {{ form.subsistema_activo }}
                             </div>
                         </div>
-                        {% if solicitud %}
-                            {% if solicitud.estado != 'PENDIENTE' %}
-                                <hr>
-                                <h5 class="mb-3">Seguimiento</h5>
-                                <div class="mb-3">
-                                    <textarea
-                                        name="comentario"
-                                        class="form-control"
-                                        rows="3" 
-                                        placeholder="Agrega un comentario de seguimiento..."></textarea>
-                                    </textarea>
-                                </div>
-                                <button type="submit" class="btn btn-warning">
-                                    Actualizar
-                                </button>
-                            {% endif %}
-                            {% if solicitud.estado == 'PENDIENTE' %}
-                                <a href="{% url 'solicitudes:cambiar_estado_en_proceso' solicitud.id %}"
-                                class="btn btn-primary">
-                                    Iniciar proceso
-                                </a>
-                            {% elif solicitud.estado == 'EN_PROCESO' %}
-                                <a href="{% url 'solicitudes:cerrar' solicitud.id %}"
-                                class="btn btn-success">
-                                    Cerrar orden
-                                </a>
-                            {% endif %}
-                        {% else %}
-                            <button type="submit" class="btn btn-primary">
+                        {% if solicitud and solicitud.estado != 'PENDIENTE' %}
+                        
+                            <hr>
+                            <h5 class="mb-3">Seguimiento</h5>
+                            <div class="mb-3">
+                                <textarea
+                                    name="comentario"
+                                    class="form-control"
+                                    rows="3" 
+                                    placeholder="Agrega un comentario de seguimiento..."></textarea>
+                            </div>
+                        {% endif %}
+                        </form>
+
+                        <div class="d-flex gap-2 mt-3">
+                        {% if not solicitud %}
+                            <button form="form-solicitud" type="submit" class="btn btn-primary">
                                 Guardar
                             </button>
+                        {% elif solicitud.estado == 'PENDIENTE' %}
+                            <form method="POST"
+                                action="{% url 'solicitudes:cambiar_estado_en_proceso' solicitud.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">
+                                    Iniciar proceso
+                                </button>
+                            </form>
+                        {% elif solicitud.estado == 'EN_PROCESO' %}
+                            <button form="form-solicitud" type="submit" class="btn btn-warning">
+                                Actualizar
+                            </button>
+
+                            <a href="{% url 'solicitudes:cerrar' solicitud.id %}"
+                            class="btn btn-success">
+                                Cerrar orden
+                            </a>
                         {% endif %}
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>

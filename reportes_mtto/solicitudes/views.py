@@ -3,10 +3,10 @@ from .models import Solicitud, Seguimiento
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import SolicitudForm
 from django.shortcuts import redirect
-from django.utils import timezone
 from django.contrib import messages
 from itertools import groupby
 from django.utils.timezone import localtime
+from django.views.decorators.http import require_POST
 
 # Create your views here.
 
@@ -112,16 +112,22 @@ def editar_solicitud(request, id):
     return render(request, 'solicitud_form.html', {'form': form, 'solicitud': solicitud})
 
 #Se crea vista para boton de cambio de estado de pendiente a en proceso, detectando cambios de estado y agregando comentarios de seguimiento
+@require_POST
 def cambiar_estado_en_proceso(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
-    if solicitud.estado == 'PENDIENTE':
-        solicitud.estado = 'EN_PROCESO'
-        solicitud.save()
+    try:
+        estado_anterior = solicitud.get_estado_display().capitalize()
+        solicitud.iniciar_proceso()
+        nuevo_estado = solicitud.get_estado_display().capitalize()
         Seguimiento.objects.create(
             solicitud=solicitud,
-            comentario=( "Cambio de estado|La orden paso de Pendiente a En proceso."
-            )
+            comentario=( f"Cambio de estado|La orden paso de {estado_anterior} a {nuevo_estado}." )
         )
+        
+        messages.success(request, 'La solicitud entró en proceso correctamente.')
+    except ValueError as error:
+        messages.error(request, str(error))
+        
     return redirect('solicitudes:solicitud', id=solicitud.id)
 
 
@@ -131,7 +137,9 @@ def cerrar_solicitud(request, id):
 
     # Evita cerrar nuevamente
     if solicitud.estado == 'CERRADA':
-        return redirect('solicitudes:detalle', id=solicitud.id)
+        return redirect('solicitudes:solictud', id=solicitud.id)
+    
+    #Obliga a ingresar el trabajo realizado para cerrar la solicitud
     if request.method == 'POST':
         trabajo_realizado = request.POST.get('trabajo_realizado', '').strip()
         observaciones_cierre = request.POST.get('observaciones_cierre', '').strip()
@@ -141,21 +149,29 @@ def cerrar_solicitud(request, id):
                 'solicitud': solicitud,
                 'error': 'El trabajo realizado es obligatorio.'
             })
-            
-        # Actualiza datos de cierre
-        solicitud.trabajo_realizado = trabajo_realizado
-        solicitud.observaciones_cierre = observaciones_cierre
-        solicitud.fecha_cierre = timezone.now()
-        solicitud.estado = 'CERRADA'
-        solicitud.save()
-        # Crear seguimiento automático
-        Seguimiento.objects.create(
+        
+        try:
+            estado_anterior = solicitud.get_estado_display().capitalize()
+            solicitud.cerrar(
+                trabajo_realizado=trabajo_realizado,
+                observaciones_cierre=observaciones_cierre
+            )
+            nuevo_estado = solicitud.get_estado_display().capitalize()
+            # Crear seguimiento automático
+            Seguimiento.objects.create(
             solicitud=solicitud,
             comentario=(
-                "Cambio de estado|La orden paso de En proceso a Cerrada."
+                f"Cambio de estado|La orden paso de {estado_anterior} a {nuevo_estado}."
             )
         )
-        return redirect('solicitudes:lista')
+            messages.success(request, 'La solicitud se cerró correctamente.')
+            return redirect('solicitudes:lista')
+        except ValueError as error:
+            return render(request, 'solicitud_cerrar.html', {
+                'solicitud': solicitud,
+                'error': str(error)
+            })       
+
     return render(request,'solicitud_cerrar.html',{'solicitud': solicitud})
 
 
@@ -167,15 +183,18 @@ def detalle_cierre(request, id):
     return render(request, 'solicitud_cierre_detail.html', {"solicitud": solicitud})
 
 #Se crea vista para eliminar solicitud de mantenimiento
+@require_POST
 def eliminar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
-    if request.method == 'POST':
-        if solicitud.estado != 'PENDIENTE':
-            messages.error(
-                request,
-                'No se puede eliminar una orden en proceso o cerrada.'
-            )
-            return redirect('solicitudes:lista')
+    
+    try:
         solicitud.delete()
-    return redirect('solicitudes:lista')
+        messages.success(request, 'La solicitud fue eliminada correctamente.')
+        return redirect('solicitudes:lista')
+
+    except ValueError as error:
+        messages.error(request, str(error))
+        return redirect('solicitudes:lista')
+    
+    
     
