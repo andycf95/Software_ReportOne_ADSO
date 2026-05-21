@@ -5,6 +5,9 @@ from .forms import SolicitudForm
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.contrib import messages
+from itertools import groupby
+from django.utils.timezone import localtime
+
 # Create your views here.
 
 #Se crea vista para listar solicitud de mantenimiento activas
@@ -35,7 +38,11 @@ def crear_solicitud(request):
     if request.method == 'POST':
         form = SolicitudForm(request.POST)
         if form.is_valid():
-            form.save()
+            solicitud = form.save()
+            Seguimiento.objects.create(
+                    solicitud=solicitud,
+                    comentario="Creación de orden|La orden fue creada en estado Pendiente."
+                )
             return redirect('solicitudes:lista')
         else:
             print(form.errors)
@@ -47,7 +54,39 @@ def crear_solicitud(request):
 #Se crea vista para mostrar detalle de solicitud de mantenimiento
 def detalle_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud,id=id)
-    return render(request, 'solicitud_detail.html', {'solicitud': solicitud})
+    seguimientos = solicitud.seguimientos.all().order_by("-fecha")
+    seguimientos_preparados = []
+
+    for seguimiento in seguimientos:
+        partes = seguimiento.comentario.split("|", 1)
+        if len(partes) == 2:
+            accion = partes[0]
+            descripcion = partes[1]
+        else:
+            accion = "Actualización del proceso"
+            descripcion = seguimiento.comentario
+
+        seguimientos_preparados.append({
+            "fecha": seguimiento.fecha,
+            "dia": localtime(seguimiento.fecha).date(),
+            "hora": localtime(seguimiento.fecha),
+            "accion": accion,
+            "descripcion": descripcion,
+        })
+
+    seguimientos_por_fecha = []
+
+    for dia, items in groupby(seguimientos_preparados, key=lambda s: s["dia"]):
+        seguimientos_por_fecha.append({
+            "dia": dia,
+            "items": list(items)
+        })
+
+    context = {
+        'solicitud': solicitud,
+        'seguimientos_por_fecha': seguimientos_por_fecha,
+    }
+    return render(request, 'solicitud_detail.html', context)
 
 
 #Se crea vista para editar solicitud de mantenimiento, detectando cambios de estado y agregando comentarios de seguimiento
@@ -65,7 +104,7 @@ def editar_solicitud(request, id):
             if comentario:
                 Seguimiento.objects.create(
                     solicitud=solicitud,
-                    comentario=f'<strong>Comentario:</strong> {comentario}'
+                    comentario=(f'Actualización de proceso|{comentario}')
                 )
             return redirect('solicitudes:lista')
             
@@ -76,17 +115,11 @@ def editar_solicitud(request, id):
 def cambiar_estado_en_proceso(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
     if solicitud.estado == 'PENDIENTE':
-        estado_anterior = solicitud.get_estado_display().capitalize()
         solicitud.estado = 'EN_PROCESO'
         solicitud.save()
-        nuevo_estado = solicitud.get_estado_display().capitalize()
         Seguimiento.objects.create(
             solicitud=solicitud,
-            comentario=(
-                f'<strong>Estado:</strong> '
-                f'{estado_anterior} → {nuevo_estado}<br>'
-                f'<strong>Comentario:</strong> '
-                f'Cambio automático al iniciar proceso de mantenimiento.'
+            comentario=( "Cambio de estado|La orden paso de Pendiente a En proceso."
             )
         )
     return redirect('solicitudes:solicitud', id=solicitud.id)
@@ -119,9 +152,7 @@ def cerrar_solicitud(request, id):
         Seguimiento.objects.create(
             solicitud=solicitud,
             comentario=(
-                '<strong>Estado:</strong> '
-                'En proceso → Cerrada<br>'
-                '<strong>Orden cerrada</strong>'
+                "Cambio de estado|La orden paso de En proceso a Cerrada."
             )
         )
         return redirect('solicitudes:lista')
@@ -132,8 +163,8 @@ def cerrar_solicitud(request, id):
 def detalle_cierre(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
     if solicitud.estado != 'CERRADA':
-        return redirect('solicitudes:detalle', id=solicitud.id)
-    return render(request, 'solicitud_cierre_detail.html', {'solicitud': solicitud})
+        return redirect('solicitudes:solicitud', id=solicitud.id)
+    return render(request, 'solicitud_cierre_detail.html', {"solicitud": solicitud})
 
 #Se crea vista para eliminar solicitud de mantenimiento
 def eliminar_solicitud(request, id):
