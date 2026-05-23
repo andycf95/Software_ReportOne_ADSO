@@ -14,9 +14,84 @@
             </button>
         </a>
     </div>
-    <!-- TABLA -->
+    <!-- CONTENIDO -->
     <div class="card shadow-sm border-0">
+        <!-- FILTROS   -->
         <div class="card-body p-0">
+            <form method="get" class="row g-2 mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">Buscar</label>
+                    <input
+                        type="text"
+                        name="q"
+                        class="form-control"
+                        placeholder="Buscar por código, título, activo..."
+                        value="{{ q }}">
+                </div>
+                
+                <div class="col-md-2">
+                    <label class="form-label">Fecha de creación</label>
+                    <input
+                        type="date"
+                        name="fecha_creacion"
+                        class="form-control"
+                        value="{{ fecha_creacion }}">
+                </div>
+
+                {%if es_cerrada %}
+                <div class="col-md-2">
+                    <label class="form-label">Fecha de cierre</label>
+                    <input
+                        type="date"
+                        name="fecha_cierre"
+                        class="form-control"
+                        value="{{ fecha_cierre }}">
+                </div>
+                
+                {%else%}
+                <div class="col-md-2">
+                    <label class="form-label">Estados</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        <option value="PENDIENTE" {% if estado == 'PENDIENTE' %}selected{% endif %}>
+                            Pendiente
+                        </option>
+                        <option value="EN_PROCESO" {% if estado == 'EN_PROCESO' %}selected{% endif %}>
+                            En proceso
+                        </option>
+                    </select>
+                </div>
+                {% endif %}
+
+
+                <div class="col-md-2">
+                    <label class="form-label">Criticidad</label>
+                    <select name="criticidad" class="form-select">
+                        <option value="">Todas las criticidades</option>
+                        {% for valor, texto in criticidad_choices %}
+                            <option value="{{valor}}"{% if criticidad == valor|stringformat:"s" %}selected{% endif %}>
+                                {{texto}}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex gap-2 align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Buscar
+                    </button>
+                    {%if es_cerrada %}
+                    <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary">
+                        Limpiar
+                    </a>
+                    {%else%}
+                    <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary">
+                        Limpiar
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+            <!-- TABLA -->
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
@@ -26,7 +101,7 @@
                         <th>Estado</th>
                         <th>Criticidad</th>
                         <th>Fecha de creación</th>
-                        {% if solicitud.estado == 'CERRADA' %}
+                        {%if es_cerrada %}
                             <th>Fecha de cierre</th>
                         {% else %}
                             <th>Acciones</th>
@@ -85,7 +160,7 @@
                                 </small>
                             </td>
                             <!-- ACCIONES O FECHA DE CIERRE DEPENDIENTE DEL ESTADO DE LA SOLICITUD -->
-                            {%if solicitud.estado == 'CERRADA' %}
+                            {%if es_cerrada %}
                                 <td>
                                 <small class="text-muted">
                                     {{ solicitud.fecha_cierre |date:"d/m/Y" }}

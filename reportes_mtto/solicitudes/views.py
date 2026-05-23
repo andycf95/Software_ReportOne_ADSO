@@ -7,6 +7,7 @@ from django.contrib import messages
 from itertools import groupby
 from django.utils.timezone import localtime
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 
 # Create your views here.
 
@@ -14,24 +15,109 @@ from django.views.decorators.http import require_POST
 
 def lista_solicitudes(request):
     solicitudes_list = Solicitud.objects.exclude(estado='CERRADA').order_by('-id')
+
+    q = request.GET.get('q', '').strip()
+    estado = request.GET.get('estado', '').strip()
+    criticidad = request.GET.get('criticidad', '').strip()
+    fecha_creacion = request.GET.get('fecha_creacion', '').strip()
+
+
+    if q:
+        solicitudes_list = solicitudes_list.filter(
+            Q(codigo__icontains=q) |
+            Q(titulo__icontains=q) |
+            Q(descripcion__icontains=q) |
+            Q(activo__icontains=q) |
+            Q(sistema_activo__icontains=q) |
+            Q(subsistema_activo__icontains=q)
+        )
+
+    if estado:
+        solicitudes_list = solicitudes_list.filter(estado=estado)
+
+    if criticidad:
+        solicitudes_list = solicitudes_list.filter(criticidad=criticidad)
+
+    if fecha_creacion:
+        solicitudes_list = solicitudes_list.filter(fecha_creacion__date=fecha_creacion)
+
+
+
     paginator = Paginator(solicitudes_list, 10)
     page = request.GET.get('page', 1)
+    
     try:
         solicitudes = paginator.page(page)
     except (PageNotAnInteger, EmptyPage):
         solicitudes = paginator.page(1)
-    return render(request, 'solicitud_list.html', {'solicitudes': solicitudes, "titulo": 'Solicitudes activas'})
+        
+    context = {
+        'solicitudes': solicitudes,
+        'q': q,
+        'estado': estado,
+        'criticidad': criticidad,
+        'criticidad_choices': Solicitud.CRITICIDAD,
+        'fecha_creacion': fecha_creacion,
+        "titulo": 'Solicitudes activas',
+        'es_cerrada': False
+    }
+    
+    return render(request, 'solicitud_list.html', context)
 
 #Se crea vista para listar solicitud de mantenimiento cerradas
 def lista_solicitudes_cerradas(request):
     solicitudes_list = Solicitud.objects.filter(estado='CERRADA').order_by('-fecha_cierre')
+    q = request.GET.get('q', '').strip()
+    criticidad = request.GET.get('criticidad', '').strip()
+    fecha_creacion = request.GET.get('fecha_creacion', '').strip()
+    fecha_cierre = request.GET.get('fecha_cierre', '').strip()
+
+
+
+    if q:
+        solicitudes_list = solicitudes_list.filter(
+            Q(codigo__icontains=q) |
+            Q(titulo__icontains=q) |
+            Q(descripcion__icontains=q) |
+            Q(activo__icontains=q) |
+            Q(sistema_activo__icontains=q) |
+            Q(subsistema_activo__icontains=q)
+        )
+
+
+    if criticidad:
+        solicitudes_list = solicitudes_list.filter(criticidad=criticidad)
+        
+    if fecha_creacion:
+        solicitudes_list = solicitudes_list.filter(fecha_creacion__date=fecha_creacion)
+
+    if fecha_cierre:
+        solicitudes_list = solicitudes_list.filter(fecha_cierre__date=fecha_cierre)
+
+
+
+
+
     paginator = Paginator(solicitudes_list, 10)
     page = request.GET.get('page', 1)
+    
     try:
         solicitudes = paginator.page(page)
     except (PageNotAnInteger, EmptyPage):
         solicitudes = paginator.page(1)
-    return render(request, 'solicitud_list.html', {'solicitudes': solicitudes, "titulo": 'Solicitudes cerradas'})
+        
+    context = {
+        'solicitudes': solicitudes,
+        'q': q,
+        'criticidad': criticidad,
+        'criticidad_choices': Solicitud.CRITICIDAD,
+        'fecha_cierre': fecha_cierre,
+        'fecha_creacion': fecha_creacion,
+        "titulo": 'Solicitudes cerradas',
+        'es_cerrada': True
+    }
+    
+    return render(request, 'solicitud_list.html', context)
 
 #Se crea vista para crear solicitud de mantenimiento
 def crear_solicitud(request):
