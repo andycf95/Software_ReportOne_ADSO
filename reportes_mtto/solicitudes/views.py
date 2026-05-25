@@ -71,9 +71,8 @@ def lista_solicitudes_cerradas(request):
     criticidad = request.GET.get('criticidad', '').strip()
     fecha_creacion = request.GET.get('fecha_creacion', '').strip()
     fecha_cierre = request.GET.get('fecha_cierre', '').strip()
-
-
-
+    
+#se realiza busqueda por codigo, titulo, descripcion, activo, sistema activo y subsistema activo, utilizando Q para realizar busqueda en varios campos a la vez
     if q:
         solicitudes_list = solicitudes_list.filter(
             Q(codigo__icontains=q) |
@@ -84,7 +83,6 @@ def lista_solicitudes_cerradas(request):
             Q(subsistema_activo__icontains=q)
         )
 
-
     if criticidad:
         solicitudes_list = solicitudes_list.filter(criticidad=criticidad)
         
@@ -93,10 +91,6 @@ def lista_solicitudes_cerradas(request):
 
     if fecha_cierre:
         solicitudes_list = solicitudes_list.filter(fecha_cierre__date=fecha_cierre)
-
-
-
-
 
     paginator = Paginator(solicitudes_list, 10)
     page = request.GET.get('page', 1)
@@ -143,6 +137,7 @@ def detalle_solicitud(request, id):
     seguimientos = solicitud.seguimientos.all().order_by("-fecha")
     seguimientos_preparados = []
 
+#Se preparan los seguimientos para mostrar la fecha, hora, accion y descripcion, separando la accion y descripcion por el caracter "|" en el comentario del seguimientocd
     for seguimiento in seguimientos:
         partes = seguimiento.comentario.split("|", 1)
         if len(partes) == 2:

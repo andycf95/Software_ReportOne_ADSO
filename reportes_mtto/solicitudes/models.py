@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 # Create your models here.
 
@@ -21,15 +22,22 @@ class Solicitud(models.Model):
             
     ]
 
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='solicitudes_creadas',
+        null=True,
+        blank=True
+    )
+
     codigo = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    usuario = models.CharField(max_length=100)
     activo = models.CharField(max_length=100)
     sistema_activo = models.CharField(max_length=100)
     subsistema_activo = models.CharField(max_length=100)
     titulo = models.CharField(max_length=100)
     descripcion = models.TextField()
     repuestos_necesarios = models.TextField()
-    criticidad = models.IntegerField(max_length=10, choices=CRITICIDAD, default=1)
+    criticidad = models.IntegerField( choices=CRITICIDAD, default=1)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE')
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
