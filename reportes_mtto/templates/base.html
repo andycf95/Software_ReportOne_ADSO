@@ -32,6 +32,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/">Inicio</a>
             </li>
+            {% if request.user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'solicitudes:lista' %}">
                 Solicitudes activas
@@ -48,7 +49,22 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'contacto' %}">
+                <form method="post" action="{% url 'usuarios:logout' %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link nav-link">
+                        Cerrar sesión
+                    </button>
+                </form>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'usuarios:login' %}">
+                    Iniciar sesión
+                </a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'home:contacto' %}">
                 Contacto
               </a>
             </li>

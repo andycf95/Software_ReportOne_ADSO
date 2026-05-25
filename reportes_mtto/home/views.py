@@ -4,5 +4,5 @@ from django.shortcuts import render
 def index(request):
     return render(request, 'home/index.html')
 
-def conctacto(request):
+def contacto(request):
     return render(request, 'home/contacto.html')

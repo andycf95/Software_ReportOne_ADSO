@@ -125,9 +125,9 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # Configuración de usuarios
 # ---------------------------------------------------
 AUTH_USER_MODEL = 'usuarios.Usuario'
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'usuarios:login'
+LOGIN_REDIRECT_URL = 'home:index'
+LOGOUT_REDIRECT_URL = 'home:index'
 
 
 # Default primary key field type

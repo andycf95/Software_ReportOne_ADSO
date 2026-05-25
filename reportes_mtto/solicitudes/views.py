@@ -8,11 +8,13 @@ from itertools import groupby
 from django.utils.timezone import localtime
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
 #Se crea vista para listar solicitud de mantenimiento activas
 
+@login_required
 def lista_solicitudes(request):
     solicitudes_list = Solicitud.objects.exclude(estado='CERRADA').order_by('-id')
 
@@ -65,6 +67,7 @@ def lista_solicitudes(request):
     return render(request, 'solicitud_list.html', context)
 
 #Se crea vista para listar solicitud de mantenimiento cerradas
+@login_required
 def lista_solicitudes_cerradas(request):
     solicitudes_list = Solicitud.objects.filter(estado='CERRADA').order_by('-fecha_cierre')
     q = request.GET.get('q', '').strip()
@@ -114,6 +117,7 @@ def lista_solicitudes_cerradas(request):
     return render(request, 'solicitud_list.html', context)
 
 #Se crea vista para crear solicitud de mantenimiento
+@login_required
 def crear_solicitud(request):
     if request.method == 'POST':
         form = SolicitudForm(request.POST)
@@ -132,6 +136,8 @@ def crear_solicitud(request):
 
 
 #Se crea vista para mostrar detalle de solicitud de mantenimiento
+
+@login_required
 def detalle_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud,id=id)
     seguimientos = solicitud.seguimientos.all().order_by("-fecha")
@@ -171,6 +177,7 @@ def detalle_solicitud(request, id):
 
 
 #Se crea vista para editar solicitud de mantenimiento, detectando cambios de estado y agregando comentarios de seguimiento
+@login_required
 def editar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
     form = SolicitudForm(request.POST or None, instance=solicitud)
@@ -194,6 +201,7 @@ def editar_solicitud(request, id):
 
 #Se crea vista para boton de cambio de estado de pendiente a en proceso, detectando cambios de estado y agregando comentarios de seguimiento
 @require_POST
+@login_required
 def cambiar_estado_en_proceso(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
     try:
@@ -213,6 +221,7 @@ def cambiar_estado_en_proceso(request, id):
 
 
 #Se crea vista para cerrar solicitud de mantenimiento, detectando cambios de estado y agregando comentarios de seguimiento
+@login_required
 def cerrar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
 
@@ -257,6 +266,7 @@ def cerrar_solicitud(request, id):
 
 
 #Se crea vista para detalle de cierre de solicitud de mantenimiento
+@login_required
 def detalle_cierre(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
     if solicitud.estado != 'CERRADA':
@@ -264,6 +274,7 @@ def detalle_cierre(request, id):
     return render(request, 'solicitud_cierre_detail.html', {"solicitud": solicitud})
 
 #Se crea vista para eliminar solicitud de mantenimiento
+@login_required
 @require_POST
 def eliminar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)

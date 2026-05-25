@@ -12,11 +12,18 @@
 
     <!-- Botones -->
     <div class="d-grid gap-2 d-md-block">
-      <a href="{% url 'solicitudes:lista' %}" class="btn btn-primary btn-lg me-md-2">
+      {% if request.user.is_authenticated %}
+            <a href="{% url 'solicitudes:lista' %}" class="btn btn-primary btn-lg me-md-2">
         Lista de Solicitudes
       </a>
-
-      <a href="{% url 'solicitudes:crear' %}" class="btn btn btn-success btn-lg"> Crear Nueva Solicitud </a>
+      <a href="{% url 'solicitudes:crear' %}" class="btn btn btn-success btn-lg"> 
+        Crear solicitud
+      </a>
+      {% else %}
+      <a href="{% url 'usuarios:login' %}" class="btn btn-primary btn-lg me-md-2">
+        Iniciar Sesion
+      </a>
+      {% endif %}
     </div>
   </div>
 </div>
