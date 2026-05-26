@@ -123,11 +123,7 @@
                             </td>
                             <!-- ACTIVO -->
                             <td>
-                            {% if solicitud.usuario %}
-                                {{ solicitud.usuario.first_name }} {{ solicitud.usuario.last_name }}
-                            {% else %}
-                                <span class="text-muted">Sin usuario</span>
-                            {% endif %}
+                                    {{ solicitud.activo }}
                             </td>
                             <!-- ESTADO -->
                             <td>

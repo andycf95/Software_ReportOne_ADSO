@@ -101,9 +101,15 @@ class Solicitud(models.Model):
 class Seguimiento(models.Model):
     solicitud = models.ForeignKey(
             Solicitud,
-            on_delete=models.CASCADE,
+            on_delete=models.PROTECT,
             related_name='seguimientos'
         )
+    
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name='seguimientos_realizados'
+    )
     comentario = models.TextField()
     fecha = models.DateTimeField(auto_now_add=True)
     

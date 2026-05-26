@@ -9,6 +9,7 @@ from django.utils.timezone import localtime
 from django.views.decorators.http import require_POST
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 
 # Create your views here.
 
@@ -125,9 +126,12 @@ def crear_solicitud(request):
             solicitud = form.save()
             Seguimiento.objects.create(
                     solicitud=solicitud,
+                    usuario=request.user,
                     comentario="Creación de orden|La orden fue creada en estado Pendiente."
                 )
+            messages.success(request, 'La solicitud se creó correctamente.')
             return redirect('solicitudes:lista')
+            
         else:
             print(form.errors)
     else:
@@ -139,7 +143,10 @@ def crear_solicitud(request):
 
 @login_required
 def detalle_solicitud(request, id):
-    solicitud = get_object_or_404(Solicitud,id=id)
+    solicitud = get_object_or_404(
+        Solicitud.todos.prefetch_related('seguimientos__usuario'), 
+        id=id
+    )
     seguimientos = solicitud.seguimientos.all().order_by("-fecha")
     seguimientos_preparados = []
 
@@ -159,6 +166,7 @@ def detalle_solicitud(request, id):
             "hora": localtime(seguimiento.fecha),
             "accion": accion,
             "descripcion": descripcion,
+            "usuario": seguimiento.usuario,
         })
 
     seguimientos_por_fecha = []
@@ -192,6 +200,7 @@ def editar_solicitud(request, id):
             if comentario:
                 Seguimiento.objects.create(
                     solicitud=solicitud,
+                    usuario=request.user,
                     comentario=(f'Actualización de proceso|{comentario}')
                 )
             return redirect('solicitudes:lista')
@@ -210,6 +219,7 @@ def cambiar_estado_en_proceso(request, id):
         nuevo_estado = solicitud.get_estado_display().capitalize()
         Seguimiento.objects.create(
             solicitud=solicitud,
+            usuario=request.user,
             comentario=( f"Cambio de estado|La orden paso de {estado_anterior} a {nuevo_estado}." )
         )
         
@@ -250,10 +260,11 @@ def cerrar_solicitud(request, id):
             # Crear seguimiento automático
             Seguimiento.objects.create(
             solicitud=solicitud,
-            comentario=(
-                f"Cambio de estado|La orden paso de {estado_anterior} a {nuevo_estado}."
+                usuario=request.user,
+                comentario=(
+                    f"Cambio de estado|La orden paso de {estado_anterior} a {nuevo_estado}."
+                )
             )
-        )
             messages.success(request, 'La solicitud se cerró correctamente.')
             return redirect('solicitudes:lista')
         except ValueError as error:
@@ -284,8 +295,8 @@ def eliminar_solicitud(request, id):
         messages.success(request, 'La solicitud fue eliminada correctamente.')
         return redirect('solicitudes:lista')
 
-    except ValueError as error:
-        messages.error(request, str(error))
+    except ValidationError as error:
+        messages.error(request, error.messages[0])
         return redirect('solicitudes:lista')
     
     
