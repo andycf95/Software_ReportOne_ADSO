@@ -1,11 +1,15 @@
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
-
+from django.core.exceptions import ValidationError
 # Create your models here.
 
 #Se crea modelo para solicitud de mantenimiento, con campos para título, descripción, estado, criticidad, activo, sistema activo y subsistema activo
 class Solicitud(models.Model):
+    
+    class SolicitudManager(models.Manager):
+        def get_queryset(self):
+            return super().get_queryset().filter(eliminado=False)
 
     ESTADOS = [
         ('PENDIENTE', 'Pendiente'),
@@ -45,6 +49,16 @@ class Solicitud(models.Model):
     trabajo_realizado = models.TextField(null=True, blank=True)
     observaciones_cierre = models.TextField(null=True, blank=True)
     
+        # Campo soft delete
+    eliminado = models.BooleanField(default=False)
+    
+    
+    # Manager por defecto: excluye eliminadas
+    objects = SolicitudManager()
+    # Manager sin filtro: por si necesitas ver todas en el admin o auditoría
+    todos = models.Manager()
+    
+    # Sobrescribe el método save para generar el código automáticamente al crear una nueva solicitud
     def save(self, *args, **kwargs):
         creando = self.pk is None
 
@@ -53,13 +67,15 @@ class Solicitud(models.Model):
         if creando and not self.codigo:
             self.codigo = f"RQ-{self.id:03d}"
             super().save(update_fields=['codigo'])
-            
+    
+    # Método para iniciar proceso, solo si está pendiente
     def iniciar_proceso(self):
         if self.estado != 'PENDIENTE':
             raise ValueError('Solo una solicitud pendiente puede iniciar proceso.')
         self.estado = 'EN_PROCESO'
         self.save()
-        
+    
+    # Método para cerrar solicitud, solo si está en proceso
     def cerrar(self, trabajo_realizado, observaciones_cierre=""):
         if self.estado != 'EN_PROCESO':
             raise ValueError('Solo una solicitud en proceso puede cerrarse.')
@@ -70,10 +86,13 @@ class Solicitud(models.Model):
         self.estado = 'CERRADA'
         self.save()
         
+    # Sobrescribe el método delete para implementar soft delete y validación de estado        
     def delete(self, *args, **kwargs):
         if self.estado != 'PENDIENTE':
-            raise ValueError('Solo se pueden eliminar solicitudes pendientes.')
-        super().delete(*args, **kwargs)    
+            raise ValidationError('Solo se pueden eliminar solicitudes pendientes.')
+        # Soft delete
+        self.eliminado = True
+        self.save()  
         
     def __str__(self):
         return f"{self.codigo} - {self.titulo}"
@@ -87,6 +106,10 @@ class Seguimiento(models.Model):
         )
     comentario = models.TextField()
     fecha = models.DateTimeField(auto_now_add=True)
+    
+    # no permite eliminar seguimientos, ya que forman parte del historial de la solicitud
+    def delete(self, *args, **kwargs):
+        raise ValidationError('Los seguimientos no pueden eliminarse. Son parte del historial.')
 
     def __str__(self):
         return f"Seguimiento de {self.solicitud.titulo}"
