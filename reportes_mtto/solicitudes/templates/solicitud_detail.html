@@ -2,6 +2,7 @@
 
 {% block content %}
 
+<!-- TARJETA DE DETALLE -->
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-7">
@@ -21,11 +22,9 @@
                         
                         <div class="d-flex gap-2">
                             {% if solicitud.estado != 'CERRADA' %}
-                                {% if solicitud.estado == 'PENDIENTE' %}
                                     <a href="{% url 'solicitudes:editar' id=solicitud.id %}" class="btn btn-warning px-3 fw-semibold text-dark">
                                         <i class="bi bi-pencil-square me-1"></i> Editar
                                     </a>
-                                {% endif %}
                                 <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary px-3">
                                     Volver
                                 </a>
@@ -112,6 +111,7 @@
                 </div>
             </div>
 
+<!-- HISTORIAL DE SOLICITUDES -->
             <div class="card shadow-sm border-0 mt-4">
                 <div class="card-body p-4">
                     <h6 class="text-primary text-uppercase fw-semibold mb-4 fs-5">

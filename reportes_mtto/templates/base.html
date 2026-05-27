@@ -35,17 +35,12 @@
             {% if request.user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'solicitudes:lista' %}">
-                Solicitudes activas
+                Solicitudes
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'solicitudes:cerradas' %}">
-                Solicitudes cerradas
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'solicitudes:crear' %}">
-                Crear Solicitud
+              <a class="nav-link" href="{% url 'activos:lista_activos' %}">
+                Lista de Activos
               </a>
             </li>
             <li class="nav-item">
@@ -117,6 +112,7 @@
           })
       }, 5000)
 
-</script>
+  </script>
+  <script src="{% static 'js/activos.js' %}"></script>
   </body>
 </html>

@@ -35,9 +35,29 @@ class Solicitud(models.Model):
     )
 
     codigo = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    activo = models.CharField(max_length=100)
-    sistema_activo = models.CharField(max_length=100)
-    subsistema_activo = models.CharField(max_length=100)
+    activo = models.ForeignKey(
+            'activos.Activo', 
+            on_delete=models.PROTECT, 
+            related_name='solicitudes',
+            verbose_name="Activo Afectado"
+        )
+        
+    sistema_activo = models.ForeignKey(
+        'activos.Sistema', 
+        on_delete=models.PROTECT, 
+        related_name='solicitudes',
+        verbose_name="Sistema Afectado"
+    )
+    
+    subsistema_activo = models.ForeignKey(
+        'activos.Subsistema', 
+        on_delete=models.PROTECT, 
+        blank=True, 
+        null=True,
+        related_name='solicitudes',
+        verbose_name="Componente / Subsistema"
+    )
+    
     titulo = models.CharField(max_length=100)
     descripcion = models.TextField()
     repuestos_necesarios = models.TextField()
@@ -97,6 +117,10 @@ class Solicitud(models.Model):
     def __str__(self):
         return f"{self.codigo} - {self.titulo}"
     
+    class Meta:
+        verbose_name = "Solicitud"
+        verbose_name_plural = "Solicitudes"
+
 # Agregar clase para seguimiento de solicitudes, con relación a la clase Solicitud y campos para comentario y fecha de seguimiento
 class Seguimiento(models.Model):
     solicitud = models.ForeignKey(
@@ -119,3 +143,7 @@ class Seguimiento(models.Model):
 
     def __str__(self):
         return f"Seguimiento de {self.solicitud.titulo}"
+    
+    class Meta:
+        verbose_name = "Seguimiento"
+        verbose_name_plural = "Seguimientos"

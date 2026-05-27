@@ -1,0 +1,155 @@
+Estoy desarrollando un software web de gestión de órdenes de mantenimiento correctivo para maquinaria y activos industriales.
+
+Tecnologías:
+- Backend: Django
+- Frontend: HTML + Bootstrap 5
+- Base de datos: SQLite en desarrollo
+- Patrón: MVT de Django
+- Control de versiones: Git, trabajando principalmente en una rama Desarrollo y pasando cambios estables a master.
+
+El módulo principal es Solicitudes de mantenimiento. La entidad principal es Solicitud, que representa una orden de mantenimiento.
+
+Modelo Solicitud:
+- usuario: usuario creador de la solicitud, relacionado con AUTH_USER_MODEL.
+- codigo: autogenerado con formato RQ-001.
+- activo.
+- sistema_activo.
+- subsistema_activo.
+- titulo.
+- descripcion.
+- repuestos_necesarios.
+- criticidad: entero con choices:
+  1 Baja,
+  2 Media,
+  3 Alta,
+  4 Crítica,
+  5 Emergencia.
+- estado: choices:
+  PENDIENTE,
+  EN_PROCESO,
+  CERRADA.
+- fecha_creacion.
+- fecha_actualizacion.
+- fecha_cierre.
+- trabajo_realizado.
+- observaciones_cierre.
+
+Reglas de negocio:
+- Una solicitud nace en estado PENDIENTE.
+- El flujo válido es PENDIENTE -> EN_PROCESO -> CERRADA.
+- No se permite pasar directamente de PENDIENTE a CERRADA.
+- Solo las solicitudes PENDIENTES pueden editarse o eliminarse.
+- Al pasar a EN_PROCESO, los datos principales quedan bloqueados y se habilitan comentarios de seguimiento.
+- Al pasar a CERRADA, la orden queda solo lectura y conserva historial.
+- Los cambios de estado se hacen mediante botones/acciones POST, no desde el formulario.
+- Las reglas también deben estar protegidas en backend, no solo en frontend.
+- El método iniciar_proceso() del modelo valida que solo PENDIENTE pase a EN_PROCESO.
+- El método cerrar(trabajo_realizado, observaciones_cierre) valida que solo EN_PROCESO pase a CERRADA, registra fecha de cierre y datos técnicos.
+- El método delete() del modelo impide eliminar solicitudes que no estén PENDIENTES.
+
+Modelo Seguimiento:
+- solicitud: ForeignKey a Solicitud con related_name='seguimientos'.
+- comentario: texto.
+- fecha: DateTimeField auto_now_add.
+
+El historial de seguimiento se guarda con formato:
+"Acción|Descripción"
+
+Ejemplos:
+- "Creación de orden|La orden fue creada en estado Pendiente."
+- "Cambio de estado|La orden pasó de Pendiente a En proceso."
+- "Actualización del proceso|Se realizó inspección inicial."
+- "Cambio de estado|La orden pasó de En proceso a Cerrada."
+
+En las vistas, los seguimientos se preparan separando el comentario con partition("|") para mostrar:
+- hora a la izquierda,
+- línea vertical al centro,
+- acción como título,
+- descripción debajo en texto más pequeño,
+- agrupados por fecha.
+
+Interfaz:
+- Bootstrap 5.
+- Diseño tipo sistema empresarial de tickets/órdenes de trabajo.
+- Cards, grids responsivos, badges de estado/criticidad.
+- Mensajes de Django con alerts automáticas.
+- Historial tipo tracking, similar a seguimiento de paquetes.
+- Formularios ordenados y visualmente limpios.
+
+Vistas principales:
+- lista_solicitudes: muestra solicitudes activas, excluye CERRADA, incluye buscador, filtros y paginador.
+- solicitudes_cerradas: muestra solicitudes cerradas, permite filtros por fecha de creación y fecha de cierre.
+- detalle_solicitud: muestra información completa e historial.
+- crear_solicitud.
+- editar_solicitud.
+- cambiar_estado_en_proceso: debe ser POST.
+- cerrar_solicitud: muestra formulario de cierre y guarda trabajo realizado/observaciones.
+- detalle_cierre.
+- eliminar_solicitud: debe ser POST.
+
+Filtros:
+- Búsqueda por texto usando Q:
+  codigo, titulo, descripcion, activo, sistema_activo, subsistema_activo.
+- Filtro por estado para solicitudes activas.
+- Filtro por criticidad usando los valores enteros de los choices.
+- Filtro por fecha_creacion.
+- En cerradas también filtro por fecha_cierre.
+- Los filtros se aplican antes del paginador.
+- Se usa una variable de contexto es_cerradas para que el template sepa si está mostrando activas o cerradas.
+
+Autenticación y usuarios:
+- Se creó una app usuarios.
+- Se usa un modelo personalizado Usuario basado en AbstractUser.
+- settings.py tiene:
+  AUTH_USER_MODEL = 'usuarios.Usuario'
+  LOGIN_URL = 'usuarios:login'
+  LOGIN_REDIRECT_URL = 'home:index'
+  LOGOUT_REDIRECT_URL = 'usuarios:login'
+- El usuario tiene campos adicionales:
+  numero_identificacion,
+  telefono,
+  rol.
+- AbstractUser ya trae:
+  username,
+  first_name,
+  last_name,
+  email,
+  password,
+  is_staff,
+  is_superuser,
+  groups,
+  user_permissions.
+- email se puede sobrescribir como unique=True.
+- La Solicitud se relaciona con el usuario creador mediante:
+  usuario = ForeignKey(settings.AUTH_USER_MODEL, on_delete=PROTECT, related_name='solicitudes_creadas', null=True, blank=True)
+- Se recomienda usar on_delete=PROTECT para no perder trazabilidad.
+- Las vistas sensibles deben usar login_required:
+  lista_solicitudes,
+  solicitudes_cerradas,
+  detalle_solicitud,
+  crear_solicitud,
+  editar_solicitud,
+  cambiar_estado_en_proceso,
+  cerrar_solicitud,
+  detalle_cierre,
+  eliminar_solicitud.
+- Login y logout pueden manejarse con LoginView y LogoutView de Django.
+- Registro tiene vista propia.
+- Por seguridad, después del registro es mejor redirigir al login en vez de loguear automáticamente.
+
+Admin:
+- El admin de Solicitud debe mostrar columnas ordenadas como codigo, titulo, estado, criticidad, activo, fecha_creacion, fecha_cierre y usuario.
+- Debe tener search_fields y list_filter.
+- El campo estado debería ser readonly en admin.
+- No se debe permitir eliminar solicitudes que no estén PENDIENTES.
+- Los seguimientos deben ser de solo lectura y no eliminables para conservar trazabilidad.
+- El admin de Usuario debe organizar username, numero_identificacion, first_name, last_name, email, rol, telefono, is_active e is_staff.
+
+Datos de prueba:
+- Se crearon usuarios de prueba como tecnico_prueba y supervisor_prueba.
+- Se crearon solicitudes en estados PENDIENTE, EN_PROCESO y CERRADA.
+- Se crearon seguimientos automáticos para creación, cambio de estado y actualización del proceso.
+
+Necesito que cualquier ayuda o código respete estas reglas de negocio, mantenga una arquitectura limpia en Django, use validaciones backend, evite depender solo del frontend y conserve la trazabilidad de las órdenes.
+
+

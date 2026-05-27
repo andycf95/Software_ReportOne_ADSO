@@ -50,3 +50,58 @@
                     color: #6b7280;
                     line-height: 1.45;
                 }
+
+
+    /* ---------------------------------------------------
+       ESTILOS DEL ÁRBOL JERÁRQUICO (Fiel al diseño)
+    --------------------------------------------------- */
+    .tree-container { 
+        background: #ffffff; 
+        border-radius: 8px; 
+        border: 1px solid #e5e7eb; 
+    }
+    .tree-header { 
+        font-size: 0.85rem; 
+        color: #6b7280; 
+        border-bottom: 1px solid #e5e7eb; 
+        padding: 12px 20px; 
+    }
+    
+    /* Fila general interactivas */
+    .tree-row { 
+        padding: 12px 20px; 
+        border-bottom: 1px solid #f3f4f6; 
+        transition: background-color 0.2s; 
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+    }
+    .tree-row:hover { background-color: #f9fafb; }
+    
+    /* Estilos de los Badges */
+    .badge-activo { background-color: #d1fae5; color: #065f46; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+    .badge-sistema { background-color: #e0e7ff; color: #3730a3; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+    .badge-subsistema { background-color: #eff6ff; color: #1d4ed8; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+
+    /* Indentación por niveles */
+    .nivel-2 { padding-left: 50px; }
+    .nivel-3 { padding-left: 80px; position: relative; }
+    
+    /* Líneas conectoras grises para los subsistemas */
+    .nivel-3::before {
+        content: ""; position: absolute; left: 56px; top: -20px; bottom: 50%;
+        border-left: 1px dashed #d1d5db;
+    }
+    .nivel-3::after {
+        content: ""; position: absolute; left: 56px; top: 50%; width: 15px;
+        border-top: 1px dashed #d1d5db;
+    }
+
+    /* Iconos y animaciones */
+    .icon-box { width: 24px; text-align: center; color: #6b7280; margin-right: 12px; }
+    .chevron-icon { 
+        transition: transform 0.3s; color: #9ca3af; font-size: 0.85rem; margin-right: 10px; 
+    }
+    .collapsed .chevron-icon { transform: rotate(-90deg); }
+
+    

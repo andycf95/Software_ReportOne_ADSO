@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'solicitudes',
     'home',
     'usuarios',
+    'activos',
 ]
 
 MIDDLEWARE = [
