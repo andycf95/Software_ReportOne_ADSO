@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 # Create your models here.
 
-#Se crea modelo para solicitud de mantenimiento, con campos para título, descripción, estado, criticidad, activo, sistema activo y subsistema activo
+#Se crea modelo para solicitud de mantenimiento, con campos para título, descripción, estado, criticidad, activo, sistema activo y componente activo
 class Solicitud(models.Model):
     
     class SolicitudManager(models.Manager):
@@ -49,13 +49,13 @@ class Solicitud(models.Model):
         verbose_name="Sistema Afectado"
     )
     
-    subsistema_activo = models.ForeignKey(
-        'activos.Subsistema', 
+    componente_activo = models.ForeignKey(
+        'activos.Componente', 
         on_delete=models.PROTECT, 
         blank=True, 
         null=True,
         related_name='solicitudes',
-        verbose_name="Componente / Subsistema"
+        verbose_name="Componente Afectado"
     )
     
     titulo = models.CharField(max_length=100)

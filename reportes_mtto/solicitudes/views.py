@@ -74,7 +74,7 @@ def lista_solicitudes_cerradas(request):
     fecha_creacion = request.GET.get('fecha_creacion', '').strip()
     fecha_cierre = request.GET.get('fecha_cierre', '').strip()
     
-#se realiza busqueda por codigo, titulo, descripcion, activo, sistema activo y subsistema activo, utilizando Q para realizar busqueda en varios campos a la vez
+#se realiza busqueda por codigo, titulo, descripcion, activo utilizando Q para realizar busqueda en varios campos a la vez
     if q:
         solicitudes_list = solicitudes_list.filter(
             Q(codigo__icontains=q) |

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib import messages
 from django.core.exceptions import ValidationError
-from .models import Activo, Sistema, SubSistema
+from .models import Activo, Sistema, Componente
 
 @admin.register(Activo)
 class ActivoAdmin(admin.ModelAdmin):
@@ -11,6 +11,6 @@ class ActivoAdmin(admin.ModelAdmin):
 class SistemaAdmin(admin.ModelAdmin):
     list_display = ('activo', 'nombre', 'tipo_sistema')
 
-@admin.register(SubSistema)
-class SubSistemaAdmin(admin.ModelAdmin):
+@admin.register(Componente)
+class ComponenteAdmin(admin.ModelAdmin):
     list_display = ('sistema', 'nombre')

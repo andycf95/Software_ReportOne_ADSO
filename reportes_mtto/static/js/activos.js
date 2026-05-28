@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const activo = document.getElementById("id_activo");
     const sistema = document.getElementById("id_sistema");
-    const subsistema = document.getElementById("id_subsistema");
+    const componente = document.getElementById("id_componente");
 
     if (!activo) return;
 
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
 
                 sistema.innerHTML = "<option value=''>Seleccione sistema</option>";
-                subsistema.innerHTML = "<option value=''>Seleccione subsistema</option>";
+                componente.innerHTML = "<option value=''>Seleccione componente</option>";
 
                 data.forEach(item => {
                     sistema.innerHTML += `<option value="${item.id}">${item.nombre}</option>`;
@@ -83,14 +83,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
     sistema.addEventListener("change", function () {
 
-        fetch(`/activos/ajax/subsistemas/?sistema_id=${this.value}`)
+        fetch(`/activos/ajax/componentes/?sistema_id=${this.value}`)
             .then(r => r.json())
             .then(data => {
 
-                subsistema.innerHTML = "<option value=''>Seleccione subsistema</option>";
+                componente.innerHTML = "<option value=''>Seleccione componente</option>";
 
                 data.forEach(item => {
-                    subsistema.innerHTML += `<option value="${item.id}">${item.nombre}</option>`;
+                    componente.innerHTML += `<option value="${item.id}">${item.nombre}</option>`;
                 });
 
             });

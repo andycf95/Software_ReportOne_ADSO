@@ -1,5 +1,27 @@
 
     /* ---------------------------------------------------
+    ESTILOS DE LA BASE
+    --------------------------------------------------- */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main.container {
+    flex: 1;
+}
+    
+
+
+
+/* El row debe ser flex con align-items-start */
+.assets-wrapper .row {
+    align-items: flex-start !important;
+}
+
+    /* ---------------------------------------------------
     ESTILOS DEL SEGUIMIENTO DE SOLICITUDES
     --------------------------------------------------- */
 
@@ -86,13 +108,13 @@
     /* Estilos de los Badges */
     .badge-activo { background-color: #d1fae5; color: #065f46; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
     .badge-sistema { background-color: #e0e7ff; color: #3730a3; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
-    .badge-subsistema { background-color: #eff6ff; color: #1d4ed8; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+    .badge-componente { background-color: #eff6ff; color: #1d4ed8; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
 
     /* Indentación por niveles */
     .nivel-2 { padding-left: 50px; }
     .nivel-3 { padding-left: 80px; position: relative; }
     
-    /* Líneas conectoras grises para los subsistemas */
+    /* Líneas conectoras grises para los componentes */
     .nivel-3::before {
         content: ""; position: absolute; left: 56px; top: -20px; bottom: 50%;
         border-left: 1px dashed #d1d5db;
@@ -108,3 +130,21 @@
         transition: transform 0.3s; color: #9ca3af; font-size: 0.85rem; margin-right: 10px; 
     }
     .collapsed .chevron-icon { transform: rotate(-90deg); }
+
+    /* ---------------------------------------------------
+   TARJETA DE DETALLES FIJA
+--------------------------------------------------- */
+/* Darle altura al main para que el sticky funcione */
+
+
+.col-lg-5 {
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+.details-card {
+    height: calc(100vh - 250px); /* altura fija siempre */
+    overflow-y: auto;
+    overflow-x: hidden;
+}

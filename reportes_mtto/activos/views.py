@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Activo, Sistema, SubSistema
+from .models import Activo, Sistema, Componente
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def lista_activos_jerarquia(request):
     
-    activos = Activo.objects.prefetch_related('sistemas__subsistemas').all()
+    activos = Activo.objects.prefetch_related('sistemas__componentes').all()
     
     contexto = {
         'activos': activos
@@ -62,20 +62,20 @@ def detalle_sistema(request, id):
     })
 
 
-def detalle_subsistema(request, id):
-    subsistema = get_object_or_404(SubSistema, id=id)
+def detalle_componente(request, id):
+    componente = get_object_or_404(Componente, id=id)
 
     return JsonResponse({
-        "id": subsistema.id,
-        "tipo": "Subsistema",
-        "nombre": subsistema.nombre,
-        "codigo": f"SUB-{subsistema.id}",
-        "marca": "-",
-        "modelo": "-",
+        "id": componente.id,
+        "tipo": "Componente",
+        "nombre": componente.nombre,
+        "codigo": f"COMP-{componente.id}",
+        "marca": componente.marca or "-",
+        "modelo": componente.modelo or "-",
         "fecha": "-",
-        "activo_padre": subsistema.sistema.activo.nombre,
-        "sistema_padre": subsistema.sistema.nombre,
-        "descripcion": subsistema.descripcion or "-",
+        "activo_padre": componente.sistema.activo.nombre,
+        "sistema_padre": componente.sistema.nombre,
+        "descripcion": componente.descripcion or "-",
         "estado": "Activo",
         "icono": "bi-nut",
         "color": "#eff6ff",
@@ -92,14 +92,14 @@ def obtener_sistemas(request):
     return JsonResponse(list(sistemas),safe=False)
 
 
-def obtener_subsistemas(request):
+def obtener_componentes(request):
 
     sistema_id = request.GET.get("sistema_id")
 
-    subsistemas = SubSistema.objects.filter( sistema_id=sistema_id).values(
+    componentes = Componente.objects.filter( sistema_id=sistema_id).values(
         "id",
         "nombre"
     )
 
-    return JsonResponse(list(subsistemas),safe=False)
+    return JsonResponse(list(componentes),safe=False)
 
