@@ -39,6 +39,8 @@ class SubSistema(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True)
     sistema = models.ForeignKey(Sistema, on_delete=models.CASCADE, related_name='subsistemas')
+    modelo = models.CharField(max_length=100, blank=True)
+    marca = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return self.nombre

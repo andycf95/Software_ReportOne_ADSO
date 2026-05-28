@@ -1,59 +1,64 @@
-                .tracking-item {
-                    display: grid;
-                    grid-template-columns: 90px 24px 1fr;
-                    min-height: 76px;
-                    position: relative;
-                    align-items: center;
-                }
 
-                .tracking-time {
-                    font-size: 0.9rem;
-                    color: #4b5563;
-                    text-align: right;
-                    padding-right: 8px;
-                }
+    /* ---------------------------------------------------
+    ESTILOS DEL SEGUIMIENTO DE SOLICITUDES
+    --------------------------------------------------- */
 
-                .tracking-marker {
-                    position: relative;
-                    height: 100%;
-                    min-height: 76px;
-                }
+    .tracking-item {
+        display: grid;
+        grid-template-columns: 90px 24px 1fr;
+        min-height: 76px;
+        position: relative;
+        align-items: center;
+    }
 
-                .tracking-marker::before {
-                    content: "";
-                    position: absolute;
-                    top: 0;
-                    left: 11px;
-                    width: 1px;
-                    height: 100%;
-                    background-color: #d1d5db;
-                }
+    .tracking-time {
+        font-size: 0.9rem;
+        color: #4b5563;
+        text-align: right;
+        padding-right: 8px;
+    }
 
-                .tracking-marker::after {
-                    content: none;
-                }
+    .tracking-marker {
+        position: relative;
+        height: 100%;
+        min-height: 76px;
+    }
 
-                .tracking-content {
-                    padding: 10px 0 14px 0;
-                }
+    .tracking-marker::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 11px;
+        width: 1px;
+        height: 100%;
+        background-color: #d1d5db;
+    }
 
-                .tracking-title {
-                    font-size: 1rem;
-                    font-weight: 600;
-                    color: #111827;
-                    line-height: 1.3;
-                }
+    .tracking-marker::after {
+        content: none;
+    }
 
-                .tracking-description {
-                    margin-top: 5px;
-                    font-size: 0.95rem;
-                    color: #6b7280;
-                    line-height: 1.45;
-                }
+    .tracking-content {
+        padding: 10px 0 14px 0;
+    }
+
+    .tracking-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #111827;
+        line-height: 1.3;
+    }
+
+    .tracking-description {
+        margin-top: 5px;
+        font-size: 0.95rem;
+        color: #6b7280;
+        line-height: 1.45;
+    }
 
 
     /* ---------------------------------------------------
-       ESTILOS DEL ÁRBOL JERÁRQUICO (Fiel al diseño)
+       ESTILOS DEL ÁRBOL JERÁRQUICO 
     --------------------------------------------------- */
     .tree-container { 
         background: #ffffff; 
@@ -103,5 +108,3 @@
         transition: transform 0.3s; color: #9ca3af; font-size: 0.85rem; margin-right: 10px; 
     }
     .collapsed .chevron-icon { transform: rotate(-90deg); }
-
-    

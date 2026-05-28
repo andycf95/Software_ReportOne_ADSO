@@ -17,7 +17,7 @@ from django.core.exceptions import ValidationError
 
 @login_required
 def lista_solicitudes(request):
-    solicitudes_list = Solicitud.objects.exclude(estado='CERRADA').order_by('-id')
+    solicitudes_list = Solicitud.objects.select_related('activo').exclude(estado='CERRADA').order_by('-id')
 
     q = request.GET.get('q', '').strip()
     estado = request.GET.get('estado', '').strip()
@@ -30,9 +30,7 @@ def lista_solicitudes(request):
             Q(codigo__icontains=q) |
             Q(titulo__icontains=q) |
             Q(descripcion__icontains=q) |
-            Q(activo__icontains=q) |
-            Q(sistema_activo__icontains=q) |
-            Q(subsistema_activo__icontains=q)
+            Q(activo__nombre__icontains=q)
         )
 
     if estado:
@@ -82,9 +80,7 @@ def lista_solicitudes_cerradas(request):
             Q(codigo__icontains=q) |
             Q(titulo__icontains=q) |
             Q(descripcion__icontains=q) |
-            Q(activo__icontains=q) |
-            Q(sistema_activo__icontains=q) |
-            Q(subsistema_activo__icontains=q)
+            Q(activo__nombre__icontains=q)
         )
 
     if criticidad:

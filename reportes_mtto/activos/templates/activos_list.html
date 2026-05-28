@@ -1,12 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<!-- Activos - Gestión de activos, sistemas y subsistemas titulo-->
-
-
-<div style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; background-color: #ffffff;">
-    <div class="row g-4" align-items-start">
+<div class="assets-wrapper">
+    <div class="row g-4 align-items-start">
 
         <div class="col-lg-7">
             <div class="mb-4">
@@ -14,33 +10,24 @@
                 <p class="text-muted small">Gestiona tus activos, sistemas y subsistemas</p>
             </div>
 
-
-
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <!-- Barra de búsqueda 
-                <div class="input-group shadow-sm" style="max-width: 450px; border-radius: 6px; overflow: hidden; border: 1px solid #e5e7eb;">
-                    <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" class="form-control border-0 shadow-none" placeholder="Buscar activo, sistema o subsistema...">
-                </div>-->
                 <div>
-                    <!-- <button class="btn btn-outline-secondary me-2 bg-white shadow-sm border-light"><i class="bi bi-funnel"></i></button> -->
                     <button class="btn btn-primary shadow-sm"><i class="bi bi-plus-lg"></i> Nuevo Activo</button>
                 </div>
             </div>
-            <div class="tree-container shadow-sm mb-3">
-                
+
+            <div class="tree-container shadow-sm mb-3" id="arbol-activos-parent">
                 <div class="row m-0 tree-header fw-bold">
                     <div class="col-8">Nombre</div>
                     <div class="col-4">Tipo</div>
                 </div>
-                <!-- Aquí se iteran los activos principales -->
+
                 {% for activo in activos %}
                     <div class="row m-0 tree-row collapsed item-clickable" 
                         data-bs-toggle="collapse" data-bs-target="#activo-{{ activo.id }}" aria-expanded="false"
                         data-id="{{ activo.id }}"
                         data-modelo-tipo="Activo"
-                        data-tipo="activo"
-                        >
+                        data-tipo="activo">
                         
                         <div class="col-8 d-flex align-items-center fw-bold text-dark">
                             <i class="bi bi-chevron-down chevron-icon"></i>
@@ -54,15 +41,14 @@
                         </div>
                     </div>
 
-                    <div class="collapse" id="activo-{{ activo.id }}">
-                        <!-- Aquí se iteran los sistemas asociados a cada activo -->
+                    <div class="collapse" id="activo-{{ activo.id }}" data-bs-parent="#arbol-activos-parent">
+                        
                         {% for sistema in activo.sistemas.all %}
                             <div class="row m-0 tree-row nivel-2 bg-light collapsed item-clickable" 
                                 data-bs-toggle="collapse" data-bs-target="#sistema-{{ sistema.id }}" aria-expanded="false"
                                 data-id="{{ sistema.id }}"
                                 data-modelo-tipo="Sistema"
-                                data-tipo="sistema"
-                                >
+                                data-tipo="sistema">
                                 
                                 <div class="col-8 d-flex align-items-center fw-semibold text-dark">
                                     <i class="bi bi-chevron-down chevron-icon"></i>
@@ -76,13 +62,12 @@
                             </div>
 
                             <div class="collapse" id="sistema-{{ sistema.id }}">
-                                <!-- Aquí se iteran los subsistemas asociados a cada sistema -->
+                                
                                 {% for subsistema in sistema.subsistemas.all %}
                                     <div class="row m-0 tree-row nivel-3 item-clickable" 
                                         data-id="{{ subsistema.id }}"
                                         data-modelo-tipo="Subsistema"
-                                        data-tipo="subsistema"
-                                        >
+                                        data-tipo="subsistema">
                                         
                                         <div class="col-8 d-flex align-items-center text-dark">
                                             <span class="icon-box"><i class="bi bi-nut text-secondary"></i></span>
@@ -94,13 +79,13 @@
                                         </div>
                                     </div>
                                 {% empty %}
-                                    <div class="row m-0 py-2 text-muted small" style="padding-left: 80px; font-style: italic;">
+                                    <div class="row m-0 py-2 text-muted small px-5 style-italic" style="padding-left: 80px; font-style: italic;">
                                         No hay componentes registrados.
                                     </div>
                                 {% endfor %}
                             </div>
                         {% empty %}
-                            <div class="row m-0 py-2 text-muted small" style="padding-left: 50px; font-style: italic;">
+                            <div class="row m-0 py-2 text-muted small px-5 style-italic" style="padding-left: 50px; font-style: italic;">
                                 No hay sistemas mapeados.
                             </div>
                         {% endfor %}
@@ -110,27 +95,22 @@
                         No se encontraron activos registrados en la base de datos.
                     </div>
                 {% endfor %}
-
             </div>
             
             <div class="text-muted small px-2">Mostrando {{ activos.count }} activos principales</div>
         </div>
 
-        
-
-
-    <!-- Panel de detalles del activo seleccionado -->
         <div class="col-lg-5">
-            <div class="card shadow-sm border-0 position-sticky" style="border-radius: 12px; top: 24px; background-color: #ffffff;">
+            <div class="card shadow-sm border-0 position-sticky details-card">
                 
                 <div class="card-header bg-white d-flex justify-content-between align-items-center pt-4 pb-2 border-bottom-0">
-                    <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem; letter-spacing: -0.3px;">Detalles del activo</h5>
-                    <button class="btn-close text-muted shadow-none" style="font-size: 0.75rem;" onclick="document.getElementById('detalle-panel').style.display='none'; document.getElementById('detalle-placeholder').style.display='block';"></button>
+                    <h5 class="fw-bold mb-0 text-dark details-card-title">Detalles del activo</h5>
+                    <button class="btn-close text-muted shadow-none details-close-btn" onclick="document.getElementById('detalle-panel').style.display='none'; document.getElementById('detalle-placeholder').style.display='block';"></button>
                 </div>
                 
                 <div id="detalle-placeholder" class="text-center text-muted py-5 my-5">
                     <div class="mb-3">
-                        <i class="bi bi-diagram-3 text-light" style="font-size: 3.5rem;"></i>
+                        <i class="bi bi-diagram-3 text-light fs-1" style="font-size: 3.5rem;"></i>
                     </div>
                     <p class="small px-4 text-secondary">
                         Seleccione un activo, sistema o componente<br>para ver su información detallada.
@@ -140,110 +120,105 @@
                 <div class="card-body p-0" id="detalle-panel" style="display: none;">
                     
                     <div class="d-flex px-4 pt-2 pb-4 align-items-center">
-                        <div class="rounded-3 d-flex align-items-center justify-content-center me-3" 
-                            style="background-color: #f3f4f6; width: 64px; height: 64px; min-width: 64px;">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center me-3 details-avatar-box">
                             <i class="bi bi-cpu fs-2 text-secondary" id="det-icono"></i>
                         </div>
                         <div>
-                            <h4 class="fw-bold text-dark mb-1" id="det-nombre" style="font-size: 1.25rem; letter-spacing: -0.4px;">-</h4>
+                            <h4 class="fw-bold text-dark mb-1 details-main-title" id="det-nombre">-</h4>
                             <span class="badge rounded-pill px-2.5 py-1 text-xs" id="det-badge" style="font-size: 0.75rem;">-</span>
                         </div>
                     </div>
 
                     <div class="px-4">
-                        <ul class="nav nav-tabs border-bottom" style="font-size: 0.85rem; font-weight: 500; gap: 4px;">
+                        <ul class="nav nav-tabs border-bottom details-tabs">
                             <li class="nav-item">
-                                <a class="nav-link active border-0 border-bottom border-primary border-2 text-primary bg-transparent px-2 pb-2" style="font-weight: 600;" href="#">Información</a>
+                                <a class="nav-link active border-0 border-bottom border-primary border-2 text-primary bg-transparent px-2 pb-2 details-tab-active" href="#">Información</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link border-0 text-muted px-2 pb-2 hover-text-dark" href="#">Órdenes (<span id="det-cant-ordenes">12</span>)</a>
                             </li>
-
                         </ul>
                     </div>
 
-                    <div class="p-4" style="font-size: 0.85rem; ">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-secondary d-flex align-items-center"><i class="bi bi-qr-code-scan me-2 text-muted"></i> Código</span>
-                                        <span class="fw-semibold text-dark text-end" id="det-codigo">SUB-PRP-001</span>
+                    <div class="p-4 details-info-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary d-flex align-items-center"><i class="bi bi-qr-code-scan me-2 text-muted"></i> Código</span>
+                            <span class="fw-semibold text-dark text-end" id="det-codigo">SUB-PRP-001</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary d-flex align-items-center"><i class="bi bi-gear me-2 text-muted"></i> Tipo</span>
+                            <span class="fw-medium text-dark text-end" id="det-tipo">-</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary d-flex align-items-center"><i class="bi bi-box me-2 text-muted"></i> Activo Padre</span>
+                            <span class="fw-semibold text-primary text-end" id="det-padre">-</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary d-flex align-items-center"><i class="bi bi-diagram-2 me-2 text-muted"></i> Sistema Padre</span>
+                            <span class="fw-semibold text-primary text-end" id="det-sistema-padre">-</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary d-flex align-items-center"><i class="bi bi-geo-alt me-2 text-muted"></i> Marca</span>
+                            <span class="fw-medium text-dark text-end" id="det-marca">-</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary d-flex align-items-center"><i class="bi bi-activity me-2 text-muted"></i> Estado</span>
+                            <span class="badge bg-success-subtle text-success fw-semibold border border-success-subtle rounded-2" id="det-estado" style="font-size: 0.75rem;">Activo</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary d-flex align-items-center"><i class="bi bi-calendar3 me-2 text-muted"></i> Fecha de instalación</span>
+                            <span class="fw-medium text-dark text-end" id="det-fecha">-</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary d-flex align-items-center"><i class="bi bi-hash me-2 text-muted"></i> Modelo</span>
+                            <span class="fw-medium text-dark text-end" id="det-modelo">-</span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <div class="p-3 border rounded-3 d-flex justify-content-between align-items-start stat-card-box">
+                                    <div>
+                                        <span class="text-secondary d-block mb-1" style="font-size: 0.75rem; font-weight: 500;">Órdenes de trabajo</span>
+                                        <span class="fs-4 fw-bold text-dark d-block lh-1 mb-1" id="det-num-ordenes">12</span>
+                                        <span class="text-muted" style="font-size: 0.7rem;">Órdenes asociadas</span>
                                     </div>
-
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-secondary d-flex align-items-center"><i class="bi bi-gear me-2 text-muted"></i> Tipo</span>
-                                        <span class="fw-medium text-dark text-end" id="det-tipo">-</span>
+                                    <div class="rounded p-2 d-flex align-items-center justify-content-center stat-icon-orders">
+                                        <i class="bi bi-file-earmark-text fs-5"></i>
                                     </div>
+                                </div>
+                            </div>
 
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-secondary d-flex align-items-center"><i class="bi bi-box me-2 text-muted"></i> Activo Padre</span>
-                                        <span class="fw-semibold text-primary text-end" id="det-padre" style="cursor: pointer;">-</span>
+                            <div class="col-6">
+                                <div class="p-3 border rounded-3 d-flex justify-content-between align-items-start stat-card-box">
+                                    <div>
+                                        <span class="text-secondary d-block mb-1" style="font-size: 0.75rem; font-weight: 500;">Último mantenimiento</span>
+                                        <span class="fw-bold text-dark d-block mb-1" id="det-ultimo-mtto" style="font-size: 1.05rem; white-space: nowrap; letter-spacing: -0.3px;">15/05/2026</span>
+                                        <span class="text-success fw-medium d-block" style="font-size: 0.7rem;"><i class="bi bi-check2-circle me-1"></i>Preventivo</span>
                                     </div>
-
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-secondary d-flex align-items-center"><i class="bi bi-diagram-2 me-2 text-muted"></i> Sistema Padre</span>
-                                        <span class="fw-semibold text-primary text-end" id="det-sistema-padre" style="cursor: pointer;">-</span>
+                                    <div class="rounded p-2 d-flex align-items-center justify-content-center stat-icon-maint">
+                                        <i class="bi bi-calendar-check fs-5"></i>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-secondary d-flex align-items-center"><i class="bi bi-geo-alt me-2 text-muted"></i> Marca</span>
-                                        <span class="fw-medium text-dark text-end" id="det-marca">-</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-secondary d-flex align-items-center"><i class="bi bi-activity me-2 text-muted"></i> Estado</span>
-                                        <span class="badge bg-success-subtle text-success fw-semibold border border-success-subtle rounded-2" id="det-estado" style="font-size: 0.75rem;">Activo</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-secondary d-flex align-items-center"><i class="bi bi-calendar3 me-2 text-muted"></i> Fecha de instalación</span>
-                                        <span class="fw-medium text-dark text-end" id="det-fecha">-</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-secondary d-flex align-items-center"><i class="bi bi-hash me-2 text-muted"></i> Modelo</span>
-                                        <span class="fw-medium text-dark text-end" id="det-modelo">-</span>
-                                    </div>
-
-
-                                    <div class="row g-3 mb-4">
-                                        <div class="col-6">
-                                            <div class="p-3 border rounded-3 d-flex justify-content-between align-items-start" style="background-color: #ffffff; border-color: #e5e7eb !important;">
-                                                <div>
-                                                    <span class="text-secondary d-block mb-1" style="font-size: 0.75rem; font-weight: 500;">Órdenes de trabajo</span>
-                                                    <span class="fs-4 fw-bold text-dark d-block lh-1 mb-1" id="det-num-ordenes">12</span>
-                                                    <span class="text-muted" style="font-size: 0.7rem;">Órdenes asociadas</span>
-                                                </div>
-                                                <div class="rounded p-2 d-flex align-items-center justify-content-center" style="background-color: #eff6ff; color: #1d4ed8; width: 36px; height: 36px;">
-                                                    <i class="bi bi-file-earmark-text fs-5"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-6">
-                                            <div class="p-3 border rounded-3 d-flex justify-content-between align-items-start" style="background-color: #ffffff; border-color: #e5e7eb;">
-                                                <div>
-                                                    <span class="text-secondary d-block mb-1" style="font-size: 0.75rem; font-weight: 500;">Último mantenimiento</span>
-                                                    <span class="fw-bold text-dark d-block mb-1" id="det-ultimo-mtto" style="font-size: 1.05rem; white-space: nowrap; letter-spacing: -0.3px;">15/05/2026</span>
-                                                    <span class="text-success fw-medium d-block" style="font-size: 0.7rem;"><i class="bi bi-check2-circle me-1"></i>Preventivo</span>
-                                                </div>
-                                                <div class="rounded p-2 d-flex align-items-center justify-content-center" style="background-color: #f0fdf4; color: #16a34a; width: 36px; height: 36px;">
-                                                    <i class="bi bi-calendar-check fs-5"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="pt-2">
-                                        <button class="btn btn-outline-primary w-100 py-2.5 d-flex align-items-center justify-content-center fw-semibold transition-all shadow-none" 
-                                                style="border-radius: 8px; font-size: 0.85rem; border-color: #cbd5e1; color: #1d4ed8; background-color: #ffffff;">
-                                            <i class="bi bi-arrow-counterclockwise me-2"></i> Ver historial completo
-                                        </button>
-                                    </div>
+                        <div class="pt-2">
+                            <button class="btn btn-outline-primary w-100 py-2.5 d-flex align-items-center justify-content-center fw-semibold transition-all shadow-none history-btn">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i> Ver historial completo
+                            </button>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
-
-
 {% endblock %}
