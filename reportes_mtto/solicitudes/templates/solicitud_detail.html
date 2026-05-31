@@ -20,6 +20,7 @@
                             </div>
                         </div>
                         
+                        <!-- botones de acción si es diferente de cerrada edita y vuelve sino solo vuelve-->
                         <div class="d-flex gap-2">
                             {% if solicitud.estado != 'CERRADA' %}
                                     <a href="{% url 'solicitudes:editar' id=solicitud.id %}" class="btn btn-warning px-3 fw-semibold text-dark">
@@ -50,6 +51,7 @@
                                 {{ solicitud.fecha_creacion|date:"d/m/Y" }}
                             </p>
                         </div>
+                        <!-- estado, criticidad, activo, sistema, componente, cambio de colores de estado -->
                         <div class="col">
                             <h6 class="text-muted small mb-1">Estado</h6>
                             {% if solicitud.estado == 'PENDIENTE' %}
@@ -62,6 +64,7 @@
                                 {{ solicitud.get_estado_display|capfirst }}
                             </span>
                         </div>
+                        <!-- criticidad, cambio de colores segun el nivel de criticidad -->
                         <div class="col">
                             <h6 class="text-muted small mb-1">Criticidad</h6>
                             {% if solicitud.criticidad >= 4 %}
@@ -93,6 +96,7 @@
                             </p>
                         </div>
                         
+                        <!-- Si la solicitud está cerrada, mostrar la fecha de cierre y un enlace al detalle del cierre técnico -->
                         {% if solicitud.estado == "CERRADA" %}
                             <div class="col">
                                 <h6 class="text-muted small mb-1">Fecha de cierre</h6>

@@ -73,9 +73,9 @@ class Solicitud(models.Model):
     eliminado = models.BooleanField(default=False)
     
     
-    # Manager por defecto: excluye eliminadas
+    
     objects = SolicitudManager()
-    # Manager sin filtro: por si necesitas ver todas en el admin o auditoría
+
     todos = models.Manager()
     
     # Sobrescribe el método save para generar el código automáticamente al crear una nueva solicitud

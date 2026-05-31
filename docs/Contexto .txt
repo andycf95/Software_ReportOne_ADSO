@@ -2,12 +2,18 @@ Estoy desarrollando un software web de gestión de órdenes de mantenimiento cor
 
 Tecnologías:
 - Backend: Django
-- Frontend: HTML + Bootstrap 5
+- Frontend: HTML + Bootstrap 5 +CSS
 - Base de datos: SQLite en desarrollo
 - Patrón: MVT de Django
 - Control de versiones: Git, trabajando principalmente en una rama Desarrollo y pasando cambios estables a master.
-
+- JavaScript
+- AJAX
 El módulo principal es Solicitudes de mantenimiento. La entidad principal es Solicitud, que representa una orden de mantenimiento.
+
+Arquitectura actual 
+
+
+App solicitudes 
 
 Modelo Solicitud:
 - usuario: usuario creador de la solicitud, relacionado con AUTH_USER_MODEL.
@@ -34,19 +40,6 @@ Modelo Solicitud:
 - trabajo_realizado.
 - observaciones_cierre.
 
-Reglas de negocio:
-- Una solicitud nace en estado PENDIENTE.
-- El flujo válido es PENDIENTE -> EN_PROCESO -> CERRADA.
-- No se permite pasar directamente de PENDIENTE a CERRADA.
-- Solo las solicitudes PENDIENTES pueden editarse o eliminarse.
-- Al pasar a EN_PROCESO, los datos principales quedan bloqueados y se habilitan comentarios de seguimiento.
-- Al pasar a CERRADA, la orden queda solo lectura y conserva historial.
-- Los cambios de estado se hacen mediante botones/acciones POST, no desde el formulario.
-- Las reglas también deben estar protegidas en backend, no solo en frontend.
-- El método iniciar_proceso() del modelo valida que solo PENDIENTE pase a EN_PROCESO.
-- El método cerrar(trabajo_realizado, observaciones_cierre) valida que solo EN_PROCESO pase a CERRADA, registra fecha de cierre y datos técnicos.
-- El método delete() del modelo impide eliminar solicitudes que no estén PENDIENTES.
-
 Modelo Seguimiento:
 - solicitud: ForeignKey a Solicitud con related_name='seguimientos'.
 - comentario: texto.
@@ -68,14 +61,6 @@ En las vistas, los seguimientos se preparan separando el comentario con partitio
 - descripción debajo en texto más pequeño,
 - agrupados por fecha.
 
-Interfaz:
-- Bootstrap 5.
-- Diseño tipo sistema empresarial de tickets/órdenes de trabajo.
-- Cards, grids responsivos, badges de estado/criticidad.
-- Mensajes de Django con alerts automáticas.
-- Historial tipo tracking, similar a seguimiento de paquetes.
-- Formularios ordenados y visualmente limpios.
-
 Vistas principales:
 - lista_solicitudes: muestra solicitudes activas, excluye CERRADA, incluye buscador, filtros y paginador.
 - solicitudes_cerradas: muestra solicitudes cerradas, permite filtros por fecha de creación y fecha de cierre.
@@ -87,15 +72,9 @@ Vistas principales:
 - detalle_cierre.
 - eliminar_solicitud: debe ser POST.
 
-Filtros:
-- Búsqueda por texto usando Q:
-  codigo, titulo, descripcion, activo, sistema_activo, subsistema_activo.
-- Filtro por estado para solicitudes activas.
-- Filtro por criticidad usando los valores enteros de los choices.
-- Filtro por fecha_creacion.
-- En cerradas también filtro por fecha_cierre.
-- Los filtros se aplican antes del paginador.
-- Se usa una variable de contexto es_cerradas para que el template sepa si está mostrando activas o cerradas.
+
+App Usuarios
+Se tienen 3 roles en los usuarios técnico, supervisor y administrador
 
 Autenticación y usuarios:
 - Se creó una app usuarios.
@@ -137,6 +116,106 @@ Autenticación y usuarios:
 - Registro tiene vista propia.
 - Por seguridad, después del registro es mejor redirigir al login en vez de loguear automáticamente.
 
+
+Permite:
+
+- Gestión de usuarios.
+- Control de acceso.
+- Roles y permisos.
+
+App Home
+Contiene:
+
+- Página principal.
+- Dashboard inicial.
+- Navegación entre módulos.
+
+App Activos
+Administra la estructura jerárquica de los equipos.
+
+Modelo activo 
+nombre
+código (se genera automáticamente al guardar)
+modelo
+marca
+descripción
+fecha_adquisicion
+estado_operativo - booleano
+
+Sistema 
+activo FK
+nombre
+código (se genera automáticamente al guardar)
+tipo_sistema
+descripción
+
+Componente
+nombre
+código (se genera automáticamente al guardar)
+modelo
+marca
+descripción
+sistema FK
+
+AJAX Implementado
+
+Cuando el usuario selecciona un activo:
+
+- Se cargan automáticamente los sistemas asociados.
+Al seleccionar un sistema:
+- Se cargan los subsistemas.
+Al seleccionar un subsistema:
+- Se cargan los componentes.
+
+Sin necesidad de recargar la página.
+
+Reglas de negocio:
+- Una solicitud nace en estado PENDIENTE.
+- El flujo válido es PENDIENTE -> EN_PROCESO -> CERRADA.
+- No se permite pasar directamente de PENDIENTE a CERRADA.
+- Solo las solicitudes PENDIENTES pueden editarse o eliminarse.
+- Al pasar a EN_PROCESO, los datos principales quedan bloqueados y se habilitan comentarios de seguimiento.
+- Al pasar a CERRADA, la orden queda solo lectura y conserva historial.
+- Los cambios de estado se hacen mediante botones/acciones POST, no desde el formulario.
+- Las reglas también deben estar protegidas en backend, no solo en frontend.
+- El método iniciar_proceso() del modelo valida que solo PENDIENTE pase a EN_PROCESO.
+- El método cerrar(trabajo_realizado, observaciones_cierre) valida que solo EN_PROCESO pase a CERRADA, registra fecha de cierre y datos técnicos.
+- El método delete() del modelo impide eliminar solicitudes que no estén PENDIENTES.
+- No se puede realizar eliminación permanente soft delete (solo pendientes)
+- Los  comentarios tampoco se puedes eliminar
+
+URLs principales
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('home.urls')),
+    path('solicitudes/', include('solicitudes.urls')),
+    path('usuarios/', include('usuarios.urls')),
+    path('activos/', include('activos.urls')),
+]
+
+Interfaz:
+- Bootstrap 5.
+- Diseño tipo sistema empresarial de tickets/órdenes de trabajo.
+- Cards, grids responsivos, badges de estado/criticidad.
+- Mensajes de Django con alerts automáticas.
+- Historial tipo tracking, similar a seguimiento de paquetes.
+- Formularios ordenados y visualmente limpios.
+- Árbol Jerarquico para activos, sistemas y componentes 
+- Tarjeta de detalle de activos sistemas y componentes utilzando ajax y JavaScript 
+
+
+Filtros:
+- Búsqueda por texto usando Q:
+  codigo, titulo, descripcion, activo, sistema_activo, subsistema_activo.
+- Filtro por estado para solicitudes activas.
+- Filtro por criticidad usando los valores enteros de los choices.
+- Filtro por fecha_creacion.
+- En cerradas también filtro por fecha_cierre.
+- Los filtros se aplican antes del paginador.
+- Se usa una variable de contexto es_cerradas para que el template sepa si está mostrando activas o cerradas.
+
+
 Admin:
 - El admin de Solicitud debe mostrar columnas ordenadas como codigo, titulo, estado, criticidad, activo, fecha_creacion, fecha_cierre y usuario.
 - Debe tener search_fields y list_filter.
@@ -144,6 +223,7 @@ Admin:
 - No se debe permitir eliminar solicitudes que no estén PENDIENTES.
 - Los seguimientos deben ser de solo lectura y no eliminables para conservar trazabilidad.
 - El admin de Usuario debe organizar username, numero_identificacion, first_name, last_name, email, rol, telefono, is_active e is_staff.
+
 
 Datos de prueba:
 - Se crearon usuarios de prueba como tecnico_prueba y supervisor_prueba.

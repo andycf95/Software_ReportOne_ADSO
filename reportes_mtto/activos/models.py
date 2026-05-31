@@ -1,7 +1,7 @@
 from django.db import models
 import time
 
-# Create your models here.
+# Models para Activos
 class Activo(models.Model):
     nombre = models.CharField(max_length=100)
     codigo = models.CharField(max_length=20, unique=True)
@@ -11,6 +11,17 @@ class Activo(models.Model):
     fecha_adquisicion = models.DateField(null=True, blank=True)
     estado_operativo = models.BooleanField(default=True)
 
+#crea un codigo para cada activo con el formato ACT-001, ACT-002, etc. usando el id del activo
+    def save(self, *args, **kwargs):
+        creando = self.pk is None
+
+        if creando and not self.codigo:
+            self.codigo = f"TEMP-ACT-{int(time.time() * 1000)}"
+        super().save(*args, **kwargs)
+
+        if creando and self.codigo.startswith("TEMP-ACT-"):
+            self.codigo = f"ACT-{self.id:03d}"
+            super().save(update_fields=[ 'codigo'])
 
     def __str__(self):
         return f"{self.marca} {self.nombre}" if self.marca else self.nombre
@@ -19,6 +30,7 @@ class Activo(models.Model):
         verbose_name = "Activo"
         verbose_name_plural = "Activos"
     
+#Clase de sistema 
 class Sistema(models.Model):
     activo = models.ForeignKey(
         Activo, 
@@ -32,6 +44,7 @@ class Sistema(models.Model):
     descripcion = models.TextField(blank=True)
     
     
+    #crea un codigo para cada sistema con el formato SIS-001, SIS-002, etc. usando el id del sistema
     def save(self, *args, **kwargs):
         creando = self.pk is None
 
@@ -54,7 +67,7 @@ class Sistema(models.Model):
         verbose_name_plural = "Sistemas"
         
         
-
+#Clase para componentes
 class Componente(models.Model):
     nombre = models.CharField(max_length=100)
     codigo = models.CharField(max_length=20, unique=True, blank=True)
@@ -63,6 +76,7 @@ class Componente(models.Model):
     modelo = models.CharField(max_length=100, blank=True)
     marca = models.CharField(max_length=100, blank=True)
     
+    #crea un codigo para cada componente con el formato COMP-001, COMP-002, etc. usando el id del componente
     def save(self, *args, **kwargs):
         creando = self.pk is None
 

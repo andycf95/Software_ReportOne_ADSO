@@ -2,20 +2,27 @@
 
 {% block content %}
 
+<!-- Formulario para crear o editar una solicitud de mantenimiento, con campos para título, descripción, criticidad, activo, 
+ sistema y componente. También incluye un área para agregar comentarios de seguimiento si la solicitud ya ha sido creada y no está pendiente. -->
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-sm border-0">
+                <!-- cuerpo del formulario, con un encabezado que cambia según si se está creando o editando una solicitud, y un formulario que se adapta a ambas situaciones. -->
                 <div class="card-body p-4">
                     {% if solicitud %}
-                        <div class="mb-3">
-                            <h3 class="mb-1">Editar Solicitud</h3>
-                            <small class="text-muted">
-                                {{ solicitud.codigo }}
-                            </small>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h3 class="mb-1">Editar Solicitud</h3>
+                                <small class="text-muted">{{ solicitud.codigo }}</small>
+                            </div>
+                            <a href="{% url 'solicitudes:lista' %}" class="btn-close" aria-label="Volver"></a>
                         </div>
                     {% else %}
-                        <h3 class="mb-4">Crear Solicitud</h3>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="mb-0">Crear Solicitud</h3>
+                            <a href="{% url 'solicitudes:lista' %}" class="btn-close" aria-label="Volver"></a>
+                        </div>
                     {% endif %}
                     <form id="form-solicitud" method="POST"
                         {% if solicitud %}
@@ -71,7 +78,9 @@
                             </div>
                         {% endif %}
                         </form>
-
+                        <!-- Botones de acción, que varían según el estado de la solicitud: si no existe, muestra un botón para guardar; 
+                        si está pendiente, muestra un botón para iniciar el proceso; si está en proceso, 
+                        muestra botones para actualizar y cerrar la orden. -->
                         <div class="d-flex gap-2 mt-3">
                         {% if not solicitud %}
                             <button form="form-solicitud" type="submit" class="btn btn-primary">

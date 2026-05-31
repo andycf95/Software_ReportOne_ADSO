@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4>{{ titulo }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label>Nombre</label>
+                            {{ form.nombre }}
+                        </div>
+                        <div class="mb-3">
+                            <label>Marca</label>
+                            {{ form.marca }}
+                        </div>
+                        <div class="mb-3">
+                            <label>Modelo</label>
+                            {{ form.modelo }}
+                        </div>
+                        <div class="mb-3">
+                            <label>Fecha de adquisición</label>
+                            {{ form.fecha_adquisicion }}
+                        </div>
+                        <div class="mb-3">
+                            <label>Descripción</label>
+                            {{ form.descripcion }}
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            {{ form.estado_operativo }}
+                            <label class="form-check-label">Activo operativo</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">{{ btn_texto }}</button>
+                        <a href="{% url 'activos:lista_activos' %}" class="btn btn-secondary">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

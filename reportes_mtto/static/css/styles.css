@@ -1,150 +1,279 @@
 
-    /* ---------------------------------------------------
-    ESTILOS DE LA BASE
-    --------------------------------------------------- */
 
-body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
+:root {
+            --sidebar-width: 240px;
+            --navbar-height: 56px;
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --sidebar-active: #3b82f6;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-active: #ffffff;
+        }
 
-main.container {
-    flex: 1;
-}
-    
+        body {
+            background-color: #f1f5f9;
+            margin: 0;
+        }
 
+        /* NAVBAR */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: var(--sidebar-width);
+            right: 0;
+            height: var(--navbar-height);
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 1.5rem;
+            z-index: 100;
+            gap: 1rem;
+        }
 
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            z-index: 200;
+            overflow-y: auto;
+        }
 
-/* El row debe ser flex con align-items-start */
+        .sidebar-brand {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #334155;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            min-height: var(--navbar-height);
+        }
+
+        .sidebar-brand:hover { color: #ffffff; }
+
+        .sidebar-section {
+            padding: 1rem 1rem 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #475569;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0.25rem 0.75rem;
+            margin: 0;
+        }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 0.75rem;
+            border-radius: 8px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .sidebar-nav li a:hover {
+            background: var(--sidebar-hover);
+            color: var(--sidebar-text-active);
+        }
+
+        .sidebar-nav li a.active {
+            background: var(--sidebar-active);
+            color: var(--sidebar-text-active);
+        }
+
+        .sidebar-nav li a i {
+            font-size: 1rem;
+            width: 18px;
+            text-align: center;
+        }
+
+        /* MAIN */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            padding-top: var(--navbar-height);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+        }
+
+        /* NAVBAR AVATAR */
+        .nav-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* FOOTER */
+        .main-footer {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+/* ---------------------------------------------------
+   ÁRBOL JERÁRQUICO
+--------------------------------------------------- */
 .assets-wrapper .row {
     align-items: flex-start !important;
 }
 
-    /* ---------------------------------------------------
-    ESTILOS DEL SEGUIMIENTO DE SOLICITUDES
-    --------------------------------------------------- */
+.tree-container {
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    max-height: calc(100vh - 320px);
+    overflow-y: auto;
+}
 
-    .tracking-item {
-        display: grid;
-        grid-template-columns: 90px 24px 1fr;
-        min-height: 76px;
-        position: relative;
-        align-items: center;
-    }
+.tree-header {
+    font-size: 0.85rem;
+    color: #6b7280;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 12px 20px;
+}
 
-    .tracking-time {
-        font-size: 0.9rem;
-        color: #4b5563;
-        text-align: right;
-        padding-right: 8px;
-    }
+.tree-row {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
 
-    .tracking-marker {
-        position: relative;
-        height: 100%;
-        min-height: 76px;
-    }
+.tree-row:hover { background-color: #f9fafb; }
 
-    .tracking-marker::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 11px;
-        width: 1px;
-        height: 100%;
-        background-color: #d1d5db;
-    }
+.badge-activo { background-color: #d1fae5; color: #065f46; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+.badge-sistema { background-color: #e0e7ff; color: #3730a3; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+.badge-componente { background-color: #eff6ff; color: #1d4ed8; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
 
-    .tracking-marker::after {
-        content: none;
-    }
+.nivel-2 { padding-left: 50px; }
+.nivel-3 { padding-left: 80px; position: relative; }
 
-    .tracking-content {
-        padding: 10px 0 14px 0;
-    }
+.nivel-3::before {
+    content: "";
+    position: absolute;
+    left: 56px;
+    top: -20px;
+    bottom: 50%;
+    border-left: 1px dashed #d1d5db;
+}
 
-    .tracking-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #111827;
-        line-height: 1.3;
-    }
+.nivel-3::after {
+    content: "";
+    position: absolute;
+    left: 56px;
+    top: 50%;
+    width: 15px;
+    border-top: 1px dashed #d1d5db;
+}
 
-    .tracking-description {
-        margin-top: 5px;
-        font-size: 0.95rem;
-        color: #6b7280;
-        line-height: 1.45;
-    }
+.icon-box { width: 24px; text-align: center; color: #6b7280; margin-right: 12px; }
 
+.chevron-icon {
+    transition: transform 0.3s;
+    color: #9ca3af;
+    font-size: 0.85rem;
+    margin-right: 10px;
+}
 
-    /* ---------------------------------------------------
-       ESTILOS DEL ÁRBOL JERÁRQUICO 
-    --------------------------------------------------- */
-    .tree-container { 
-        background: #ffffff; 
-        border-radius: 8px; 
-        border: 1px solid #e5e7eb; 
-    }
-    .tree-header { 
-        font-size: 0.85rem; 
-        color: #6b7280; 
-        border-bottom: 1px solid #e5e7eb; 
-        padding: 12px 20px; 
-    }
-    
-    /* Fila general interactivas */
-    .tree-row { 
-        padding: 12px 20px; 
-        border-bottom: 1px solid #f3f4f6; 
-        transition: background-color 0.2s; 
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-    }
-    .tree-row:hover { background-color: #f9fafb; }
-    
-    /* Estilos de los Badges */
-    .badge-activo { background-color: #d1fae5; color: #065f46; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
-    .badge-sistema { background-color: #e0e7ff; color: #3730a3; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
-    .badge-componente { background-color: #eff6ff; color: #1d4ed8; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+.collapsed .chevron-icon { transform: rotate(-90deg); }
 
-    /* Indentación por niveles */
-    .nivel-2 { padding-left: 50px; }
-    .nivel-3 { padding-left: 80px; position: relative; }
-    
-    /* Líneas conectoras grises para los componentes */
-    .nivel-3::before {
-        content: ""; position: absolute; left: 56px; top: -20px; bottom: 50%;
-        border-left: 1px dashed #d1d5db;
-    }
-    .nivel-3::after {
-        content: ""; position: absolute; left: 56px; top: 50%; width: 15px;
-        border-top: 1px dashed #d1d5db;
-    }
-
-    /* Iconos y animaciones */
-    .icon-box { width: 24px; text-align: center; color: #6b7280; margin-right: 12px; }
-    .chevron-icon { 
-        transition: transform 0.3s; color: #9ca3af; font-size: 0.85rem; margin-right: 10px; 
-    }
-    .collapsed .chevron-icon { transform: rotate(-90deg); }
-
-    /* ---------------------------------------------------
+/* ---------------------------------------------------
    TARJETA DE DETALLES FIJA
 --------------------------------------------------- */
-/* Darle altura al main para que el sticky funcione */
-
-
 .col-lg-5 {
     position: sticky;
-    top: 20px;
+    top: 76px;
     align-self: flex-start;
 }
 
 .details-card {
-    height: calc(100vh - 250px); /* altura fija siempre */
+    height: calc(100vh - 140px);
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* ---------------------------------------------------
+   SEGUIMIENTO DE SOLICITUDES
+--------------------------------------------------- */
+.tracking-item {
+    display: grid;
+    grid-template-columns: 90px 24px 1fr;
+    min-height: 76px;
+    position: relative;
+    align-items: center;
+}
+
+.tracking-time {
+    font-size: 0.9rem;
+    color: #4b5563;
+    text-align: right;
+    padding-right: 8px;
+}
+
+.tracking-marker {
+    position: relative;
+    height: 100%;
+    min-height: 76px;
+}
+
+.tracking-marker::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 11px;
+    width: 1px;
+    height: 100%;
+    background-color: #d1d5db;
+}
+
+.tracking-marker::after { content: none; }
+
+.tracking-content { padding: 10px 0 14px 0; }
+
+.tracking-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.3;
+}
+
+.tracking-description {
+    margin-top: 5px;
+    font-size: 0.95rem;
+    color: #6b7280;
+    line-height: 1.45;
 }

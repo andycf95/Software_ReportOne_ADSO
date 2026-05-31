@@ -2,13 +2,16 @@
 
 {% block content %}
 
+<!-- Detalle del cierre técnico de una solicitud, mostrando información relevante como el activo, sistema, componente, fecha de cierre, trabajo realizado y observaciones de cierre. -->
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-9">
 
+        <!-- detalle de la solicitud  -->
             <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <!-- detalle de la solicitud  -->
+            
+                    <!-- encabezado con el código de la solicitud y su estado actual, seguido de información detallada sobre el activo, sistema, componente y fecha de cierre. -->
                     <div class="d-flex justify-content-between align-items-start mb-4">
                         <div>
                             <h3 class="mb-1">Detalle del cierre técnico</h3>
@@ -16,7 +19,6 @@
                                 {{ solicitud.codigo }}
                             </p>
                         </div>
-
                         <span class="badge bg-success">
                             {{ solicitud.estado }}
                         </span>
