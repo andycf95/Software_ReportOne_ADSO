@@ -5,13 +5,21 @@ Tecnologías:
 - Frontend: HTML + Bootstrap 5 +CSS
 - Base de datos: SQLite en desarrollo
 - Patrón: MVT de Django
-- Control de versiones: Git, trabajando principalmente en una rama Desarrollo y pasando cambios estables a master.
+- Control de versiones: Git, trabajando principalmente en una rama Desarrollo, pasando cambios estables a master se usa rama dependiente de desarrollo rama pytest.
 - JavaScript
 - AJAX
 El módulo principal es Solicitudes de mantenimiento. La entidad principal es Solicitud, que representa una orden de mantenimiento.
 
 Arquitectura actual 
+El sistema está desarrollado bajo la arquitectura MVT (Model - View - Template), patrón nativo del framework Django, que separa la lógica de datos, la lógica de negocio y la presentación en tres capas independientes.
 
+Model: define la estructura de la base de datos y las reglas de negocio mediante los modelos Solicitud, Seguimiento, Activo, Sistema, Componente y Usuario.
+View: contiene la lógica de negocio y el manejo de peticiones HTTP, procesando los datos y enviándolos al template correspondiente.
+Template: capa de presentación construida con HTML, Bootstrap 5 y JavaScript, responsable de renderizar la interfaz de usuario.
+
+El proyecto está organizado en cuatro aplicaciones Django independientes: solicitudes, activos, usuarios y home, cada una con su propio modelo, vistas, URLs y templates. Adicionalmente implementa un patrón de Soft Delete en el modelo Solicitud para conservar la trazabilidad de las órdenes eliminadas, un Custom Manager para filtrar automáticamente los registros eliminados, y una capa de interactividad en el frontend mediante AJAX para la carga dinámica de activos, sistemas y componentes sin recargar la página.
+
+Lista de apps
 
 App solicitudes 
 
@@ -134,28 +142,60 @@ App Activos
 Administra la estructura jerárquica de los equipos.
 
 Modelo activo 
-nombre
-código (se genera automáticamente al guardar)
-modelo
-marca
-descripción
-fecha_adquisicion
-estado_operativo - booleano
+- nombre
+- código (se genera automáticamente al guardar)
+- modelo
+- marca
+- descripción
+- fecha_adquisicion
+- estado_operativo - booleano
 
 Sistema 
-activo FK
-nombre
-código (se genera automáticamente al guardar)
-tipo_sistema
-descripción
+- activo FK
+- nombre
+- código (se genera automáticamente al guardar)
+- tipo_sistema
+- descripción
 
 Componente
-nombre
-código (se genera automáticamente al guardar)
-modelo
-marca
-descripción
-sistema FK
+- nombre
+- código (se genera automáticamente al guardar)
+- modelo
+- marca
+- descripción
+- sistema FK
+
+Vistas principales
+
+Vistas de listado y detalle
+
+lista_activos_jerarquia — muestra el árbol jerárquico de activos, sistemas y componentes con prefetch_related para optimizar consultas.
+detalle_activo — retorna los datos de un activo en formato JSON para el panel lateral.
+detalle_sistema — retorna los datos de un sistema en formato JSON.
+detalle_componente — retorna los datos de un componente en formato JSON.
+
+Vistas de creación
+
+crear_activo — formulario para registrar un nuevo activo.
+crear_sistema — formulario para registrar un nuevo sistema asociado a un activo.
+crear_componente — formulario para registrar un nuevo componente asociado a un sistema.
+
+Vistas de edición
+
+editar_activo — formulario para modificar los datos de un activo existente.
+editar_sistema — formulario para modificar los datos de un sistema existente.
+editar_componente — formulario para modificar los datos de un componente existente.
+
+Vistas de eliminación
+
+eliminar_activo — elimina un activo en cascada con sus sistemas y componentes, protegido contra ProtectedError.
+eliminar_sistema — elimina un sistema y sus componentes en cascada.
+eliminar_componente — elimina un componente individual.
+
+Vistas AJAX
+
+obtener_sistemas — retorna en JSON los sistemas asociados a un activo seleccionado.
+obtener_componentes — retorna en JSON los componentes asociados a un sistema seleccionado.
 
 AJAX Implementado
 
@@ -183,6 +223,8 @@ Reglas de negocio:
 - El método delete() del modelo impide eliminar solicitudes que no estén PENDIENTES.
 - No se puede realizar eliminación permanente soft delete (solo pendientes)
 - Los  comentarios tampoco se puedes eliminar
+- Los activos, sistemas y componentes no se pueden eliminar si tienen solicitudes asignadas
+- Los activos solo pueden quedar fuera de servicio y que los sistemas y componentes herede este estado 
 
 URLs principales
 
@@ -230,6 +272,5 @@ Datos de prueba:
 - Se crearon solicitudes en estados PENDIENTE, EN_PROCESO y CERRADA.
 - Se crearon seguimientos automáticos para creación, cambio de estado y actualización del proceso.
 
-Necesito que cualquier ayuda o código respete estas reglas de negocio, mantenga una arquitectura limpia en Django, use validaciones backend, evite depender solo del frontend y conserve la trazabilidad de las órdenes.
 
 

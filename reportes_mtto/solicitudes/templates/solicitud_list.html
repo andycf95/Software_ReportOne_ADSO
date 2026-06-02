@@ -2,278 +2,266 @@
 
 {% block content %}
 
-
-<!-- Página de listado de solicitudes de mantenimiento, con opciones para filtrar por estado, fecha y criticidad, y acciones para editar o eliminar cada solicitud. -->
-<div class="container mt-4" style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; background-color: #ffffff;">
+<div class="container-fluid px-0">
     <!-- CABECERA -->
-    <div class="d-flex justify-content-between align-items-end mb-4 pb-3 border-bottom">
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 pb-3 border-bottom gap-3">
         <div>
-            <h2 class="mb-1 fw-bold text-dark">
-                {{titulo}}
-            </h2>
-            <span class="text-muted small">
-                Gestiona el estado y seguimiento de tus requerimientos
-            </span>
+            <h2 class="mb-1 fw-bold text-dark">{{ titulo }}</h2>
+            <span class="text-muted small">Gestiona el estado y seguimiento de tus requerimientos</span>
         </div>
-        
-        <div class="d-flex gap-3 align-items-center">
-            
-            <div class="btn-group shadow-sm" role="group" aria-label="Filtro de estados">
-                <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <div class="btn-group shadow-sm" role="group">
+                <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-list me-1"></i> Activas
                 </a>
-                <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-archive me-1"></i> Cerradas
                 </a>
             </div>
-
-            <a href="{% url 'solicitudes:crear' %}" class="btn btn-primary shadow-sm px-4">
+            <a href="{% url 'solicitudes:crear' %}" class="btn btn-primary btn-sm shadow-sm px-3">
                 <i class="fas fa-plus me-1"></i> Nueva Solicitud
             </a>
-            
         </div>
     </div>
-    <!-- CONTENIDO -->
+
     <div class="card shadow-sm border-0">
-        <!-- FILTROS   -->
-        <div class="card-body p-0 m-3">
-            <form method="get" class="row g-2 mb-4">
-                <div class="col-md-4">
-                    <label class="form-label">Buscar</label>
-                    <input
-                        type="text"
-                        name="q"
-                        class="form-control"
-                        placeholder="Buscar por código, título, activo..."
-                        value="{{ q }}">
-                </div>
-                
-                <div class="col-md-2">
-                    <label class="form-label">Fecha de creación</label>
-                    <input
-                        type="date"
-                        name="fecha_creacion"
-                        class="form-control"
-                        value="{{ fecha_creacion }}">
+        <div class="card-body p-3">
+
+            <!-- FILTROS RESPONSIVE -->
+            <form method="get" class="mb-3">
+                <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small text-muted mb-1">Buscar</label>
+                        <input type="text" name="q" class="form-control form-control-sm"
+                            placeholder="Código, título, activo..." value="{{ q }}">
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small text-muted mb-1">Fecha creación</label>
+                        <input type="date" name="fecha_creacion" class="form-control form-control-sm"
+                            value="{{ fecha_creacion }}">
+                    </div>
+
+                    {% if es_cerrada %}
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small text-muted mb-1">Fecha cierre</label>
+                        <input type="date" name="fecha_cierre" class="form-control form-control-sm"
+                            value="{{ fecha_cierre }}">
+                    </div>
+                    {% else %}
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small text-muted mb-1">Estado</label>
+                        <select name="estado" class="form-select form-select-sm">
+                            <option value="">Todos</option>
+                            <option value="PENDIENTE" {% if estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+                            <option value="EN_PROCESO" {% if estado == 'EN_PROCESO' %}selected{% endif %}>En proceso</option>
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small text-muted mb-1">Criticidad</label>
+                        <select name="criticidad" class="form-select form-select-sm">
+                            <option value="">Todas</option>
+                            {% for valor, texto in criticidad_choices %}
+                                <option value="{{ valor }}" {% if criticidad == valor|stringformat:"s" %}selected{% endif %}>
+                                    {{ texto }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-2 d-flex gap-2 align-items-end">
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-search me-1"></i> Buscar
+                        </button>
+                        {% if es_cerrada %}
+                        <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
 
-                {%if es_cerrada %}
-                <div class="col-md-2">
-                    <label class="form-label">Fecha de cierre</label>
-                    <input
-                        type="date"
-                        name="fecha_cierre"
-                        class="form-control"
-                        value="{{ fecha_cierre }}">
-                </div>
-                
-                {%else%}
-                <div class="col-md-2">
-                    <label class="form-label">Estados</label>
-                    <select name="estado" class="form-select">
-                        <option value="">Todos los estados</option>
-                        <option value="PENDIENTE" {% if estado == 'PENDIENTE' %}selected{% endif %}>
-                            Pendiente
-                        </option>
-                        <option value="EN_PROCESO" {% if estado == 'EN_PROCESO' %}selected{% endif %}>
-                            En proceso
-                        </option>
-                    </select>
-                </div>
-                {% endif %}
-
-
-                <div class="col-md-2">
-                    <label class="form-label">Criticidad</label>
-                    <select name="criticidad" class="form-select">
-                        <option value="">Todas las criticidades</option>
-                        {% for valor, texto in criticidad_choices %}
-                            <option value="{{valor}}"{% if criticidad == valor|stringformat:"s" %}selected{% endif %}>
-                                {{texto}}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-md-2 d-flex gap-2 align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        Buscar
-                    </button>
-                    {%if es_cerrada %}
-                    <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary">
-                        Limpiar
-                    </a>
-                    {%else%}
-                    <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary">
-                        Limpiar
-                    </a>
+                <!-- FILTROS ACTIVOS -->
+                {% if q or estado or criticidad or fecha_creacion or fecha_cierre %}
+                <div class="mt-2 d-flex flex-wrap gap-1 align-items-center">
+                    <span class="text-muted small me-1">Filtros activos:</span>
+                    {% if q %}
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                            Búsqueda: {{ q }}
+                        </span>
+                    {% endif %}
+                    {% if estado %}
+                        <span class="badge bg-info-subtle text-info border border-info-subtle">
+                            Estado: {{ estado }}
+                        </span>
+                    {% endif %}
+                    {% if criticidad %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
+                            Criticidad: {{ criticidad }}
+                        </span>
+                    {% endif %}
+                    {% if fecha_creacion %}
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                            Creación: {{ fecha_creacion }}
+                        </span>
+                    {% endif %}
+                    {% if fecha_cierre %}
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                            Cierre: {{ fecha_cierre }}
+                        </span>
                     {% endif %}
                 </div>
+                {% endif %}
             </form>
+
             <!-- TABLA -->
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Código</th>
-                        <th>Título</th>
-                        <th>Activo</th>
-                        <th>Estado</th>
-                        <th>Criticidad</th>
-                        <th>Fecha de creación</th>
-                        {%if es_cerrada %}
-                            <th>Fecha de cierre</th>
-                        {% else %}
-                            <th>Acciones</th>
-                        {% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for solicitud in solicitudes %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="cursor: pointer;">
+                    <thead class="table-light">
                         <tr>
-                            <!-- CÓDIGO -->
-                            <td>
-                                <a href="{% url 'solicitudes:solicitud' id=solicitud.id %}" class="text-decoration-none fw-semibold">
-                                    {{ solicitud.codigo }}
-                                </a>
-                            </td>
-                            <!-- TITULO -->
-                            <td>
-                                    {{ solicitud.titulo }}
-                            </td>
-                            <!-- ACTIVO -->
-                            <td>
-                                    {{ solicitud.activo }}
-                            </td>
-                            <!-- ESTADO -->
-                            <td>
-                                    {{ solicitud.get_estado_display }}
-                            </td>
-                            <!-- CRITICIDAD -->
-                            <td>
-                            {% if solicitud.criticidad == 1 %}
-                                <span class="badge bg-success">
-                                    {{ solicitud.get_criticidad_display }}
-                                </span>
-                            {% elif solicitud.criticidad == 2 %}
-                                <span class="badge bg-info">
-                                    {{ solicitud.get_criticidad_display }}
-                                </span>
-                            {% elif solicitud.criticidad == 3 %}
-                                <span class="badge bg-warning text-dark">
-                                    {{ solicitud.get_criticidad_display }}
-                                </span>
-                            {% elif solicitud.criticidad == 4 %}
-                                <span class="badge bg-danger">
-                                    {{ solicitud.get_criticidad_display }}
-                                </span>
-                            {% elif solicitud.criticidad == 5 %}
-                                <span class="badge bg-dark">
-                                    {{ solicitud.get_criticidad_display }}
-                                </span>
-                            {% endif %}
-                            </td>
-                            <!-- FECHA -->
-                            <td>
-                                <small class="text-muted">
-                                    {{ solicitud.fecha_creacion|date:"d/m/Y" }}
-                                </small>
-                            </td>
-                            <!-- ACCIONES O FECHA DE CIERRE DEPENDIENTE DEL ESTADO DE LA SOLICITUD -->
-                            {%if es_cerrada %}
-                                <td>
-                                <small class="text-muted">
-                                    {{ solicitud.fecha_cierre |date:"d/m/Y" }}
-                                </small>
-                            </td>
+                            <th>Código</th>
+                            <th>Título</th>
+                            <th>Activo</th>
+                            <th>Estado</th>
+                            <th>Criticidad</th>
+                            <th>Fecha creación</th>
+                            {% if es_cerrada %}
+                                <th>Fecha cierre</th>
                             {% else %}
-                            <td>
-                                <div class="d-flex gap-2">
-                                    <a href="{% url 'solicitudes:editar' id=solicitud.id %}">
-                                        <button class="btn btn-warning btn-sm">
-                                            Editar
-                                        </button>
-                                    </a>
-                                    <form method="POST" action="{% url 'solicitudes:eliminar' solicitud.id %}">
-                                        {% csrf_token %}
-                                        <button type="button" 
-                                                class="btn btn-danger btn-sm btn-eliminar-solicitud"
-                                                data-id="{{ solicitud.id }}"
-                                                data-codigo="{{ solicitud.codigo }}"
-                                                data-url="{% url 'solicitudes:eliminar' solicitud.id %}"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#modalConfirmarEliminarSolicitud">
-                                            Eliminar
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+                                <th>Acciones</th>
                             {% endif %}
                         </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center p-4">
-                                No hay solicitudes disponibles.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <!-- PAGINACIÓN -->
-            <div class="d-flex justify-content-center mt-3 mb-3">
-                <nav aria-label="Paginación solicitudes">
+                    </thead>
+                    <tbody>
+                        {% for solicitud in solicitudes %}
+                            <tr onclick="window.location='{% url "solicitudes:solicitud" id=solicitud.id %}'" style="cursor:pointer;">
+                                <td>
+                                    <a href="{% url 'solicitudes:solicitud' id=solicitud.id %}" 
+                                       class="text-decoration-none fw-semibold"
+                                       onclick="event.stopPropagation()">
+                                        {{ solicitud.codigo }}
+                                    </a>
+                                </td>
+                                <td>{{ solicitud.titulo }}</td>
+                                <td>{{ solicitud.activo }}</td>
+                                <td>
+                                    {% if solicitud.estado == 'PENDIENTE' %}
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Pendiente</span>
+                                    {% elif solicitud.estado == 'EN_PROCESO' %}
+                                        <span class="badge bg-dark-subtle text-dark border border-dark-subtle">En proceso</span>
+                                    {% elif solicitud.estado == 'CERRADA' %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Cerrada</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if solicitud.criticidad == 1 %}
+                                        <span class="badge bg-success">{{ solicitud.get_criticidad_display }}</span>
+                                    {% elif solicitud.criticidad == 2 %}
+                                        <span class="badge bg-info">{{ solicitud.get_criticidad_display }}</span>
+                                    {% elif solicitud.criticidad == 3 %}
+                                        <span class="badge bg-warning text-dark">{{ solicitud.get_criticidad_display }}</span>
+                                    {% elif solicitud.criticidad == 4 %}
+                                        <span class="badge bg-danger">{{ solicitud.get_criticidad_display }}</span>
+                                    {% elif solicitud.criticidad == 5 %}
+                                        <span class="badge bg-dark">{{ solicitud.get_criticidad_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ solicitud.fecha_creacion|date:"d/m/Y" }}</small>
+                                </td>
+                                {% if es_cerrada %}
+                                    <td>
+                                        <small class="text-muted">{{ solicitud.fecha_cierre|date:"d/m/Y" }}</small>
+                                    </td>
+                                {% else %}
+                                    <td onclick="event.stopPropagation()">
+                                        <div class="d-flex gap-2">
+                                            <a href="{% url 'solicitudes:editar' id=solicitud.id %}"
+                                               class="btn btn-warning btn-sm">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button type="button"
+                                                    class="btn btn-danger btn-sm btn-eliminar-solicitud"
+                                                    data-id="{{ solicitud.id }}"
+                                                    data-codigo="{{ solicitud.codigo }}"
+                                                    data-url="{% url 'solicitudes:eliminar' solicitud.id %}"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalConfirmarEliminarSolicitud">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                    No hay solicitudes disponibles.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINACIÓN FIJA -->
+            <div class="border-top pt-3 mt-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span class="text-muted small">
+                    Mostrando {{ solicitudes.start_index }}–{{ solicitudes.end_index }} de {{ solicitudes.paginator.count }} solicitudes
+                </span>
+                <nav>
                     <ul class="pagination pagination-sm mb-0">
-                        <!-- ANTERIOR -->
                         {% if solicitudes.has_previous %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ solicitudes.previous_page_number }}">
+                                <a class="page-link" href="?page={{ solicitudes.previous_page_number }}&q={{ q }}&estado={{ estado }}&criticidad={{ criticidad }}&fecha_creacion={{ fecha_creacion }}&fecha_cierre={{ fecha_cierre }}">
                                     &laquo;
                                 </a>
                             </li>
                         {% else %}
-                            <li class="page-item disabled">
-                                <span class="page-link">
-                                    &laquo;
-                                </span>
-                            </li>
+                            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
                         {% endif %}
-                        <!-- NÚMEROS -->
+
                         {% for num in solicitudes.paginator.page_range %}
                             {% if num >= solicitudes.number|add:-1 and num <= solicitudes.number|add:1 %}
                                 {% if solicitudes.number == num %}
                                     <li class="page-item active">
-                                        <span class="page-link"> {{ num }} </span>
+                                        <span class="page-link">{{ num }}</span>
                                     </li>
                                 {% else %}
                                     <li class="page-item">
-                                        <a class="page-link" href="?page={{ num }}">
+                                        <a class="page-link" href="?page={{ num }}&q={{ q }}&estado={{ estado }}&criticidad={{ criticidad }}&fecha_creacion={{ fecha_creacion }}&fecha_cierre={{ fecha_cierre }}">
                                             {{ num }}
                                         </a>
                                     </li>
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
-                        <!-- SIGUIENTE -->
+
                         {% if solicitudes.has_next %}
                             <li class="page-item">
-                                <a class="page-link" href="?page={{ solicitudes.next_page_number }}">
+                                <a class="page-link" href="?page={{ solicitudes.next_page_number }}&q={{ q }}&estado={{ estado }}&criticidad={{ criticidad }}&fecha_creacion={{ fecha_creacion }}&fecha_cierre={{ fecha_cierre }}">
                                     &raquo;
                                 </a>
                             </li>
                         {% else %}
-                            <li class="page-item disabled">
-                                <span class="page-link">
-                                    &raquo;
-                                </span>
-                            </li>
+                            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
                         {% endif %}
                     </ul>
                 </nav>
             </div>
+
         </div>
     </div>
 </div>
 
-<!-- Modal de eliminacion -->
+<!-- Modal eliminación -->
 <div class="modal fade" id="modalConfirmarEliminarSolicitud" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -305,4 +293,5 @@ document.querySelectorAll(".btn-eliminar-solicitud").forEach(btn => {
     });
 });
 </script>
+
 {% endblock %}

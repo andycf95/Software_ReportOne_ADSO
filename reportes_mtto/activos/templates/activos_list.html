@@ -1,24 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4" style="border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; background-color: #ffffff;">
-<!-- CONTENIDO PRINCIPAL -->
+
+<div class="container-fluid px-0">
+
+    <!-- CABECERA UNIFICADA -->
+    <div class="d-flex flex-wrap justify-content-between align-items-end mb-4 pb-3 border-bottom gap-3">
+        <div>
+            <h2 class="mb-1 fw-bold text-dark">Activos</h2>
+            <span class="text-muted small">Gestiona tus activos, sistemas y componentes</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a href="{% url 'activos:crear_activo' %}" class="btn btn-primary btn-sm shadow-sm px-3">
+                <i class="bi bi-plus me-1"></i> Nuevo Activo
+            </a>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="assets-wrapper">
         <div class="row g-4 align-items-start">
-    <!-- Titulo y subtitulo-->
             <div class="col-lg-7">
-                <div class="mb-4">
-                    <h3 class="fw-bold text-dark mb-1">Activos</h3>
-                    <p class="text-muted small">Gestiona tus activos, sistemas y componentes</p>
-                </div>
-    <!-- Boton nuevo activo -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <a href="{% url 'activos:crear_activo' %}" class="btn btn-primary shadow-sm px-4">
-                    <i class="fas fa-plus me-1"></i> Nuevo activo
-                </a>
-                </div>
 
-                <!-- Árbol de activos tipo acordeón -->
+                <!-- Árbol de activos -->
                 <div class="tree-container shadow-sm mb-3" id="arbol-activos-parent">
                     <div class="row m-0 tree-header fw-bold">
                         <div class="col-8">Nombre</div>
@@ -31,7 +35,6 @@
                             data-id="{{ activo.id }}"
                             data-modelo-tipo="Activo"
                             data-tipo="activo">
-                            
                             <div class="col-8 d-flex align-items-center fw-bold text-dark">
                                 <i class="bi bi-chevron-down chevron-icon"></i>
                                 <span class="icon-box"><i class="bi bi-ship fs-5 text-secondary"></i></span>
@@ -44,7 +47,6 @@
                             </div>
                         </div>
 
-                    <!-- Árbol de sistemas tipo acordeón -->
                         <div class="collapse" id="activo-{{ activo.id }}" data-bs-parent="#arbol-activos-parent">
                             {% for sistema in activo.sistemas.all %}
                                 <div class="row m-0 tree-row nivel-2 bg-light collapsed item-clickable" 
@@ -52,7 +54,6 @@
                                     data-id="{{ sistema.id }}"
                                     data-modelo-tipo="Sistema"
                                     data-tipo="sistema">
-                                    
                                     <div class="col-8 d-flex align-items-center fw-semibold text-dark">
                                         <i class="bi bi-chevron-down chevron-icon"></i>
                                         <span class="icon-box"><i class="bi bi-gear-fill text-secondary"></i></span>
@@ -63,15 +64,13 @@
                                         <i class="bi bi-chevron-down opacity-50"></i>
                                     </div>
                                 </div>
-                    <!-- Árbol de componentes tipo acordeón -->
+
                                 <div class="collapse" id="sistema-{{ sistema.id }}">
-                                    
                                     {% for componente in sistema.componentes.all %}
                                         <div class="row m-0 tree-row nivel-3 item-clickable" 
                                             data-id="{{ componente.id }}"
                                             data-modelo-tipo="Componente"
                                             data-tipo="componente">
-                                            
                                             <div class="col-8 d-flex align-items-center text-dark">
                                                 <span class="icon-box"><i class="bi bi-nut text-secondary"></i></span>
                                                 {{ componente.nombre }}
@@ -82,135 +81,124 @@
                                             </div>
                                         </div>
                                     {% empty %}
-                                        <div class="row m-0 py-2 text-muted small px-5 style-italic" style="padding-left: 80px; font-style: italic;">
+                                        <div class="row m-0 py-2 text-muted small" style="padding-left: 80px; font-style: italic;">
                                             No hay componentes registrados.
                                         </div>
                                     {% endfor %}
                                 </div>
                             {% empty %}
-                                <div class="row m-0 py-2 text-muted small px-5 style-italic" style="padding-left: 50px; font-style: italic;">
+                                <div class="row m-0 py-2 text-muted small" style="padding-left: 50px; font-style: italic;">
                                     No hay sistemas mapeados.
                                 </div>
                             {% endfor %}
                         </div>
                     {% empty %}
                         <div class="p-4 text-center text-muted">
-                            No se encontraron activos registrados en la base de datos.
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No se encontraron activos registrados.
                         </div>
                     {% endfor %}
                 </div>
 
-                <!-- Contador de activos -->
+                <!-- Contador -->
                 <div class="text-muted small px-2">Mostrando {{ activos.count }} activos principales</div>
             </div>
 
             <!-- Panel de detalles -->
             <div class="col-lg-5">
                 <div class="card shadow-sm border-0 position-sticky details-card">
-                    
                     <div class="card-header bg-white d-flex justify-content-between align-items-center pt-4 pb-2 border-bottom-0">
-                        <h5 class="fw-bold mb-0 text-dark details-card-title">Detalles del activo</h5>
-                        <button class="btn-close text-muted shadow-none details-close-btn" onclick="document.getElementById('detalle-panel').style.display='none'; document.getElementById('detalle-placeholder').style.display='block';"></button>
+                        <h5 class="fw-bold mb-0 text-dark">Detalles del activo</h5>
+                        <button class="btn-close shadow-none" onclick="document.getElementById('detalle-panel').style.display='none'; document.getElementById('detalle-placeholder').style.display='block';"></button>
                     </div>
-                    
+
                     <div id="detalle-placeholder" class="text-center text-muted py-5 my-5">
-                        <div class="mb-3">
-                            <i class="bi bi-diagram-3 text-light fs-1" style="font-size: 3.5rem;"></i>
-                        </div>
+                        <i class="bi bi-diagram-3 text-light fs-1 d-block mb-3" style="font-size: 3.5rem;"></i>
                         <p class="small px-4 text-secondary">
                             Seleccione un activo, sistema o componente<br>para ver su información detallada.
                         </p>
                     </div>
-                    <!-- El contenido de este panel se actualizará dinámicamente con JavaScript al hacer clic en un elemento del árbol de activos -->
+
                     <div class="card-body p-0" id="detalle-panel" style="display: none;">
-                        
                         <div class="d-flex px-4 pt-2 pb-4 align-items-center">
                             <div class="rounded-3 d-flex align-items-center justify-content-center me-3 details-avatar-box">
                                 <i class="bi bi-cpu fs-2 text-secondary" id="det-icono"></i>
                             </div>
-                        <div class="d-flex justify-content-between align-items-start w-100">
-                            <div>
-                                <h4 class="fw-bold text-dark mb-1 details-main-title" id="det-nombre">-</h4>
-                                <span class="badge rounded-pill px-2.5 py-1 text-xs" id="det-badge" style="font-size: 0.75rem;">-</span>
+                            <div class="d-flex justify-content-between align-items-start w-100">
+                                <div>
+                                    <h4 class="fw-bold text-dark mb-1" id="det-nombre">-</h4>
+                                    <span class="badge rounded-pill" id="det-badge" style="font-size: 0.75rem;">-</span>
+                                </div>
+                                <a id="btn-editar" href="#" class="btn btn-outline-secondary btn-sm d-none">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
                             </div>
-                            <a id="btn-editar" href="#" class="btn btn-outline-secondary btn-sm d-none">
-                                <i class="bi bi-pencil">Editar</i>
-                            </a>
                         </div>
-                        </div>
-                        <!-- navbar encima de los detalles -->
+
                         <div class="px-4">
-                            <ul class="nav nav-tabs border-bottom details-tabs">
+                            <ul class="nav nav-tabs border-bottom">
                                 <li class="nav-item">
-                                    <a class="nav-link active border-0 border-bottom border-primary border-2 text-primary bg-transparent px-2 pb-2 details-tab-active" href="#">Información</a>
+                                    <a class="nav-link active border-0 border-bottom border-primary border-2 text-primary bg-transparent px-2 pb-2" href="#">Información</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link border-0 text-muted px-2 pb-2 hover-text-dark" href="#">Órdenes (<span id="det-cant-ordenes">12</span>)</a>
+                                    <a class="nav-link border-0 text-muted px-2 pb-2" href="#">Órdenes (<span id="det-cant-ordenes">0</span>)</a>
                                 </li>
                             </ul>
                         </div>
-                <!-- Contenido de detalles -->
-                        <!-- codigo-->
-                        <div class="p-4 details-info-body">
+
+                        <div class="p-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-secondary d-flex align-items-center"><i class="bi bi-qr-code-scan me-2 text-muted"></i> Código</span>
-                                <span class="fw-semibold text-dark text-end" id="det-codigo">SUB-PRP-001</span>
+                                <span class="fw-semibold text-dark" id="det-codigo">-</span>
                             </div>
-                            <!-- Tipo, activo padre, sistema padre, marca, estado, fecha de instalación, modelo -->
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-secondary d-flex align-items-center"><i class="bi bi-gear me-2 text-muted"></i> Tipo</span>
-                                <span class="fw-medium text-dark text-end" id="det-tipo">-</span>
+                                <span class="fw-medium text-dark" id="det-tipo">-</span>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-secondary d-flex align-items-center"><i class="bi bi-box me-2 text-muted"></i> Activo Padre</span>
-                                <span class="fw-semibold text-primary text-end" id="det-padre">-</span>
+                                <span class="fw-semibold text-primary" id="det-padre">-</span>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-secondary d-flex align-items-center"><i class="bi bi-diagram-2 me-2 text-muted"></i> Sistema Padre</span>
-                                <span class="fw-semibold text-primary text-end" id="det-sistema-padre">-</span>
+                                <span class="fw-semibold text-primary" id="det-sistema-padre">-</span>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-secondary d-flex align-items-center"><i class="bi bi-geo-alt me-2 text-muted"></i> Marca</span>
-                                <span class="fw-medium text-dark text-end" id="det-marca">-</span>
+                                <span class="fw-medium text-dark" id="det-marca">-</span>
                             </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3" id="fila-estado">
                                 <span class="text-secondary d-flex align-items-center"><i class="bi bi-activity me-2 text-muted"></i> Estado</span>
                                 <span class="badge bg-success-subtle text-success fw-semibold border border-success-subtle rounded-2" id="det-estado" style="font-size: 0.75rem;">-</span>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="text-secondary d-flex align-items-center"><i class="bi bi-calendar3 me-2 text-muted"></i> Fecha de instalación</span>
-                                <span class="fw-medium text-dark text-end" id="det-fecha">-</span>
+                                <span class="text-secondary d-flex align-items-center"><i class="bi bi-calendar3 me-2 text-muted"></i> Fecha instalación</span>
+                                <span class="fw-medium text-dark" id="det-fecha">-</span>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="text-secondary d-flex align-items-center"><i class="bi bi-hash me-2 text-muted"></i> Modelo</span>
-                                <span class="fw-medium text-dark text-end" id="det-modelo">-</span>
+                                <span class="fw-medium text-dark" id="det-modelo">-</span>
                             </div>
-                            <!-- Contador de ordenes y fechas -->
+
+                            <!-- Stats -->
                             <div class="row g-3 mb-4">
                                 <div class="col-6">
                                     <div class="p-3 border rounded-3 d-flex justify-content-between align-items-start stat-card-box">
                                         <div>
-                                            <span class="text-secondary d-block mb-1" style="font-size: 0.75rem; font-weight: 500;">Solicitdes</span>
-                                            <span class="fs-4 fw-bold text-dark d-block lh-1 mb-1" id="det-num-ordenes">12</span>
-                                            <span class="text-muted" style="font-size: 0.7rem;">Solicitudes asociadas</span>
+                                            <span class="text-secondary d-block mb-1" style="font-size: 0.75rem; font-weight: 500;">Solicitudes</span>
+                                            <span class="fs-4 fw-bold text-dark d-block lh-1 mb-1" id="det-num-ordenes">0</span>
+                                            <span class="text-muted" style="font-size: 0.7rem;">Solicitudes activas</span>
                                         </div>
                                         <div class="rounded p-2 d-flex align-items-center justify-content-center stat-icon-orders">
                                             <i class="bi bi-file-earmark-text fs-5"></i>
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="col-6">
                                     <div class="p-3 border rounded-3 d-flex justify-content-between align-items-start stat-card-box">
                                         <div>
                                             <span class="text-secondary d-block mb-1" style="font-size: 0.75rem; font-weight: 500;">Último mantenimiento</span>
-                                            <span class="fw-bold text-dark d-block mb-1" id="det-ultimo-mtto" style="font-size: 1.05rem; white-space: nowrap; letter-spacing: -0.3px;">15/05/2026</span>
+                                            <span class="fw-bold text-dark d-block mb-1" id="det-ultimo-mtto" style="font-size: 1.05rem;">-</span>
                                             <span class="text-success fw-medium d-block" style="font-size: 0.7rem;"><i class="bi bi-check2-circle me-1"></i>Preventivo</span>
                                         </div>
                                         <div class="rounded p-2 d-flex align-items-center justify-content-center stat-icon-maint">
@@ -220,43 +208,33 @@
                                 </div>
                             </div>
 
-                            <!-- Boton para agregar sistema y componentes -->
-                            <div class=" mt-3 d-flex gap-2 justify-content-center">
-                                <div class="mt-3">
-                                    <a id="btn-agregar-sistema" href="#" class="btn btn-primary btn-sm d-none">
-                                        Agregar Sistema
-                                    </a>
-                                </div>
-
-                                <!-- Boton para agregar sistema y componentes -->
-                                <div class="mt-3">
-                                    <a id="btn-agregar-componente" href="#" class="btn btn-primary btn-sm ">
-                                        Agregar componente
-                                    </a>
-                                </div>
-
-                                <!-- Botón eliminar -->
-                                <div class="mt-3">
-                                    <form id="form-eliminar" method="post" action="#">
-                                        {% csrf_token %}
-                                        <button type="button" id="btn-eliminar" 
-                                                class="btn btn-danger btn-sm d-none"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#modalConfirmarEliminar">
-                                            <i class="bi bi-trash me-1"></i> Eliminar
-                                        </button>
-                                    </form>
-                                </div>
+                            <!-- Botones -->
+                            <div class="mt-3 d-flex gap-2 justify-content-center">
+                                <a id="btn-agregar-sistema" href="#" class="btn btn-primary btn-sm d-none">
+                                    <i class="bi bi-plus me-1"></i> Agregar Sistema
+                                </a>
+                                <a id="btn-agregar-componente" href="#" class="btn btn-primary btn-sm d-none">
+                                    <i class="bi bi-plus me-1"></i> Agregar Componente
+                                </a>
+                                <form id="form-eliminar" method="post" action="#">
+                                    {% csrf_token %}
+                                    <button type="button" id="btn-eliminar"
+                                            class="btn btn-danger btn-sm d-none"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalConfirmarEliminar">
+                                        <i class="bi bi-trash me-1"></i> Eliminar
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
- <!-- Modal de confirmación -->
+
+<!-- Modal eliminación -->
 <div class="modal fade" id="modalConfirmarEliminar" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -265,8 +243,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-muted">
-                ¿Estás seguro de que deseas eliminar este elemento? 
-                Esta acción <strong>no se puede deshacer</strong> y eliminará 
+                ¿Estás seguro de que deseas eliminar este elemento?
+                Esta acción <strong>no se puede deshacer</strong> y eliminará
                 todos los elementos asociados.
             </div>
             <div class="modal-footer border-0">
@@ -278,4 +256,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}

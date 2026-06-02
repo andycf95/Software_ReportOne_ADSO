@@ -60,7 +60,9 @@ def lista_solicitudes(request):
         'criticidad_choices': Solicitud.CRITICIDAD,
         'fecha_creacion': fecha_creacion,
         "titulo": 'Solicitudes activas',
-        'es_cerrada': False
+        'es_cerrada': False,
+        'estados_choices': dict(Solicitud.ESTADOS),
+
     }
     
     return render(request, 'solicitud_list.html', context)
@@ -119,24 +121,24 @@ def crear_solicitud(request):
     if request.method == 'POST':
         form = SolicitudForm(request.POST)
         if form.is_valid():
-            solicitud = form.save()
-            Seguimiento.objects.create(
+            try:
+                solicitud = form.save()
+                Seguimiento.objects.create(
                     solicitud=solicitud,
                     usuario=request.user,
                     comentario="Creación de orden|La orden fue creada en estado Pendiente."
                 )
-            messages.success(request, 'La solicitud se creó correctamente.')
-            return redirect('solicitudes:lista')
-            
+                messages.success(request, 'La solicitud se creó correctamente.')
+                return redirect('solicitudes:lista')
+            except Exception as e:
+                messages.error(request, 'Ocurrió un error al crear la solicitud. Intenta de nuevo.')
         else:
-            print(form.errors)
+            messages.error(request, 'Por favor corrige los errores del formulario.')
     else:
         form = SolicitudForm()
     return render(request, 'solicitud_form.html', {'form': form, 'solicitud': None})
 
-
 #Se crea vista para mostrar detalle de solicitud de mantenimiento
-
 @login_required
 def detalle_solicitud(request, id):
     solicitud = get_object_or_404(
@@ -181,28 +183,38 @@ def detalle_solicitud(request, id):
 
 
 #Se crea vista para editar solicitud de mantenimiento, detectando cambios de estado y agregando comentarios de seguimiento
+
 @login_required
 def editar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
     form = SolicitudForm(request.POST or None, instance=solicitud)
     if request.method == 'POST':
-        comentario = request.POST.get('comentario')
         if solicitud.estado == 'PENDIENTE':
             if form.is_valid():
-                form.save()
-                return redirect('solicitudes:lista')
+                try:
+                    form.save()
+                    messages.success(request, 'La solicitud se actualizó correctamente.')
+                    return redirect('solicitudes:lista')
+                except Exception as e:
+                    messages.error(request, 'Ocurrió un error al guardar los cambios.')
+            else:
+                messages.error(request, 'Por favor corrige los errores del formulario.')
         elif solicitud.estado == 'EN_PROCESO':
-            comentario = request.POST.get('comentario')
-            if comentario:
-                Seguimiento.objects.create(
-                    solicitud=solicitud,
-                    usuario=request.user,
-                    comentario=(f'Actualización de proceso|{comentario}')
-                )
-            return redirect('solicitudes:lista')
-            
-                
+            try:
+                comentario = request.POST.get('comentario')
+                if comentario:
+                    Seguimiento.objects.create(
+                        solicitud=solicitud,
+                        usuario=request.user,
+                        comentario=f'Actualización de proceso|{comentario}'
+                    )
+                    messages.success(request, 'Comentario de seguimiento agregado.')
+                return redirect('solicitudes:lista')
+            except Exception as e:
+                messages.error(request, 'Ocurrió un error al guardar el seguimiento.')
+
     return render(request, 'solicitud_form.html', {'form': form, 'solicitud': solicitud})
+
 
 #Se crea vista para boton de cambio de estado de pendiente a en proceso, detectando cambios de estado y agregando comentarios de seguimiento
 @require_POST

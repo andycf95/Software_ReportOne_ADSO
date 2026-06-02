@@ -8,42 +8,55 @@
         <div class="col-lg-7">
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+
+                    <!-- ENCABEZADO -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
                         <div>
-                            <h2 class="mb-0 fw-bold text-dark">
-                                {{ solicitud.titulo }}
-                            </h2>
-                            <div class="mt-2">
-                                <span class="badge bg-light text-secondary border fs-6">
+                            <h2 class="mb-0 fw-bold text-dark">{{ solicitud.titulo }}</h2>
+                            <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
+                                <span class="badge bg-light text-secondary border fs-7">
                                     {{ solicitud.codigo }}
                                 </span>
+                                {% if solicitud.estado == 'PENDIENTE' %}
+                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Pendiente</span>
+                                {% elif solicitud.estado == 'EN_PROCESO' %}
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle">En proceso</span>
+                                {% else %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Cerrada</span>
+                                {% endif %}
+                                {% if solicitud.criticidad >= 4 %}
+                                    <span class="badge bg-danger">{{ solicitud.get_criticidad_display }}</span>
+                                {% elif solicitud.criticidad == 3 %}
+                                    <span class="badge bg-warning text-dark">{{ solicitud.get_criticidad_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-info text-dark">{{ solicitud.get_criticidad_display }}</span>
+                                {% endif %}
                             </div>
                         </div>
-                        
-                        <!-- botones de acción si es diferente de cerrada edita y vuelve sino solo vuelve-->
-                        <div class="d-flex gap-2">
+
+                        <div class="d-flex gap-2 flex-shrink-0">
                             {% if solicitud.estado != 'CERRADA' %}
-                                    <a href="{% url 'solicitudes:editar' id=solicitud.id %}" class="btn btn-warning px-3 fw-semibold text-dark">
-                                        <i class="bi bi-pencil-square me-1"></i> Editar
-                                    </a>
-                                <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary px-3">
+                                <a href="{% url 'solicitudes:editar' id=solicitud.id %}" class="btn btn-warning btn-sm px-3 fw-semibold">
+                                    <i class="bi bi-pencil-square me-1"></i> Editar
+                                </a>
+                                <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary btn-sm px-3">
                                     Volver
                                 </a>
                             {% else %}
-                                <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary px-3">
+                                <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary btn-sm px-3">
                                     Volver
                                 </a>
                             {% endif %}
                         </div>
                     </div>
 
+                    <!-- DESCRIPCIÓN -->
                     <div class="mb-4">
-                        <h6 class="text-muted"> Descripción</h6>
-                        <p>
-                            {{ solicitud.descripcion }}
-                        </p>
+                        <h6 class="text-muted">Descripción</h6>
+                        <p>{{ solicitud.descripcion }}</p>
                     </div>
 
+                    <!-- INFO GENERAL -->
                     <div class="row row-cols-1 row-cols-md-2 g-3">
                         <div class="col">
                             <h6 class="text-muted small mb-1">Fecha de creación</h6>
@@ -51,52 +64,21 @@
                                 {{ solicitud.fecha_creacion|date:"d/m/Y" }}
                             </p>
                         </div>
-                        <!-- estado, criticidad, activo, sistema, componente, cambio de colores de estado -->
-                        <div class="col">
-                            <h6 class="text-muted small mb-1">Estado</h6>
-                            {% if solicitud.estado == 'PENDIENTE' %}
-                                <span class="badge bg-warning text-dark border border-warning px-2.5 py-1.5">
-                            {% elif solicitud.estado == 'EN_PROCESO' %}
-                                <span class="badge bg-primary px-2.5 py-1.5">
-                            {% else %}
-                                <span class="badge bg-success px-2.5 py-1.5">
-                            {% endif %}
-                                {{ solicitud.get_estado_display|capfirst }}
-                            </span>
-                        </div>
-                        <!-- criticidad, cambio de colores segun el nivel de criticidad -->
-                        <div class="col">
-                            <h6 class="text-muted small mb-1">Criticidad</h6>
-                            {% if solicitud.criticidad >= 4 %}
-                                <span class="badge bg-danger px-2.5 py-1.5">
-                            {% elif solicitud.criticidad == 3 %}
-                                <span class="badge bg-warning text-dark px-2.5 py-1.5">
-                            {% else %}
-                                <span class="badge bg-info text-dark px-2.5 py-1.5">
-                            {% endif %}
-                                {{ solicitud.get_criticidad_display }}
-                            </span>
-                        </div>
                         <div class="col">
                             <h6 class="text-muted small mb-1">Activo</h6>
-                            <p class="fw-medium text-dark mb-0">
-                                {{ solicitud.activo }}
-                            </p>
+                            <p class="fw-medium text-dark mb-0">{{ solicitud.activo }}</p>
                         </div>
                         <div class="col">
                             <h6 class="text-muted small mb-1">Sistema</h6>
-                            <p class="fw-medium text-dark mb-0">
-                                {{ solicitud.sistema_activo }}
-                            </p>
+                            <p class="fw-medium text-dark mb-0">{{ solicitud.sistema_activo }}</p>
                         </div>
                         <div class="col">
                             <h6 class="text-muted small mb-1">Componente</h6>
                             <p class="fw-medium text-dark mb-0">
-                                {{ solicitud.componente_activo }}
+                                {{ solicitud.componente_activo|default:"No aplica" }}
                             </p>
                         </div>
-                        
-                        <!-- Si la solicitud está cerrada, mostrar la fecha de cierre y un enlace al detalle del cierre técnico -->
+
                         {% if solicitud.estado == "CERRADA" %}
                             <div class="col">
                                 <h6 class="text-muted small mb-1">Fecha de cierre</h6>
@@ -115,7 +97,7 @@
                 </div>
             </div>
 
-<!-- HISTORIAL DE SOLICITUDES -->
+            <!-- HISTORIAL -->
             <div class="card shadow-sm border-0 mt-4">
                 <div class="card-body p-4">
                     <h6 class="text-primary text-uppercase fw-semibold mb-4 fs-5">
@@ -140,17 +122,15 @@
                                         <div class="tracking-title">
                                             {{ seguimiento.accion }}
                                         </div>
-
                                         <div class="tracking-description mb-2">
                                             {{ seguimiento.descripcion }}
                                         </div>
-
                                         {% if seguimiento.usuario %}
                                             <div class="d-flex align-items-center gap-1 text-muted" style="font-size: 0.8rem;">
                                                 <i class="bi bi-person-circle text-secondary"></i>
                                                 <span>Por: <strong class="text-dark">{{ seguimiento.usuario.get_full_name|default:seguimiento.usuario.username }}</strong></span>
                                                 {% if seguimiento.usuario.rol %}
-                                                    <span class="badge bg-light text-secondary border px-2 py-0.5 ms-1" style="font-size: 0.7rem; font-weight: 500;">
+                                                    <span class="badge bg-light text-secondary border ms-1" style="font-size: 0.7rem; font-weight: 500;">
                                                         {{ seguimiento.usuario.get_rol_display|default:seguimiento.usuario.rol|upper }}
                                                     </span>
                                                 {% endif %}

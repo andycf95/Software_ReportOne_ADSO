@@ -1,42 +1,50 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h4>{{ titulo }}</h4>
-                </div>
-                <div class="card-body">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h3 class="mb-1">{{ titulo }}</h3>
+                            <small class="text-muted">Módulo de Activos</small>
+                        </div>
+                        <a href="{% url 'activos:lista_activos' %}" class="btn-close" aria-label="Volver"></a>
+                    </div>
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label>Nombre</label>
+                            <label class="form-label">Nombre</label>
                             {{ form.nombre }}
                         </div>
-                        <div class="mb-3">
-                            <label>Marca</label>
-                            {{ form.marca }}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Marca</label>
+                                {{ form.marca }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Modelo</label>
+                                {{ form.modelo }}
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label>Modelo</label>
-                            {{ form.modelo }}
-                        </div>
-                        <div class="mb-3">
-                            <label>Fecha de adquisición</label>
+                            <label class="form-label">Fecha de adquisición</label>
                             {{ form.fecha_adquisicion }}
                         </div>
                         <div class="mb-3">
-                            <label>Descripción</label>
+                            <label class="form-label">Descripción</label>
                             {{ form.descripcion }}
                         </div>
-                        <div class="form-check form-switch mb-3">
+                        <div class="form-check form-switch mb-4">
                             {{ form.estado_operativo }}
                             <label class="form-check-label">Activo operativo</label>
                         </div>
-                        <button type="submit" class="btn btn-primary">{{ btn_texto }}</button>
-                        <a href="{% url 'activos:lista_activos' %}" class="btn btn-secondary">Cancelar</a>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">{{ btn_texto }}</button>
+                            <a href="{% url 'activos:lista_activos' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
                     </form>
                 </div>
             </div>

@@ -9,6 +9,8 @@ from .forms import ActivoForm
 from django.views.decorators.http import require_POST
 from .forms import ActivoForm, SistemaForm, ComponenteForm
 import json
+from django.db.models import ProtectedError
+from django.contrib import messages
 
 #Vista para mostrar la jerarquía de activos, sistemas y componentes en una sola página, utilizando prefetch_related para optimizar las consultas a la base de datos y evitar el problema de N+1 consultas.
 @login_required
@@ -236,8 +238,11 @@ def obtener_componentes(request):
 def eliminar_activo(request, id):
     activo = get_object_or_404(Activo, id=id)
     if request.method == 'POST':
-        activo.delete()
-        return redirect('activos:lista_activos')
+        try:
+            activo.delete()
+            messages.success(request, f'Activo "{activo.nombre}" eliminado correctamente.')
+        except ProtectedError:
+            messages.error(request, f'No se puede eliminar "{activo.nombre}" porque tiene solicitudes de mantenimiento asociadas.')
     return redirect('activos:lista_activos')
 
 
@@ -245,13 +250,24 @@ def eliminar_activo(request, id):
 def eliminar_sistema(request, id):
     sistema = get_object_or_404(Sistema, id=id)
     if request.method == 'POST':
-        sistema.delete()
-        return redirect('activos:lista_activos')
+        try:
+            sistema.delete()
+            messages.success(request, f'Sistema "{sistema.nombre}" eliminado correctamente.')
+        except ProtectedError:
+            messages.error(request, f'No se puede eliminar "{sistema.nombre}" porque tiene solicitudes de mantenimiento asociadas.')
     return redirect('activos:lista_activos')
 
 
 @login_required
 def eliminar_componente(request, id):
+    componente = get_object_or_404(Componente, id=id)
+    if request.method == 'POST':
+        try:
+            componente.delete()
+            messages.success(request, f'Componente "{componente.nombre}" eliminado correctamente.')
+        except ProtectedError:
+            messages.error(request, f'No se puede eliminar "{componente.nombre}" porque tiene solicitudes de mantenimiento asociadas.')
+    return redirect('activos:lista_activos')
     componente = get_object_or_404(Componente, id=id)
     if request.method == 'POST':
         componente.delete()
