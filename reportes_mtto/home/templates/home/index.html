@@ -4,24 +4,24 @@
 <div class="row g-4 mb-4">
     <div class="col-12">
         {% if request.user.is_authenticated %}
-        <h2 class="fw-bold text-dark mb-1">Bienvenido, {{ request.user.first_name }} 👋</h2>
-        <p class="text-muted">Panel de gestión de mantenimiento</p>
+        <h2 class="fw-bold mb-1" style="color: #e2e8f0;">Bienvenido, {{ request.user.first_name }} 👋</h2>
+        <p style="color: #64748b;">Panel de gestión de mantenimiento</p>
         {% else %}
-        <h2 class="fw-bold text-dark mb-1">Bienvenido a Fixly</h2>
+        <h2 class="fw-bold mb-1" style="color: #e2e8f0;">Bienvenido a Fixly</h2>
         {% endif %}
     </div>
 </div>
 
 <div class="row g-3">
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 h-100" style="background-color: #1e293b;">
             <div class="card-body d-flex align-items-center gap-3 p-4">
-                <div style="width: 48px; height: 48px; border-radius: 12px; background: #eff6ff; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-clipboard-check text-primary fs-4"></i>
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(249,115,22,0.15); display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-clipboard-check fs-4" style="color: #f97316;"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <h5 class="fw-bold mb-1">Solicitudes</h5>
-                    <p class="text-muted small mb-2">Gestiona órdenes de mantenimiento</p>
+                    <h5 class="fw-bold mb-1" style="color: #e2e8f0;">Solicitudes</h5>
+                    <p class="small mb-2" style="color: #64748b;">Gestiona órdenes de mantenimiento</p>
                     <a href="{% url 'solicitudes:lista' %}" class="btn btn-primary btn-sm">Ver solicitudes</a>
                 </div>
             </div>
@@ -29,15 +29,15 @@
     </div>
 
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm h-100">
+        <div class="card border-0 h-100" style="background-color: #1e293b;">
             <div class="card-body d-flex align-items-center gap-3 p-4">
-                <div style="width: 48px; height: 48px; border-radius: 12px; background: #f0fdf4; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-diagram-3 text-success fs-4"></i>
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(249,115,22,0.15); display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-diagram-3 fs-4" style="color: #f97316;"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <h5 class="fw-bold mb-1">Activos</h5>
-                    <p class="text-muted small mb-2">Administra equipos y sistemas</p>
-                    <a href="{% url 'activos:lista_activos' %}" class="btn btn-success btn-sm">Ver activos</a>
+                    <h5 class="fw-bold mb-1" style="color: #e2e8f0;">Activos</h5>
+                    <p class="small mb-2" style="color: #64748b;">Administra equipos y sistemas</p>
+                    <a href="{% url 'activos:lista_activos' %}" class="btn btn-primary btn-sm">Ver activos</a>
                 </div>
             </div>
         </div>

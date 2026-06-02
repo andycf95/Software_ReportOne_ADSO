@@ -152,11 +152,11 @@
                                 <td>{{ solicitud.activo }}</td>
                                 <td>
                                     {% if solicitud.estado == 'PENDIENTE' %}
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Pendiente</span>
+                                        <span class="badge" style="background-color: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3);">Pendiente</span>
                                     {% elif solicitud.estado == 'EN_PROCESO' %}
-                                        <span class="badge bg-dark-subtle text-dark border border-dark-subtle">En proceso</span>
+                                        <span class="badge" style="background-color: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3);">En proceso</span>
                                     {% elif solicitud.estado == 'CERRADA' %}
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Cerrada</span>
+                                        <span class="badge" style="background-color: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3);">Cerrada</span>
                                     {% endif %}
                                 </td>
                                 <td>

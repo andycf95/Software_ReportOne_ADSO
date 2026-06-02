@@ -1,285 +1,235 @@
-
-
-:root {
-            --sidebar-width: 240px;
-            --navbar-height: 56px;
-            --sidebar-bg: #1e293b;
-            --sidebar-hover: #334155;
-            --sidebar-active: #3b82f6;
-            --sidebar-text: #94a3b8;
-            --sidebar-text-active: #ffffff;
-        }
-
-        body {
-            background-color: #f1f5f9;
-            margin: 0;
-        }
-
-        /* NAVBAR */
-        .top-navbar {
-            position: fixed;
-            top: 0;
-            left: var(--sidebar-width);
-            right: 0;
-            height: var(--navbar-height);
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 0 1.5rem;
-            z-index: 100;
-            gap: 1rem;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: var(--sidebar-bg);
-            display: flex;
-            flex-direction: column;
-            z-index: 200;
-            overflow-y: auto;
-        }
-
-        .sidebar-brand {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid #334155;
-            color: #ffffff;
-            font-size: 0.95rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            text-decoration: none;
-            min-height: var(--navbar-height);
-        }
-
-        .sidebar-brand:hover { color: #ffffff; }
-
-        .sidebar-section {
-            padding: 1rem 1rem 0.25rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #475569;
-        }
-
-        .sidebar-nav {
-            list-style: none;
-            padding: 0.25rem 0.75rem;
-            margin: 0;
-        }
-
-        .sidebar-nav li a {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            padding: 0.55rem 0.75rem;
-            border-radius: 8px;
-            color: var(--sidebar-text);
-            text-decoration: none;
-            font-size: 0.875rem;
-            transition: background 0.15s, color 0.15s;
-        }
-
-        .sidebar-nav li a:hover {
-            background: var(--sidebar-hover);
-            color: var(--sidebar-text-active);
-        }
-
-        .sidebar-nav li a.active {
-            background: var(--sidebar-active);
-            color: var(--sidebar-text-active);
-        }
-
-        .sidebar-nav li a i {
-            font-size: 1rem;
-            width: 18px;
-            text-align: center;
-        }
-
-        /* MAIN */
-        .main-wrapper {
-            margin-left: var(--sidebar-width);
-            padding-top: var(--navbar-height);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 1.5rem;
-        }
-
-        /* NAVBAR AVATAR */
-        .nav-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: #3b82f6;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        /* FOOTER */
-        .main-footer {
-            background: #ffffff;
-            border-top: 1px solid #e2e8f0;
-            padding: 0.75rem 1.5rem;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #94a3b8;
-        }
+/* =====================================================
+   FIXLY — SISTEMA DE GESTIÓN DE MANTENIMIENTO
+   Modo oscuro con acento naranja
+   Paleta: #0f172a (fondo) | #1e293b (cards) | #f97316 (acento)
+   ===================================================== */
 
 /* ---------------------------------------------------
-   ÁRBOL JERÁRQUICO
+   1. VARIABLES GLOBALES
 --------------------------------------------------- */
-.assets-wrapper .row {
-    align-items: flex-start !important;
+:root {
+    --sidebar-width: 240px;
+    --navbar-height: 56px;
+    --sidebar-bg: #0f172a;
+    --sidebar-hover: #1e293b;
+    --sidebar-active: #f97316;
+    --sidebar-text: #94a3b8;
+    --sidebar-text-active: #ffffff;
+    --accent: #f97316;
+    --accent-hover: #ea6c0a;
+    --bg-base: #0f172a;
+    --bg-card: #1e293b;
+    --border: #334155;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
 }
 
-.tree-container {
-    background: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    max-height: calc(100vh - 320px);
+/* ---------------------------------------------------
+   2. BASE
+--------------------------------------------------- */
+body {
+    min-height: 100vh;
+    background-color: var(--bg-base);
+    margin: 0;
+    color: var(--text-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary) !important;
+}
+
+small, .small {
+    color: var(--text-muted) !important;
+}
+
+hr {
+    border-color: var(--border) !important;
+}
+
+* {
+    outline: none !important;
+}
+
+/* ---------------------------------------------------
+   3. TIPOGRAFÍA Y COLORES DE TEXTO
+--------------------------------------------------- */
+.text-dark {
+    color: var(--text-primary) !important;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.text-primary {
+    color: var(--accent) !important;
+}
+
+.text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+/* ---------------------------------------------------
+   4. LAYOUT — SIDEBAR
+--------------------------------------------------- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    z-index: 200;
     overflow-y: auto;
+    border-right: 1px solid var(--border);
 }
 
-.tree-header {
-    font-size: 0.85rem;
-    color: #6b7280;
-    border-bottom: 1px solid #e5e7eb;
-    padding: 12px 20px;
-}
-
-.tree-row {
-    padding: 12px 20px;
-    border-bottom: 1px solid #f3f4f6;
-    transition: background-color 0.2s;
-    cursor: pointer;
+.sidebar-brand {
+    height: var(--navbar-height);
+    min-height: var(--navbar-height);
+    max-height: var(--navbar-height);
+    padding: 0 1.5rem;
+    border-bottom: 1px solid var(--border);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
 }
 
-.tree-row:hover { background-color: #f9fafb; }
+.sidebar-brand:hover { color: #ffffff; }
 
-.badge-activo { background-color: #d1fae5; color: #065f46; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
-.badge-sistema { background-color: #e0e7ff; color: #3730a3; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
-.badge-componente { background-color: #eff6ff; color: #1d4ed8; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
-
-.nivel-2 { padding-left: 50px; }
-.nivel-3 { padding-left: 80px; position: relative; }
-
-.nivel-3::before {
-    content: "";
-    position: absolute;
-    left: 56px;
-    top: -20px;
-    bottom: 50%;
-    border-left: 1px dashed #d1d5db;
-}
-
-.nivel-3::after {
-    content: "";
-    position: absolute;
-    left: 56px;
-    top: 50%;
-    width: 15px;
-    border-top: 1px dashed #d1d5db;
-}
-
-.icon-box { width: 24px; text-align: center; color: #6b7280; margin-right: 12px; }
-
-.chevron-icon {
-    transition: transform 0.3s;
-    color: #9ca3af;
-    font-size: 0.85rem;
-    margin-right: 10px;
-}
-
-.collapsed .chevron-icon { transform: rotate(-90deg); }
-
-/* ---------------------------------------------------
-   TARJETA DE DETALLES FIJA
---------------------------------------------------- */
-.col-lg-5 {
-    position: sticky;
-    top: 76px;
-    align-self: flex-start;
-}
-
-.details-card {
-    height: calc(100vh - 260px);
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-/* ---------------------------------------------------
-   SEGUIMIENTO DE SOLICITUDES
---------------------------------------------------- */
-.tracking-item {
-    display: grid;
-    grid-template-columns: 90px 24px 1fr;
-    min-height: 76px;
-    position: relative;
-    align-items: center;
-}
-
-.tracking-time {
-    font-size: 0.9rem;
-    color: #4b5563;
-    text-align: right;
-    padding-right: 8px;
-}
-
-.tracking-marker {
-    position: relative;
-    height: 100%;
-    min-height: 76px;
-}
-
-.tracking-marker::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 11px;
-    width: 1px;
-    height: 100%;
-    background-color: #d1d5db;
-}
-
-.tracking-marker::after { content: none; }
-
-.tracking-content { padding: 10px 0 14px 0; }
-
-.tracking-title {
-    font-size: 1rem;
+.sidebar-section {
+    padding: 1rem 1rem 0.25rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    color: #111827;
-    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #475569;
 }
 
-.tracking-description {
-    margin-top: 5px;
-    font-size: 0.95rem;
-    color: #6b7280;
-    line-height: 1.45;
+.sidebar-nav {
+    list-style: none;
+    padding: 0.25rem 0.75rem;
+    margin: 0;
+}
+
+.sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-nav li a:hover {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-active);
+}
+
+.sidebar-nav li a.active {
+    background: var(--sidebar-active);
+    color: var(--sidebar-text-active);
+}
+
+.sidebar-nav li a i {
+    font-size: 1rem;
+    width: 18px;
+    text-align: center;
+}
+
+.sidebar-nav-logout {
+    width: 100%;
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-nav-logout:hover {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-active);
+}
+/* ---------------------------------------------------
+   5. LAYOUT — NAVBAR SUPERIOR
+--------------------------------------------------- */
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: var(--navbar-height);
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    border-top: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 1.5rem;
+    z-index: 100;
+    gap: 1rem;
+}
+
+.top-navbar span,
+.top-navbar button span {
+    color: var(--text-secondary) !important;
+}
+
+.nav-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 
 /* ---------------------------------------------------
-   SIDEBAR RESPONSIVE
+   6. LAYOUT — MAIN WRAPPER Y FOOTER
+--------------------------------------------------- */
+.main-wrapper {
+    margin-left: var(--sidebar-width);
+    padding-top: var(--navbar-height);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    padding: 1.5rem;
+}
+
+.main-footer {
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    padding: 0.75rem 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ---------------------------------------------------
+   7. SIDEBAR RESPONSIVE (MÓVIL)
 --------------------------------------------------- */
 @media (max-width: 768px) {
     .sidebar {
@@ -314,4 +264,606 @@
     .main-wrapper {
         margin-left: 0;
     }
+}
+
+/* ---------------------------------------------------
+   8. BOOTSTRAP OVERRIDES — BOTONES
+--------------------------------------------------- */
+.btn-primary {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--accent-hover) !important;
+    border-color: var(--accent-hover) !important;
+    color: #ffffff !important;
+}
+
+/* Editar — mismo naranja que primary */
+.btn-warning {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+.btn-warning:hover {
+    background-color: var(--accent-hover) !important;
+    border-color: var(--accent-hover) !important;
+    color: #ffffff !important;
+}
+
+.btn-danger {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #ffffff !important;
+}
+
+.btn-danger:hover {
+    background-color: #b91c1c !important;
+    border-color: #b91c1c !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-primary {
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-secondary {
+    color: var(--text-secondary) !important;
+    border-color: #475569 !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #334155 !important;
+    border-color: #475569 !important;
+    color: var(--text-primary) !important;
+}
+
+.btn-close {
+    filter: invert(1) sepia(1) saturate(5) hue-rotate(340deg) !important;
+    opacity: 0.8 !important;
+}
+
+.btn-close:hover {
+    opacity: 1 !important;
+}
+
+/* ---------------------------------------------------
+   9. BOOTSTRAP OVERRIDES — FORMULARIOS
+--------------------------------------------------- */
+.form-label,
+label {
+    color: var(--text-secondary) !important;
+}
+
+.form-control,
+.form-select {
+    background-color: var(--bg-base) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--bg-base) !important;
+    border-color: var(--accent) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(249, 115, 22, 0.15) !important;
+}
+
+.form-control::placeholder {
+    color: #475569 !important;
+}
+
+/* Autofill modo oscuro */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--bg-base) inset !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    caret-color: var(--text-primary) !important;
+}
+
+/* Opciones de select */
+select option {
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+}
+
+/* ---------------------------------------------------
+   10. BOOTSTRAP OVERRIDES — CARDS Y TABLAS
+--------------------------------------------------- */
+.card {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+.card-header {
+    background-color: var(--bg-card) !important;
+    border-bottom-color: var(--border) !important;
+}
+
+.border-bottom {
+    border-bottom-color: var(--border) !important;
+}
+
+.table {
+    color: var(--text-primary) !important;
+}
+
+.table-light th {
+    background-color: var(--bg-base) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border) !important;
+}
+
+.table > :not(caption) > * > * {
+    background-color: transparent !important;
+    border-bottom-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: #334155 !important;
+}
+
+/* ---------------------------------------------------
+   11. BOOTSTRAP OVERRIDES — BADGES
+--------------------------------------------------- */
+.badge.bg-light {
+    background-color: #334155 !important;
+    color: var(--text-secondary) !important;
+    border-color: #475569 !important;
+}
+
+.badge.bg-primary-subtle {
+    background-color: rgba(249, 115, 22, 0.15) !important;
+    color: #fb923c !important;
+    border-color: rgba(249, 115, 22, 0.3) !important;
+}
+
+.badge.bg-warning-subtle {
+    background-color: rgba(234, 179, 8, 0.15) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(234, 179, 8, 0.3) !important;
+}
+
+.badge.bg-info-subtle {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    color: #60a5fa !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+.badge.bg-success-subtle {
+    background-color: rgba(34, 197, 94, 0.15) !important;
+    color: #4ade80 !important;
+    border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+.badge.bg-secondary-subtle {
+    background-color: rgba(148, 163, 184, 0.15) !important;
+    color: #94a3b8 !important;
+    border-color: rgba(148, 163, 184, 0.3) !important;
+}
+
+.badge.bg-success {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+    color: #4ade80 !important;
+}
+
+.badge.bg-info {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+    color: #60a5fa !important;
+}
+
+.badge.bg-warning {
+    background-color: rgba(234, 179, 8, 0.2) !important;
+    color: #fbbf24 !important;
+}
+
+.badge.bg-danger {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #f87171 !important;
+}
+
+.badge.bg-dark {
+    background-color: rgba(148, 163, 184, 0.15) !important;
+    color: #94a3b8 !important;
+}
+
+/* ---------------------------------------------------
+   12. BOOTSTRAP OVERRIDES — PAGINACIÓN
+--------------------------------------------------- */
+.page-link {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border) !important;
+    color: var(--text-secondary) !important;
+}
+
+.page-link:hover {
+    background-color: #334155 !important;
+    border-color: #475569 !important;
+    color: var(--text-primary) !important;
+}
+
+.page-item.active .page-link {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+.page-item.disabled .page-link {
+    background-color: var(--bg-base) !important;
+    border-color: var(--border) !important;
+    color: #475569 !important;
+}
+
+/* ---------------------------------------------------
+   13. BOOTSTRAP OVERRIDES — DROPDOWN Y NAV
+--------------------------------------------------- */
+.dropdown-menu {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+.dropdown-item {
+    color: var(--text-secondary) !important;
+}
+
+.dropdown-item:hover {
+    background-color: #334155 !important;
+    color: var(--text-primary) !important;
+}
+
+.dropdown-divider {
+    border-color: var(--border) !important;
+}
+
+.dropdown-item-text {
+    color: var(--text-muted) !important;
+}
+
+.nav-tabs {
+    border-bottom-color: var(--border) !important;
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-muted) !important;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--accent) !important;
+    border-bottom-color: var(--accent) !important;
+    background: transparent !important;
+}
+
+.nav-link.active {
+    color: var(--accent) !important;
+}
+
+/* ---------------------------------------------------
+   14. MÓDULO ACTIVOS — ÁRBOL JERÁRQUICO
+--------------------------------------------------- */
+.assets-wrapper .row {
+    align-items: flex-start !important;
+}
+
+.tree-container {
+    background: var(--bg-card) !important;
+    border-radius: 8px;
+    border: 1px solid var(--border) !important;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.tree-header {
+    font-size: 0.85rem;
+    color: var(--text-muted) !important;
+    border-bottom: 1px solid var(--border) !important;
+    padding: 12px 20px;
+}
+
+.tree-row {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border) !important;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: var(--text-primary) !important;
+}
+
+.tree-row:hover {
+    background-color: #334155 !important;
+}
+
+.tree-row.bg-light {
+    background-color: #172033 !important;
+}
+
+.tree-row .fw-bold,
+.tree-row .fw-semibold,
+.tree-row .text-dark {
+    color: var(--text-primary) !important;
+}
+
+/* Indentación jerárquica */
+.nivel-2 { padding-left: 50px; }
+.nivel-3 { padding-left: 80px; position: relative; }
+
+.nivel-3::before {
+    content: "";
+    position: absolute;
+    left: 56px;
+    top: -20px;
+    bottom: 50%;
+    border-left: 1px dashed var(--border);
+}
+
+.nivel-3::after {
+    content: "";
+    position: absolute;
+    left: 56px;
+    top: 50%;
+    width: 15px;
+    border-top: 1px dashed var(--border);
+}
+
+.icon-box {
+    width: 24px;
+    text-align: center;
+    color: var(--text-muted) !important;
+    margin-right: 12px;
+}
+
+.chevron-icon {
+    transition: transform 0.3s;
+    color: #475569 !important;
+    font-size: 0.85rem;
+    margin-right: 10px;
+}
+
+.collapsed .chevron-icon { transform: rotate(-90deg); }
+
+/* Badges árbol */
+.badge-activo { background-color: rgba(34,197,94,0.15); color: #4ade80; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+.badge-sistema { background-color: rgba(99,102,241,0.15); color: #818cf8; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+.badge-componente { background-color: rgba(59,130,246,0.15); color: #60a5fa; font-weight: 500; font-size: 0.75rem; padding: 0.35em 0.65em; }
+
+/* ---------------------------------------------------
+   15. MÓDULO ACTIVOS — PANEL DE DETALLES
+--------------------------------------------------- */
+.col-lg-5 {
+    position: sticky;
+    top: 76px;
+    align-self: flex-start;
+}
+
+.details-card {
+    background-color: var(--bg-card) !important;
+    height: calc(100vh - 140px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.card-header.bg-white {
+    background-color: var(--bg-card) !important;
+}
+
+.details-info-body .text-secondary {
+    color: var(--text-muted) !important;
+}
+
+.details-info-body .fw-semibold,
+.details-info-body .fw-medium {
+    color: var(--text-primary) !important;
+}
+
+.stat-card-box {
+    background-color: var(--bg-base) !important;
+    border-color: var(--border) !important;
+}
+
+.stat-icon-orders,
+.stat-icon-maint {
+    color: var(--accent) !important;
+    background-color: rgba(249, 115, 22, 0.15) !important;
+}
+
+/* ---------------------------------------------------
+   16. MÓDULO SOLICITUDES — HISTORIAL DE SEGUIMIENTO
+--------------------------------------------------- */
+.tracking-item {
+    display: grid;
+    grid-template-columns: 90px 24px 1fr;
+    min-height: 76px;
+    position: relative;
+    align-items: center;
+}
+
+.tracking-time {
+    font-size: 0.9rem;
+    color: var(--text-muted) !important;
+    text-align: right;
+    padding-right: 8px;
+}
+
+.tracking-marker {
+    position: relative;
+    height: 100%;
+    min-height: 76px;
+}
+
+.tracking-marker::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 11px;
+    width: 1px;
+    height: 100%;
+    background-color: var(--border) !important;
+}
+
+.tracking-marker::after { content: none; }
+
+.tracking-content { padding: 10px 0 14px 0; }
+
+.tracking-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent) !important;
+    line-height: 1.3;
+}
+
+.tracking-description {
+    margin-top: 5px;
+    font-size: 0.95rem;
+    color: #cbd5e1 !important;
+    line-height: 1.45;
+}
+
+/* ---------------------------------------------------
+   17. MODALES
+--------------------------------------------------- */
+.modal-content {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+.modal-header {
+    border-bottom-color: var(--border) !important;
+}
+
+.modal-footer {
+    border-top-color: var(--border) !important;
+}
+
+.modal-title {
+    color: var(--text-primary) !important;
+}
+
+.modal-body {
+    color: var(--text-secondary) !important;
+}
+
+.modal-backdrop {
+    background-color: #000000 !important;
+}
+
+/* ---------------------------------------------------
+   18. FLATPICKR — DATEPICKER MODO OSCURO
+--------------------------------------------------- */
+.flatpickr-calendar {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4) !important;
+    border-radius: 12px !important;
+}
+
+.flatpickr-month {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    fill: var(--text-primary) !important;
+}
+
+.flatpickr-current-month {
+    color: var(--text-primary) !important;
+}
+
+.flatpickr-current-month select,
+.flatpickr-current-month input {
+    color: var(--text-primary) !important;
+    background: transparent !important;
+}
+
+.flatpickr-weekday {
+    color: var(--text-muted) !important;
+    background: var(--bg-card) !important;
+}
+
+.flatpickr-weeks {
+    background: var(--bg-card) !important;
+}
+
+.flatpickr-day {
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+}
+
+.flatpickr-day:hover {
+    background: #334155 !important;
+    border-color: #334155 !important;
+    color: var(--text-primary) !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+.flatpickr-day.today {
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+}
+
+.flatpickr-day.today:hover {
+    background: var(--accent) !important;
+    color: #ffffff !important;
+}
+
+.flatpickr-day.flatpickr-disabled,
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+    color: #475569 !important;
+}
+
+.flatpickr-prev-month,
+.flatpickr-next-month {
+    color: var(--text-secondary) !important;
+    fill: var(--text-secondary) !important;
+}
+
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+    color: var(--accent) !important;
+    fill: var(--accent) !important;
+}
+
+.flatpickr-innerContainer {
+    background: var(--bg-card) !important;
+    border-radius: 0 0 12px 12px !important;
+}
+
+.flatpickr-rContainer {
+    background: var(--bg-card) !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+}
+
+.flatpickr-monthDropdown-month {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+}
+
+.flatpickr-monthDropdown-month:hover {
+    background: #334155 !important;
 }

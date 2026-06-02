@@ -1,0 +1,96 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fixly — Órdenes de Mantenimiento</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="{% static 'css/styles_landing.css' %}">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="landing-nav">
+        <div class="brand-name">fix<span>ly</span></div>
+        <a href="{% url 'usuarios:login' %}" class="btn-login" style="padding: 0.5rem 1.25rem; font-size: 0.875rem;">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+        </a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="bi bi-tools me-1"></i> Sistema industrial de mantenimiento
+            </div>
+            <h1 class="hero-title">
+                Gestiona tus solicitudes de<br>
+                <span>mantenimiento correctivo</span>
+            </h1>
+            <p class="hero-subtitle">
+                Crea, da seguimiento y cierra órdenes de trabajo con trazabilidad completa.
+                Control total sobre tus activos, sistemas y componentes industriales.
+            </p>
+            <a href="{% url 'usuarios:login' %}" class="btn-login">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Ingresar al sistema
+            </a>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features">
+        <div class="container">
+            <div class="row g-3 justify-content-center">
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+                        <p class="feature-title">Solicitudes</p>
+                        <p class="feature-desc">Crea y gestiona órdenes de mantenimiento con flujo de estados controlado.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <p class="feature-title">Activos</p>
+                        <p class="feature-desc">Administra la jerarquía de equipos, sistemas y componentes industriales.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <p class="feature-title">Trazabilidad</p>
+                        <p class="feature-desc">Historial completo e inmutable de cada orden desde su creación hasta el cierre.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <p class="feature-title">Roles</p>
+                        <p class="feature-desc">Control de acceso por roles: técnico, supervisor y administrador.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="landing-footer">
+        &copy; 2026 fixly — Sistema de Gestión de Mantenimiento
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

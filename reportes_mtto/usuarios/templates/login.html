@@ -8,12 +8,12 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-12 col-sm-10 col-md-7 col-lg-5">
-            <div class="card shadow-sm border-0">
+            <div class="card border-0" style="background-color: #1e293b;">
                 <div class="card-body p-4 p-sm-5">
-                    <h3 class="mb-1 fw-semibold">
+                    <h3 class="mb-1 fw-semibold text-white">
                         Iniciar sesión
                     </h3>
-                    <p class="text-muted mb-4">
+                    <p class="mb-4" style="color: #94a3b8;">
                         Accede al sistema de mantenimiento.
                     </p>
 
@@ -27,7 +27,7 @@
                         {% endif %}
 
                         <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                            <label for="{{ form.username.id_for_label }}" class="form-label" style="color: #94a3b8;">
                                 Usuario
                             </label>
                             <input
@@ -35,41 +35,37 @@
                                 name="{{ form.username.html_name }}"
                                 id="{{ form.username.id_for_label }}"
                                 class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                                style="background-color: #0f172a; border-color: #334155; color: #e2e8f0;"
                                 value="{{ form.username.value|default_if_none:'' }}"
                                 autofocus>
                             {% if form.username.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.username.errors|striptags }}
-                                </div>
+                                <div class="text-danger small mt-1">{{ form.username.errors|striptags }}</div>
                             {% endif %}
                         </div>
 
                         <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}" class="form-label">
+                            <label for="{{ form.password.id_for_label }}" class="form-label" style="color: #94a3b8;">
                                 Contraseña
                             </label>
                             <input
                                 type="password"
                                 name="{{ form.password.html_name }}"
                                 id="{{ form.password.id_for_label }}"
-                                class="form-control {% if form.password.errors %}is-invalid{% endif %}">
+                                class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+                                style="background-color: #0f172a; border-color: #334155; color: #e2e8f0;">
                             {% if form.password.errors %}
-                                <div class="text-danger small mt-1">
-                                    {{ form.password.errors|striptags }}
-                                </div>
+                                <div class="text-danger small mt-1">{{ form.password.errors|striptags }}</div>
                             {% endif %}
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
                             Entrar
                         </button>
-                        
-                        <div class="mt-3 text-center small">
-                            ¿No tienes cuenta? <a href="{% url 'usuarios:registro' %}">Regístrate aquí</a>
+
+                        <div class="mt-3 text-center small" style="color: #64748b;">
+                            ¿No tienes cuenta? <a href="{% url 'usuarios:registro' %}" style="color: #f97316;">Regístrate aquí</a>
                         </div>
                     </form>
-
-
                 </div>
             </div>
         </div>

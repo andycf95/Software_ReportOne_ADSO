@@ -1,17 +1,93 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
 
-    <!-- Contenido principal -->
-    <div class="container mt-5">
-        
+{% block content %}
 
-        <!-- Bloque de Contacto Directo -->
-        <div class="bg-white rounded shadow-sm border p-4 text-center">
-            <h5 class="mb-3">Soporte Técnico</h5>
-            <p class="mb-1"><strong>Correo:</strong> soporte@mantenimiento.com</p>
-            <p class="mb-1"><strong>Teléfono:</strong> +57 (605) 300-1234 — Ext. 102</p>
-            <p class="text-muted small mb-0">Horario: Lunes a Viernes (7:00 AM - 5:00 PM)</p>
+<div class="container mt-5">
+
+    <!-- ENCABEZADO -->
+    <div class="mb-5">
+        <h2 class="fw-bold mb-1">Contacto</h2>
+        <p class="text-muted">¿Necesitas ayuda? Estamos disponibles para apoyarte.</p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- CARD SOPORTE -->
+        <div class="col-md-4">
+            <div class="card border-0 h-100 p-4">
+                <div class="mb-3" style="width:48px; height:48px; border-radius:12px; background:rgba(249,115,22,0.15); display:flex; align-items:center; justify-content:center;">
+                    <i class="bi bi-headset fs-4" style="color: var(--accent);"></i>
+                </div>
+                <h5 class="fw-bold mb-1">Soporte Técnico</h5>
+                <p class="text-muted small mb-3">Asistencia directa para problemas del sistema.</p>
+                <p class="mb-1 small" style="color: var(--text-secondary);">
+                    <i class="bi bi-envelope me-2" style="color: var(--accent);"></i>
+                    soporte@mantenimiento.com
+                </p>
+                <p class="mb-1 small" style="color: var(--text-secondary);">
+                    <i class="bi bi-telephone me-2" style="color: var(--accent);"></i>
+                    +57 (605) 300-1234 — Ext. 102
+                </p>
+                <p class="mt-2 small" style="color: var(--text-muted);">
+                    <i class="bi bi-clock me-2"></i>
+                    Lunes a Viernes — 7:00 AM a 5:00 PM
+                </p>
+            </div>
+        </div>
+
+        <!-- CARD REPORTAR PROBLEMA -->
+        <div class="col-md-4">
+            <div class="card border-0 h-100 p-4">
+                <div class="mb-3" style="width:48px; height:48px; border-radius:12px; background:rgba(249,115,22,0.15); display:flex; align-items:center; justify-content:center;">
+                    <i class="bi bi-bug fs-4" style="color: var(--accent);"></i>
+                </div>
+                <h5 class="fw-bold mb-1">Reportar un problema</h5>
+                <p class="text-muted small mb-3">Informa fallos o comportamientos inesperados del sistema.</p>
+                <p class="mb-1 small" style="color: var(--text-secondary);">
+                    <i class="bi bi-envelope me-2" style="color: var(--accent);"></i>
+                    bugs@mantenimiento.com
+                </p>
+                <p class="mt-2 small" style="color: var(--text-muted);">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Incluye capturas y pasos para reproducir el error.
+                </p>
+            </div>
+        </div>
+
+        <!-- CARD ADMINISTRACIÓN -->
+        <div class="col-md-4">
+            <div class="card border-0 h-100 p-4">
+                <div class="mb-3" style="width:48px; height:48px; border-radius:12px; background:rgba(249,115,22,0.15); display:flex; align-items:center; justify-content:center;">
+                    <i class="bi bi-person-gear fs-4" style="color: var(--accent);"></i>
+                </div>
+                <h5 class="fw-bold mb-1">Administración</h5>
+                <p class="text-muted small mb-3">Gestión de usuarios, permisos y configuración del sistema.</p>
+                <p class="mb-1 small" style="color: var(--text-secondary);">
+                    <i class="bi bi-envelope me-2" style="color: var(--accent);"></i>
+                    admin@mantenimiento.com
+                </p>
+                <p class="mt-2 small" style="color: var(--text-muted);">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    Solo personal autorizado.
+                </p>
+            </div>
         </div>
 
     </div>
+
+    <!-- BANNER INFERIOR -->
+    <div class="mt-4 p-4 rounded-3 d-flex flex-wrap align-items-center justify-content-between gap-3"
+         style="background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.2);">
+        <div>
+            <h6 class="fw-bold mb-1" style="color: var(--accent);">¿Urgencia crítica?</h6>
+            <p class="mb-0 small text-muted">Para emergencias fuera de horario comunícate directamente al número de guardia.</p>
+        </div>
+        <div class="fw-bold" style="color: var(--text-primary);">
+            <i class="bi bi-telephone-fill me-2" style="color: var(--accent);"></i>
+            +57 300 000-0000
+        </div>
+    </div>
+
+</div>
 
 {% endblock %}
