@@ -11,6 +11,7 @@ from .forms import ActivoForm, SistemaForm, ComponenteForm
 import json
 from django.db.models import ProtectedError
 from django.contrib import messages
+from usuarios.views import solo_admin
 
 #Vista para mostrar la jerarquía de activos, sistemas y componentes en una sola página, utilizando prefetch_related para optimizar las consultas a la base de datos y evitar el problema de N+1 consultas.
 @login_required
@@ -27,6 +28,7 @@ def lista_activos_jerarquia(request):
 #Vista para crear un nuevo activo, utilizando un formulario basado en el modelo ActivoForm.
 # Si el formulario es válido, se guarda el nuevo activo y se redirige a la lista de activos.
 @login_required
+@solo_admin
 def crear_activo(request):
     if request.method == 'POST':
         form = ActivoForm(request.POST)
@@ -43,6 +45,7 @@ def crear_activo(request):
 
 
 @login_required
+@solo_admin
 def editar_activo(request, id):
     activo = get_object_or_404(Activo, id=id)
     if request.method == 'POST':
@@ -59,6 +62,7 @@ def editar_activo(request, id):
     })
 
 @login_required
+@solo_admin
 def crear_sistema(request, activo_id):
     activo = get_object_or_404(Activo, id=activo_id)
     if request.method == 'POST':
@@ -80,6 +84,7 @@ def crear_sistema(request, activo_id):
 
 
 @login_required
+@solo_admin
 def editar_sistema(request, id):
     sistema = get_object_or_404(Sistema, id=id)
     if request.method == 'POST':
@@ -98,6 +103,7 @@ def editar_sistema(request, id):
 
 
 @login_required
+@solo_admin
 def crear_componente(request, sistema_id):
     sistema = get_object_or_404(Sistema, id=sistema_id)
     if request.method == 'POST':
@@ -120,6 +126,7 @@ def crear_componente(request, sistema_id):
 
 
 @login_required
+@solo_admin
 def editar_componente(request, id):
     componente = get_object_or_404(Componente, id=id)
     if request.method == 'POST':
@@ -235,6 +242,7 @@ def obtener_componentes(request):
     return JsonResponse(list(componentes),safe=False)
 
 @login_required
+@solo_admin
 def eliminar_activo(request, id):
     activo = get_object_or_404(Activo, id=id)
     if request.method == 'POST':
@@ -247,6 +255,7 @@ def eliminar_activo(request, id):
 
 
 @login_required
+@solo_admin
 def eliminar_sistema(request, id):
     sistema = get_object_or_404(Sistema, id=id)
     if request.method == 'POST':
@@ -259,6 +268,7 @@ def eliminar_sistema(request, id):
 
 
 @login_required
+@solo_admin
 def eliminar_componente(request, id):
     componente = get_object_or_404(Componente, id=id)
     if request.method == 'POST':

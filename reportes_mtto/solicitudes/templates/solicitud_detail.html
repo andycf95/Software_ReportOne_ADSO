@@ -10,8 +10,8 @@
                 <div class="card-body p-4">
 
                     <!-- ENCABEZADO -->
-                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-                        <div>
+                    <div class="mb-4" style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start;">
+                        <div style="min-width: 0;">
                             <h2 class="mb-0 fw-bold text-dark">{{ solicitud.titulo }}</h2>
                             <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
                                 <span class="badge bg-light text-secondary border fs-7">
@@ -34,47 +34,38 @@
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2 flex-shrink-0">
-                            {% if solicitud.estado != 'CERRADA' %}
-                                <a href="{% url 'solicitudes:editar' id=solicitud.id %}" class="btn btn-warning btn-sm px-3 fw-semibold">
-                                    <i class="bi bi-pencil-square me-1"></i> Editar
-                                </a>
-                                <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary btn-sm px-3">
-                                    Volver
-                                </a>
-                            {% else %}
-                                <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary btn-sm px-3">
-                                    Volver
-                                </a>
-                            {% endif %}
+                        <div class="d-flex gap-2" style="flex-shrink: 0;">
+                            <a href="{{ next }}" class="btn btn-outline-secondary btn-sm px-3">
+                                Volver
+                            </a>
                         </div>
                     </div>
 
                     <!-- DESCRIPCIÓN -->
                     <div class="mb-4">
                         <h6 class="text-muted">Descripción</h6>
-                        <p>{{ solicitud.descripcion }}</p>
+                        <p class="fw-small text-dark mb-0">{{ solicitud.descripcion }}</p>
                     </div>
 
                     <!-- INFO GENERAL -->
                     <div class="row row-cols-1 row-cols-md-2 g-3">
                         <div class="col">
                             <h6 class="text-muted small mb-1">Fecha de creación</h6>
-                            <p class="fw-medium text-dark mb-0">
+                            <p class="fw-small text-dark mb-0">
                                 {{ solicitud.fecha_creacion|date:"d/m/Y" }}
                             </p>
                         </div>
                         <div class="col">
                             <h6 class="text-muted small mb-1">Activo</h6>
-                            <p class="fw-medium text-dark mb-0">{{ solicitud.activo }}</p>
+                            <p class="fw-small text-dark mb-0">{{ solicitud.activo }}</p>
                         </div>
                         <div class="col">
                             <h6 class="text-muted small mb-1">Sistema</h6>
-                            <p class="fw-medium text-dark mb-0">{{ solicitud.sistema_activo }}</p>
+                            <p class="fw-small text-dark mb-0">{{ solicitud.sistema_activo }}</p>
                         </div>
                         <div class="col">
                             <h6 class="text-muted small mb-1">Componente</h6>
-                            <p class="fw-medium text-dark mb-0">
+                            <p class="fw-small text-dark mb-0">
                                 {{ solicitud.componente_activo|default:"No aplica" }}
                             </p>
                         </div>
@@ -82,7 +73,7 @@
                         {% if solicitud.estado == "CERRADA" %}
                             <div class="col">
                                 <h6 class="text-muted small mb-1">Fecha de cierre</h6>
-                                <p class="fw-medium text-dark mb-0">
+                                <p class="fw-small text-dark mb-0">
                                     {{ solicitud.fecha_cierre|date:"d/m/Y" }}
                                 </p>
                             </div>
@@ -103,48 +94,49 @@
                     <h6 class="text-primary text-uppercase fw-semibold mb-4 fs-5">
                         Historial de la Solicitud
                     </h6>
-
-                    {% for grupo in seguimientos_por_fecha %}
-                        <div class="mb-4">
-                            <div class="fw-bold text-secondary small text-uppercase mb-3">
-                                <i class="bi bi-calendar3 me-1"></i> {{ grupo.dia|date:"l, d \d\e F \d\e Y" }}
-                            </div>
-
-                            {% for seguimiento in grupo.items %}
-                                <div class="tracking-item">
-                                    <div class="tracking-time">
-                                        {{ seguimiento.hora|date:"g:i A" }}
-                                    </div>
-
-                                    <div class="tracking-marker"></div>
-
-                                    <div class="tracking-content">
-                                        <div class="tracking-title">
-                                            {{ seguimiento.accion }}
-                                        </div>
-                                        <div class="tracking-description mb-2">
-                                            {{ seguimiento.descripcion }}
-                                        </div>
-                                        {% if seguimiento.usuario %}
-                                            <div class="d-flex align-items-center gap-1 text-muted" style="font-size: 0.8rem;">
-                                                <i class="bi bi-person-circle text-secondary"></i>
-                                                <span>Por: <strong class="text-dark">{{ seguimiento.usuario.get_full_name|default:seguimiento.usuario.username }}</strong></span>
-                                                {% if seguimiento.usuario.rol %}
-                                                    <span class="badge bg-light text-secondary border ms-1" style="font-size: 0.7rem; font-weight: 500;">
-                                                        {{ seguimiento.usuario.get_rol_display|default:seguimiento.usuario.rol|upper }}
-                                                    </span>
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
+                    <div style="max-height: 400px; overflow-y: auto; padding-right: 0.5rem;">
+                        {% for grupo in seguimientos_por_fecha %}
+                            <div class="mb-4">
+                                <div class="fw-bold text-secondary small text-uppercase mb-3">
+                                    <i class="bi bi-calendar3 me-1"></i> {{ grupo.dia|date:"l, d \d\e F \d\e Y" }}
                                 </div>
-                            {% endfor %}
-                        </div>
-                    {% empty %}
-                        <p class="text-muted small mb-0 py-3 text-center">
-                            <i class="bi bi-info-circle me-1"></i> No hay seguimientos registrados para esta orden.
-                        </p>
-                    {% endfor %}
+
+                                {% for seguimiento in grupo.items %}
+                                    <div class="tracking-item">
+                                        <div class="tracking-time">
+                                            {{ seguimiento.hora|date:"g:i A" }}
+                                        </div>
+
+                                        <div class="tracking-marker"></div>
+
+                                        <div class="tracking-content">
+                                            <div class="tracking-title">
+                                                {{ seguimiento.accion }}
+                                            </div>
+                                            <div class="tracking-description mb-2">
+                                                {{ seguimiento.descripcion }}
+                                            </div>
+                                            {% if seguimiento.usuario %}
+                                                <div class="d-flex align-items-center gap-1 text-muted" style="font-size: 0.8rem;">
+                                                    <i class="bi bi-person-circle text-secondary"></i>
+                                                    <span>Por: <strong class="text-dark">{{ seguimiento.usuario.get_full_name|default:seguimiento.usuario.username }}</strong></span>
+                                                    {% if seguimiento.usuario.rol %}
+                                                        <span class="badge bg-light text-secondary border ms-1" style="font-size: 0.7rem; font-weight: 500;">
+                                                            {{ seguimiento.usuario.get_rol_display|default:seguimiento.usuario.rol|upper }}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% empty %}
+                            <p class="text-muted small mb-0 py-3 text-center">
+                                <i class="bi bi-info-circle me-1"></i> No hay seguimientos registrados para esta orden.
+                            </p>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 

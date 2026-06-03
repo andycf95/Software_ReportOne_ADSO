@@ -137,3 +137,6 @@ LOGOUT_REDIRECT_URL = 'home:index'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# Sesión expira después de 30 minutos de inactividad
+SESSION_COOKIE_AGE = 1800  # 30 minutos en segundos
+SESSION_SAVE_EVERY_REQUEST = True  # reinicia el contador en cada request

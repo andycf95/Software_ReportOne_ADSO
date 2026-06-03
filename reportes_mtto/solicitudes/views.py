@@ -122,6 +122,8 @@ def crear_solicitud(request):
         form = SolicitudForm(request.POST)
         if form.is_valid():
             try:
+                solicitud = form.save(commit=False) 
+                solicitud.usuario = request.user 
                 solicitud = form.save()
                 Seguimiento.objects.create(
                     solicitud=solicitud,
@@ -178,6 +180,7 @@ def detalle_solicitud(request, id):
     context = {
         'solicitud': solicitud,
         'seguimientos_por_fecha': seguimientos_por_fecha,
+        'next': request.GET.get('next', '/solicitudes/'),
     }
     return render(request, 'solicitud_detail.html', context)
 

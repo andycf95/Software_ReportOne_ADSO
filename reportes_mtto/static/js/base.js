@@ -12,6 +12,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const sidebar = document.querySelector(".sidebar");
     const overlay = document.getElementById("sidebar-overlay");
 
+        // Activar transición después de cargar
+    setTimeout(() => {
+        if (sidebar) sidebar.classList.add('sidebar-ready');
+    }, 100);
+
     if (btnToggle) {
         btnToggle.addEventListener("click", function () {
             sidebar.classList.toggle("sidebar-open");
@@ -25,14 +30,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
         document.querySelectorAll(".sidebar-nav a").forEach(link => {
             link.addEventListener("click", function () {
-                sidebar.classList.remove("sidebar-open");
-                overlay.classList.remove("active");
+                if (!this.hasAttribute('data-bs-toggle')) {
+                    sidebar.classList.remove("sidebar-open");
+                    overlay.classList.remove("active");
+                }
             });
         });
     }
 
 
-
-
-
 });
+
+// ---------------------------------------------------

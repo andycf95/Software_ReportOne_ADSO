@@ -68,7 +68,7 @@
                         {% if solicitud and solicitud.estado != 'PENDIENTE' %}
                         
                             <hr>
-                            <h5 class="mb-3">Seguimiento</h5>
+                            <h5 class="mb-3">Agregar comentario</h5>
                             <div class="mb-3">
                                 <textarea
                                     name="comentario"
@@ -99,7 +99,7 @@
                                 Actualizar
                             </button>
 
-                            <a href="{% url 'solicitudes:cerrar' solicitud.id %}" >
+                            <a href="{% url 'solicitudes:cerrar' solicitud.id %}" class="btn btn-danger" >
                                 Cerrar orden
                             </a>
                         {% endif %}
@@ -109,4 +109,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}

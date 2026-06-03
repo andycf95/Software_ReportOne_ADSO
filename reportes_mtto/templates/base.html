@@ -4,14 +4,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sistema de Mantenimiento</title>
+    <title>Fixly | Sistema de Mantenimiento</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <style>
-        
-    </style>
+
 </head>
 <body>
 
@@ -33,10 +31,31 @@
 
     <span class="sidebar-section">Módulos</span>
     <ul class="sidebar-nav">
+        <!-- Solicitudes con subitems -->
         <li>
-            <a href="{% url 'solicitudes:lista' %}" {% if 'solicitudes' in request.path %}class="active"{% endif %}>
-                <i class="bi bi-clipboard-check"></i> Solicitudes
+            <a href="#submenu-solicitudes" 
+            data-bs-toggle="collapse"
+            aria-expanded="{% if 'solicitudes' in request.path %}true{% else %}false{% endif %}"
+            class="{% if 'solicitudes' in request.path %}active{% endif %}">
+                <i class="bi bi-card-checklist"></i> Solicitudes
+                <i class="bi bi-chevron-down ms-auto" style="font-size: 0.7rem;"></i>
             </a>
+            <div class="collapse {% if 'solicitudes' in request.path %}show{% endif %}" id="submenu-solicitudes">
+                <ul class="sidebar-nav pt-1">
+                    <li class="sidebar-subitem">
+                        <a href="{% url 'solicitudes:lista' %}"
+                        {% if request.path == '/solicitudes/' %}class="active"{% endif %}>
+                            <i class="bi bi-clipboard-check"></i> Activas
+                        </a>
+                    </li>
+                    <li class="sidebar-subitem">
+                        <a href="{% url 'solicitudes:cerradas' %}"
+                        {% if request.path == '/solicitudes/cerradas/' %}class="active"{% endif %}>
+                            <i class="bi bi-archive"></i> Cerradas
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </li>
         <li>
             <a href="{% url 'activos:lista_activos' %}" {% if 'activos' in request.path %}class="active"{% endif %}>
@@ -45,14 +64,21 @@
         </li>
     </ul>
 
-    {% if request.user.is_staff %}
+    {% if request.user.is_authenticated and request.user.rol == 'ADMIN' %}
     <span class="sidebar-section">Administración</span>
     <ul class="sidebar-nav">
+        <li>
+            <a href="{% url 'usuarios:lista_usuarios' %}" {% if 'usuarios' in request.path %}class="active"{% endif %}>
+                <i class="bi bi-people"></i> Usuarios
+            </a>
+        </li>
+        {% if request.user.is_staff %}
         <li>
             <a href="/admin/">
                 <i class="bi bi-shield-lock"></i> Admin
             </a>
         </li>
+        {% endif %}
     </ul>
     {% endif %}
 
@@ -96,6 +122,11 @@
             <li><span class="dropdown-item-text text-muted small">{{ request.user.email }}</span></li>
             <li><hr class="dropdown-divider"></li>
             <li>
+                <a href="{% url 'usuarios:perfil' %}" class="dropdown-item">
+                    <i class="bi bi-person me-2"></i> Mi perfil
+                </a>
+            </li>
+            <li>
                 <form method="post" action="{% url 'usuarios:logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="dropdown-item text-danger">
@@ -138,12 +169,31 @@
         &copy; 2026 Sistema de Mantenimiento. Todos los derechos reservados.
     </footer>
 </div>
+<!-- MODAL INACTIVIDAD - solo para usuarios autenticados -->
+{% if request.user.is_authenticated %}
+<div id="modal-inactividad" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; max-width: 400px; width: 90%; text-align:center;">
+        <i class="bi bi-clock-history fs-1 mb-3" style="color: var(--accent); display:block;"></i>
+        <h5 class="fw-bold mb-2">¿Sigues ahí?</h5>
+        <p class="text-muted small mb-4">Tu sesión cerrará en <strong id="contador-inactividad" style="color: var(--accent);">60</strong> segundos por inactividad.</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <button onclick="resetInactividad()" class="btn btn-primary btn-sm px-4">
+                Continuar sesión
+            </button>
+            <button onclick="window.location.href=LOGOUT_URL" class="btn btn-outline-secondary btn-sm px-4">
+                Cerrar sesión
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script  src="{% static 'js/base.js' %}"></script>
-<script src="{% static 'js/activos.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+
+
+<!-- Inicialización de Flatpickr para inputs de fecha, con configuración para formato y localización en español. -->
 <script>
     flatpickr("input[type='date']", {
         locale: "es",
@@ -152,5 +202,7 @@
         altFormat: "d/m/Y",
     });
 </script>
+<script  src="{% static 'js/base.js' %}"></script>
+<script src="{% static 'js/activos.js' %}"></script>
 </body>
 </html>

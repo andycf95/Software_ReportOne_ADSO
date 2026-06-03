@@ -4,16 +4,16 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8">
-            <div class="card shadow-sm border-0">
+            <div class="card border-0">
                 <div class="card-body p-4">
 
                     <!-- ENCABEZADO -->
-                    <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start;" class="mb-4">
                         <div>
                             <h3 class="mb-1">Detalle del cierre técnico</h3>
                             <small class="text-muted">{{ solicitud.codigo }}</small>
                         </div>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                        <span class="badge" style="background-color: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3);">
                             Cerrada
                         </span>
                     </div>
@@ -21,20 +21,20 @@
                     <!-- INFO GENERAL -->
                     <div class="row mb-3">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted small">Activo</label>
-                            <p class="fw-semibold mb-0">{{ solicitud.activo }}</p>
+                            <label class="form-label small" style="color: var(--text-muted);">Activo</label>
+                            <p class="fw-medium text-dark mb-0">{{ solicitud.activo }}</p>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted small">Sistema</label>
-                            <p class="fw-semibold mb-0">{{ solicitud.sistema_activo }}</p>
+                            <label class="form-label small" style="color: var(--text-muted);">Sistema</label>
+                            <p class="fw-medium text-dark mb-0">{{ solicitud.sistema_activo }}</p>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted small">Componente</label>
-                            <p class="fw-semibold mb-0">{{ solicitud.componente_activo|default:"No aplica" }}</p>
+                            <label class="form-label small" style="color: var(--text-muted);">Componente</label>
+                            <p class="fw-medium text-dark mb-0">{{ solicitud.componente_activo|default:"No aplica" }}</p>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted small">Fecha de cierre</label>
-                            <p class="fw-semibold mb-0">{{ solicitud.fecha_cierre|date:"d/m/Y H:i" }}</p>
+                            <label class="form-label small" style="color: var(--text-muted);">Fecha de cierre</label>
+                            <p class="fw-medium text-dark mb-0">{{ solicitud.fecha_cierre|date:"d/m/Y H:i" }}</p>
                         </div>
                     </div>
 
@@ -42,34 +42,34 @@
 
                     <!-- TRABAJO REALIZADO -->
                     <div class="mb-4">
-                        <label class="form-label text-muted small">Trabajo realizado</label>
-                        <div class="bg-light border rounded p-3">
+                        <label class="form-label small" style="color: var(--text-muted);">Trabajo realizado</label>
+                        <div class="rounded p-3" style="background-color: var(--bg-base); border: 1px solid var(--border);">
                             {% if solicitud.trabajo_realizado %}
-                                <p class="mb-0">{{ solicitud.trabajo_realizado|linebreaksbr }}</p>
+                                <p class="mb-0" style="color: var(--text-primary);">{{ solicitud.trabajo_realizado|linebreaksbr }}</p>
                             {% else %}
-                                <p class="text-muted mb-0 fst-italic">No se registró trabajo realizado.</p>
+                                <p class="mb-0 fst-italic" style="color: var(--text-muted);">No se registró trabajo realizado.</p>
                             {% endif %}
                         </div>
                     </div>
 
                     <!-- OBSERVACIONES -->
                     <div class="mb-4">
-                        <label class="form-label text-muted small">Observaciones de cierre</label>
-                        <div class="bg-light border rounded p-3">
+                        <label class="form-label small" style="color: var(--text-muted);">Observaciones de cierre</label>
+                        <div class="rounded p-3" style="background-color: var(--bg-base); border: 1px solid var(--border);">
                             {% if solicitud.observaciones_cierre %}
-                                <p class="mb-0">{{ solicitud.observaciones_cierre|linebreaksbr }}</p>
+                                <p class="mb-0" style="color: var(--text-primary);">{{ solicitud.observaciones_cierre|linebreaksbr }}</p>
                             {% else %}
-                                <p class="text-muted mb-0 fst-italic">No se registraron observaciones.</p>
+                                <p class="mb-0 fst-italic" style="color: var(--text-muted);">No se registraron observaciones.</p>
                             {% endif %}
                         </div>
                     </div>
 
                     <!-- BOTONES -->
                     <div class="d-flex gap-2 justify-content-end">
-                        <a href="{% url 'solicitudes:solicitud' solicitud.id %}" class="btn btn-outline-secondary">
+                        <a href="{% url 'solicitudes:solicitud' solicitud.id %}" class="btn btn-outline-secondary btn-sm px-3">
                             <i class="bi bi-arrow-left me-1"></i> Volver al detalle
                         </a>
-                        <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-secondary">
+                        <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-primary btn-sm px-3">
                             Ver solicitudes cerradas
                         </a>
                     </div>

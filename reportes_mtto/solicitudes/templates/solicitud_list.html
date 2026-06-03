@@ -10,14 +10,6 @@
             <span class="text-muted small">Gestiona el estado y seguimiento de tus requerimientos</span>
         </div>
         <div class="d-flex flex-wrap gap-2 align-items-center">
-            <div class="btn-group shadow-sm" role="group">
-                <a href="{% url 'solicitudes:lista' %}" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-list me-1"></i> Activas
-                </a>
-                <a href="{% url 'solicitudes:cerradas' %}" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-archive me-1"></i> Cerradas
-                </a>
-            </div>
             <a href="{% url 'solicitudes:crear' %}" class="btn btn-primary btn-sm shadow-sm px-3">
                 <i class="fas fa-plus me-1"></i> Nueva Solicitud
             </a>
@@ -98,12 +90,12 @@
                     {% endif %}
                     {% if estado %}
                         <span class="badge bg-info-subtle text-info border border-info-subtle">
-                            Estado: {{ estado }}
+                            Estado: {% if estado == 'PENDIENTE' %}Pendiente{% elif estado == 'EN_PROCESO' %}En proceso{% endif %}
                         </span>
                     {% endif %}
                     {% if criticidad %}
                         <span class="badge bg-warning-subtle text-warning border border-warning-subtle">
-                            Criticidad: {{ criticidad }}
+                            Criticidad: {% for valor, texto in criticidad_choices %}{% if valor|stringformat:"s" == criticidad %}{{ texto }}{% endif %}{% endfor %}
                         </span>
                     {% endif %}
                     {% if fecha_creacion %}
@@ -123,6 +115,15 @@
             <!-- TABLA -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0" style="cursor: pointer;">
+                    <colgroup>
+                        <col style="width: 8%;">   <!-- Código -->
+                        <col style="width: 25%;">  <!-- Título -->
+                        <col style="width: 22%;">  <!-- Activo -->
+                        <col style="width: 10%;">  <!-- Estado -->
+                        <col style="width: 10%;">  <!-- Criticidad -->
+                        <col style="width: 12%;">  <!-- Fecha creación -->
+                        <col style="width: 13%;">  <!-- Acciones / Fecha cierre -->
+                    </colgroup>
                     <thead class="table-light">
                         <tr>
                             <th>Código</th>
@@ -140,14 +141,8 @@
                     </thead>
                     <tbody>
                         {% for solicitud in solicitudes %}
-                            <tr onclick="window.location='{% url "solicitudes:solicitud" id=solicitud.id %}'" style="cursor:pointer;">
-                                <td>
-                                    <a href="{% url 'solicitudes:solicitud' id=solicitud.id %}" 
-                                       class="text-decoration-none fw-semibold"
-                                       onclick="event.stopPropagation()">
-                                        {{ solicitud.codigo }}
-                                    </a>
-                                </td>
+                            <tr onclick="window.location='{% url "solicitudes:solicitud" id=solicitud.id %}?next={{ request.path }}'" style="cursor:pointer;">
+                                <td class="fw-semibold" style="color: var(--accent);">{{ solicitud.codigo }}</td>
                                 <td>{{ solicitud.titulo }}</td>
                                 <td>{{ solicitud.activo }}</td>
                                 <td>
