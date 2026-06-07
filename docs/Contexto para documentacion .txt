@@ -68,17 +68,18 @@ En las vistas, los seguimientos se preparan separando el comentario con partitio
 - acción como título,
 - descripción debajo en texto más pequeño,
 - agrupados por fecha.
+- usuario que realizo la accion
 
 Vistas principales:
 - lista_solicitudes: muestra solicitudes activas, excluye CERRADA, incluye buscador, filtros y paginador.
 - solicitudes_cerradas: muestra solicitudes cerradas, permite filtros por fecha de creación y fecha de cierre.
 - detalle_solicitud: muestra información completa e historial.
-- crear_solicitud.
-- editar_solicitud.
-- cambiar_estado_en_proceso: debe ser POST.
+- crear_solicitud. crear un solicitud
+- editar_solicitud. permite editar la solicitud solo acquellas que están en pendiente
+- cambiar_estado_en_proceso: debe ser POSTboton para cambiar de estado pendiente a en proceso
 - cerrar_solicitud: muestra formulario de cierre y guarda trabajo realizado/observaciones.
-- detalle_cierre.
-- eliminar_solicitud: debe ser POST.
+- detalle_cierre. Muestra el detalle de olicitud trabajos realizados y observaciones de cierre
+- eliminar_solicitud: debe ser POST. elimina la solicitud
 
 
 App Usuarios
@@ -108,7 +109,7 @@ Autenticación y usuarios:
   user_permissions.
 - email se puede sobrescribir como unique=True.
 - La Solicitud se relaciona con el usuario creador mediante:
-  usuario = ForeignKey(settings.AUTH_USER_MODEL, on_delete=PROTECT, related_name='solicitudes_creadas', null=True, blank=True)
+  usuario = ForeignKey(settings.AUTH_USER_MODEL, on_delete=PROTECT, related_name='solicitudes_creadas', null=True, blank=True) no se puede eliminar usuarios que tengan solicitudes relacionadas
 - Se recomienda usar on_delete=PROTECT para no perder trazabilidad.
 - Las vistas sensibles deben usar login_required:
   lista_solicitudes,
@@ -120,9 +121,20 @@ Autenticación y usuarios:
   cerrar_solicitud,
   detalle_cierre,
   eliminar_solicitud.
-- Login y logout pueden manejarse con LoginView y LogoutView de Django.
-- Registro tiene vista propia.
+  lista_activos
+  crear_activo
+  editar_activo
+	lo mismo con componentes y sistemas
+- logout pueden manejarse con LogoutView de Django.
+Login se realiza mendiante na vista para realizar alarmas cuando un usuario esta desactivado
+- Se crea vista crear usuario
 - Por seguridad, después del registro es mejor redirigir al login en vez de loguear automáticamente.
+- Se implementó un sistema de gestión de usuarios con control de acceso basado en roles (ADMIN, SUPERVISOR, TECNICO) usando AbstractUser con campos adicionales: rol, telefono, email único y numero_identificacion.
+- Se crearon los formularios UsuarioAdminForm y EditarUsuarioForm para creación y edición respectivamente, con encriptación de contraseña mediante set_password().
+- Se implementó el decorador solo_admin para proteger las vistas del módulo. Se eliminó el registro público y se habilitaron las vistas lista_usuarios, crear_usuario, editar_usuario, toggle_usuario y detalle_usuario, todas protegidas por rol ADMIN.
+- Los usuarios no se eliminan sino que se desactivan (is_active=False) para conservar trazabilidad. Las sesiones expiran tras 25 minutos de inactividad 
+- Se crea perfil de usuarios donde se puede ver todos los datos del usuarios conteo de soicitudes y solicitudes registradas reciente por el usuario
+- Se crea vista de lista_usuarios para que el administrador puedo gestionar los usuarios 
 
 
 Permite:
@@ -137,6 +149,7 @@ Contiene:
 - Página principal.
 - Dashboard inicial.
 - Navegación entre módulos.
+- landiung
 
 App Activos
 Administra la estructura jerárquica de los equipos.
@@ -224,7 +237,13 @@ Reglas de negocio:
 - No se puede realizar eliminación permanente soft delete (solo pendientes)
 - Los  comentarios tampoco se puedes eliminar
 - Los activos, sistemas y componentes no se pueden eliminar si tienen solicitudes asignadas
-- Los activos solo pueden quedar fuera de servicio y que los sistemas y componentes herede este estado 
+- Los activos solo pueden quedar fuera de servicio y que los sistemas y componentes herede este estadoSolo el administrador puede crear, editar y desactivar usuarios
+- Los usuarios no se eliminan sino que se desactivan para conservar trazabilidad
+- Un usuario desactivado no puede iniciar sesión y recibe un mensaje claro indicándolo
+- No se puede desactivar la propia cuenta del administrador
+- Las sesiones expiran después de 25 minutos de inactividad con advertencia previa de 60 segundos
+- Solo el administrador puede agregar, editar y eliminar; activos componentes o sistemas 
+- Se usa @soloadmin para restringir desde el backend y desde el front se eliminan botones de acuerdo a su rol
 
 URLs principales
 
@@ -248,6 +267,7 @@ Interfaz:
 
 
 Filtros:
+Solicitudes
 - Búsqueda por texto usando Q:
   codigo, titulo, descripcion, activo, sistema_activo, subsistema_activo.
 - Filtro por estado para solicitudes activas.
@@ -256,6 +276,9 @@ Filtros:
 - En cerradas también filtro por fecha_cierre.
 - Los filtros se aplican antes del paginador.
 - Se usa una variable de contexto es_cerradas para que el template sepa si está mostrando activas o cerradas.
+
+Usuarios
+Filtros parecidos actualizar
 
 
 Admin:
@@ -271,6 +294,41 @@ Datos de prueba:
 - Se crearon usuarios de prueba como tecnico_prueba y supervisor_prueba.
 - Se crearon solicitudes en estados PENDIENTE, EN_PROCESO y CERRADA.
 - Se crearon seguimientos automáticos para creación, cambio de estado y actualización del proceso.
+
+
+Agregar correctamente
+
+Módulo de Activos
+
+Restricción de vistas para técnicos: solo pueden ver su activo asignado en el árbol jerárquico
+Conteo de solicitudes activas por activo, sistema y componente en el panel de detalles
+Conteo total de sistemas, componentes y solicitudes activas en el pie del árbol
+
+Módulo de Usuarios
+
+Implementación del modal de asignación de activos a técnicos con buscador en tiempo real
+Vista asignar_activo con lógica de rotación: desasigna automáticamente al técnico anterior y al activo anterior del técnico
+Regla de negocio: un usuario inactivo no puede tener activo asignado, al desactivarlo se desvincula automáticamente
+Implementación del modal de cambio de contraseña por parte del administrador con validaciones de longitud y confirmación
+Reorganización de botones de acciones en la tabla usando dropdown de tres puntos para evitar saturación visual
+Creación del archivo usuarios.js con el JS del módulo centralizado y comentado
+
+Módulo de Solicitudes
+
+Restricción completa para técnicos: solo pueden ver, crear y gestionar solicitudes del activo que tienen asignado
+Función verificar_acceso_tecnico para proteger las vistas de detalle, edición, cierre y eliminación
+Preselección automática del activo asignado en el formulario de creación para técnicos
+Carga automática de sistemas al abrir el formulario de creación para técnicos
+Corrección del AJAX de componentes que no cargaba cuando el select de activo estaba oculto
+
+Perfil de usuario
+
+Vista diferenciada por rol: técnico ve información de su activo asignado, admin y supervisor ven sus solicitudes recientes
+Estadísticas del perfil filtradas según rol
+
+Documentación y código
+
+Comentarios detallados agregados a activos.js y usuarios.js
 
 
 

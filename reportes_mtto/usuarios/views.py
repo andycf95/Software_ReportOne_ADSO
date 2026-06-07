@@ -7,11 +7,14 @@ from django.db.models import Q
 from .forms import  UsuarioAdminForm, EditarUsuarioForm
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.forms import AuthenticationForm
+from activos.models import Activo
+from django.http import JsonResponse
 
+# Create your views here.
 Usuario = get_user_model()
 
 
-
+# ─── VISTAS DE AUTENTICACIÓN Y PERFIL ───
 def login_usuario(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -37,11 +40,18 @@ def login_usuario(request):
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
 
+#vista para mostrar el perfil del usuario con estadísticas de sus solicitudes
 @login_required
 def perfil_usuario(request):
     from solicitudes.models import Solicitud
     usuario = request.user
-    total = Solicitud.todos.filter(usuario=usuario)
+    if usuario.rol == 'TECNICO':
+        if usuario.activo_asignado:
+            total = Solicitud.objects.filter(activo=usuario.activo_asignado)
+        else:
+            total = Solicitud.objects.none()
+    else:
+        total = Solicitud.objects.filter(usuario=usuario)
     context = {
         'usuario': usuario,
         'total_solicitudes': total.count(),
@@ -71,7 +81,7 @@ def lista_usuarios(request):
     q = request.GET.get('q', '').strip()
     rol = request.GET.get('rol', '').strip()
     activo = request.GET.get('activo', '').strip()
-
+    # Aplicar filtros de búsqueda
     if q:
         usuarios_list = usuarios_list.filter(
             Q(username__icontains=q) |
@@ -132,6 +142,9 @@ def crear_usuario(request):
 @login_required
 @solo_admin
 def editar_usuario(request, id):
+    
+    
+    
     usuario = get_object_or_404(Usuario, id=id)
     if request.method == 'POST':
         form = EditarUsuarioForm(request.POST, instance=usuario)
@@ -153,6 +166,91 @@ def editar_usuario(request, id):
         'usuario': usuario
     })
 
+
+@login_required
+@solo_admin
+def cambiar_contrasena(request, id):
+    usuario = get_object_or_404(Usuario, id=id)
+    if request.method == 'POST':
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if not password1:
+            messages.error(request, 'La contraseña no puede estar vacía.')
+            return redirect('usuarios:lista_usuarios')
+
+        if password1 != password2:
+            messages.error(request, 'Las contraseñas no coinciden.')
+            return redirect('usuarios:lista_usuarios')
+
+        if len(password1) < 8:
+            messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+            return redirect('usuarios:lista_usuarios')
+
+        usuario.set_password(password1)
+        usuario.save()
+        messages.success(request, f'Contraseña de {usuario.username} actualizada correctamente.')
+    return redirect('usuarios:lista_usuarios')
+
+@login_required
+@solo_admin
+def asignar_activo(request, id):
+    usuario = get_object_or_404(Usuario, id=id)
+    
+    # Validar que el usuario esté activo
+    if not usuario.is_active:
+        messages.error(request, f'No se puede asignar un activo a un usuario inactivo.')
+        return redirect('usuarios:lista_usuarios')
+    
+    if request.method == 'POST':
+        activo_id = request.POST.get('activo_id')
+        
+        if activo_id:
+            activo = get_object_or_404(Activo, id=activo_id)
+
+            # Si el activo tiene otro técnico asignado, desasignarlo primero
+            if hasattr(activo, 'tecnico_asignado') and activo.tecnico_asignado and activo.tecnico_asignado != usuario:
+                tecnico_anterior = activo.tecnico_asignado
+                tecnico_anterior.activo_asignado = None
+                tecnico_anterior.save()
+                messages.info(request, f'Se desasignó a {tecnico_anterior.get_full_name()} del activo {activo.nombre}.')
+
+            # Si el técnico ya tenía otro activo asignado, desasignarlo también
+            if usuario.activo_asignado and usuario.activo_asignado != activo:
+                messages.info(request, f'Se desasignó el activo anterior: {usuario.activo_asignado.nombre}.')
+
+            usuario.activo_asignado = activo
+
+        else:
+            usuario.activo_asignado = None  
+
+        usuario.save()
+        messages.success(request, f'Activo {activo.nombre} actualizado correctamente para {usuario.get_full_name()}.')
+        return redirect('usuarios:lista_usuarios')
+
+    # GET — retorna activos disponibles en JSON para el modal
+    activos = Activo.objects.all().values('id', 'nombre', 'codigo')
+    activos_data = []
+    for activo in activos:
+        try:
+            tecnico = Activo.objects.get(id=activo['id']).tecnico_asignado
+            ocupado = tecnico is not None and tecnico != usuario
+            nombre_tecnico = tecnico.get_full_name() if ocupado else None
+        except:
+            ocupado = False
+            nombre_tecnico = None
+        
+        activos_data.append({
+            'id': activo['id'],
+            'nombre': activo['nombre'],
+            'codigo': activo['codigo'],
+            'ocupado': ocupado,
+            'tecnico': nombre_tecnico,
+        })
+
+    return JsonResponse({'activos': activos_data})
+
+
 #vista para activar o desactivar un usuario
 @login_required
 @solo_admin
@@ -163,7 +261,14 @@ def toggle_usuario(request, id):
         if usuario == request.user:
             messages.error(request, 'No puedes desactivar tu propia cuenta.')
             return redirect('usuarios:lista_usuarios')
+        
         usuario.is_active = not usuario.is_active
+        
+        if not usuario.is_active and usuario.activo_asignado:
+            activo_nombre = usuario.activo_asignado.nombre
+            usuario.activo_asignado = None
+            messages.info(request, f'Se desvinculó el activo {activo_nombre} del usuario desactivado.')
+        
         usuario.save()
         estado = 'activado' if usuario.is_active else 'desactivado'
         messages.success(request, f'Usuario {usuario.first_name} {usuario.last_name} {estado} correctamente.')

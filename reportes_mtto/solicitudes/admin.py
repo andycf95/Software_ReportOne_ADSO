@@ -6,7 +6,7 @@ from .models import Solicitud, Seguimiento
 
 @admin.register(Solicitud)
 class SolicitudAdmin(admin.ModelAdmin):
-    list_display = ('codigo', 'usuario', 'titulo', 'estado', 'criticidad', 'fecha_creacion', 'eliminado')
+    list_display = ('codigo', 'usuario', 'activo', 'titulo', 'estado', 'criticidad', 'fecha_creacion', 'eliminado')
     readonly_fields = ('estado', 'fecha_creacion', 'fecha_cierre', 'eliminado')
     list_filter = ('estado', 'criticidad', 'eliminado')
 

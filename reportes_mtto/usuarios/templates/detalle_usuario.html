@@ -55,6 +55,10 @@
                             <label class="form-label small" style="color: var(--text-muted);">Fecha de registro</label>
                             <p class="fw-small text-dark mb-0">{{ usuario.date_joined|date:"d/m/Y" }}</p>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label small" style="color: var(--text-muted);">Activo asignado</label>
+                            <p class="fw-small text-dark mb-0">{{ usuario.activo_asignado.nombre|default:"-" }}</p>
+                        </div>
                     </div>
 
                     <!-- BOTONES -->

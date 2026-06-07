@@ -10,21 +10,38 @@ from django.views.decorators.http import require_POST
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
+
+# Función para verificar que el técnico tenga acceso a la solicitud
+def verificar_acceso_tecnico(usuario, solicitud):
+    if usuario.rol == 'TECNICO':
+        if not usuario.activo_asignado or solicitud.activo != usuario.activo_asignado:
+            return 'sin_acceso'
 
 #Se crea vista para listar solicitud de mantenimiento activas
 
 @login_required
 def lista_solicitudes(request):
-    solicitudes_list = Solicitud.objects.select_related('activo').exclude(estado='CERRADA').order_by('-id')
+    #Los técnicos solo pueden ver las solicitudes cerradas de su activo asignado
+    if request.user.rol == 'TECNICO':
+        if not request.user.activo_asignado:
+            solicitudes_list = Solicitud.objects.none()
+        else:
+            solicitudes_list = Solicitud.objects.filter(
+                activo=request.user.activo_asignado
+            ).exclude(estado='CERRADA').order_by('-id')
+    else:
+        #filtro para mostrar solo solicitudes activas 
+        solicitudes_list = Solicitud.objects.select_related('activo').exclude(estado='CERRADA').order_by('-id')
 
     q = request.GET.get('q', '').strip()
     estado = request.GET.get('estado', '').strip()
     criticidad = request.GET.get('criticidad', '').strip()
     fecha_creacion = request.GET.get('fecha_creacion', '').strip()
 
-
+    #se realiza busqueda por codigo, titulo, descripcion, activo utilizando Q para realizar busqueda en varios campos a la vez
     if q:
         solicitudes_list = solicitudes_list.filter(
             Q(codigo__icontains=q) |
@@ -32,7 +49,7 @@ def lista_solicitudes(request):
             Q(descripcion__icontains=q) |
             Q(activo__nombre__icontains=q)
         )
-
+    #se aplican filtros de estado, criticidad y fecha de creación si se proporcionan en la URL
     if estado:
         solicitudes_list = solicitudes_list.filter(estado=estado)
 
@@ -43,7 +60,7 @@ def lista_solicitudes(request):
         solicitudes_list = solicitudes_list.filter(fecha_creacion__date=fecha_creacion)
 
 
-
+    #se aplica paginación a la lista de solicitudes para mostrar 10 por página
     paginator = Paginator(solicitudes_list, 10)
     page = request.GET.get('page', 1)
     
@@ -70,7 +87,19 @@ def lista_solicitudes(request):
 #Se crea vista para listar solicitud de mantenimiento cerradas
 @login_required
 def lista_solicitudes_cerradas(request):
-    solicitudes_list = Solicitud.objects.filter(estado='CERRADA').order_by('-fecha_cierre')
+    #Los técnicos solo pueden ver las solicitudes cerradas de su activo asignado
+    if request.user.rol == 'TECNICO':
+        if not request.user.activo_asignado:
+            solicitudes_list = Solicitud.objects.none()
+        else:
+            solicitudes_list = Solicitud.objects.filter(
+                activo=request.user.activo_asignado,
+                estado='CERRADA'
+            ).order_by('-fecha_cierre')
+    else:
+        solicitudes_list = Solicitud.objects.filter(estado='CERRADA').order_by('-fecha_cierre')
+        
+    #Se obtienen los filtros de búsqueda desde la URL
     q = request.GET.get('q', '').strip()
     criticidad = request.GET.get('criticidad', '').strip()
     fecha_creacion = request.GET.get('fecha_creacion', '').strip()
@@ -118,11 +147,21 @@ def lista_solicitudes_cerradas(request):
 #Se crea vista para crear solicitud de mantenimiento
 @login_required
 def crear_solicitud(request):
+    #Los técnicos deben tener un activo asignado para poder crear solicitudes de mantenimiento, si no tienen un activo asignado se muestra un mensaje de error y se redirige a la lista de solicitudes
+    if request.user.rol == 'TECNICO' and not request.user.activo_asignado:
+        messages.error(request, 'No tienes un activo asignado. Contacta al administrador.')
+        return redirect('solicitudes:lista')
+    #Se maneja el formulario de creación de solicitud, asignando el usuario actual como creador y agregando un seguimiento inicial
     if request.method == 'POST':
         form = SolicitudForm(request.POST)
         if form.is_valid():
             try:
                 solicitud = form.save(commit=False) 
+                # Validar que el técnico solo cree solicitudes de su activo
+                if request.user.rol == 'TECNICO' and solicitud.activo != request.user.activo_asignado:
+                    messages.error(request, 'Solo puedes crear solicitudes para tu activo asignado.')
+                    return redirect('solicitudes:lista')
+                
                 solicitud.usuario = request.user 
                 solicitud = form.save()
                 Seguimiento.objects.create(
@@ -147,6 +186,7 @@ def detalle_solicitud(request, id):
         Solicitud.todos.prefetch_related('seguimientos__usuario'), 
         id=id
     )
+    verificar_acceso_tecnico(request.user, solicitud)
     seguimientos = solicitud.seguimientos.all().order_by("-fecha")
     seguimientos_preparados = []
 
@@ -190,6 +230,9 @@ def detalle_solicitud(request, id):
 @login_required
 def editar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
+    if verificar_acceso_tecnico(request.user, solicitud) == 'sin_acceso':
+        messages.error(request, 'No tienes acceso a esta solicitud.')
+        return redirect('solicitudes:lista')
     form = SolicitudForm(request.POST or None, instance=solicitud)
     if request.method == 'POST':
         if solicitud.estado == 'PENDIENTE':
@@ -224,6 +267,9 @@ def editar_solicitud(request, id):
 @login_required
 def cambiar_estado_en_proceso(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
+    if verificar_acceso_tecnico(request.user, solicitud) == 'sin_acceso':
+        messages.error(request, 'No tienes acceso a esta solicitud.')
+        return redirect('solicitudes:lista')
     try:
         estado_anterior = solicitud.get_estado_display().capitalize()
         solicitud.iniciar_proceso()
@@ -245,7 +291,9 @@ def cambiar_estado_en_proceso(request, id):
 @login_required
 def cerrar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
-
+    if verificar_acceso_tecnico(request.user, solicitud) == 'sin_acceso':
+        messages.error(request, 'No tienes acceso a esta solicitud.')
+        return redirect('solicitudes:lista')
     # Evita cerrar nuevamente
     if solicitud.estado == 'CERRADA':
         return redirect('solicitudes:solictud', id=solicitud.id)
@@ -291,6 +339,9 @@ def cerrar_solicitud(request, id):
 @login_required
 def detalle_cierre(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
+    if verificar_acceso_tecnico(request.user, solicitud) == 'sin_acceso':
+        messages.error(request, 'No tienes acceso a esta solicitud.')
+        return redirect('solicitudes:lista')
     if solicitud.estado != 'CERRADA':
         return redirect('solicitudes:solicitud', id=solicitud.id)
     return render(request, 'solicitud_cierre_detail.html', {"solicitud": solicitud})
@@ -300,7 +351,9 @@ def detalle_cierre(request, id):
 @require_POST
 def eliminar_solicitud(request, id):
     solicitud = get_object_or_404(Solicitud, id=id)
-    
+    if verificar_acceso_tecnico(request.user, solicitud) == 'sin_acceso':
+        messages.error(request, 'No tienes acceso a esta solicitud.')
+        return redirect('solicitudes:lista')
     try:
         solicitud.delete()
         messages.success(request, 'La solicitud fue eliminada correctamente.')

@@ -26,7 +26,7 @@
                         <input type="text" name="q" class="form-control form-control-sm"
                             placeholder="Nombre, usuario, email..." value="{{ q }}">
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-md-3">
                         <label class="form-label small text-muted mb-1">Rol</label>
                         <select name="rol" class="form-select form-select-sm">
                             <option value="">Todos</option>
@@ -35,7 +35,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-6 col-md-2">
+                    <div class="col-6 col-md-3">
                         <label class="form-label small text-muted mb-1">Estado</label>
                         <select name="activo" class="form-select form-select-sm">
                             <option value="">Todos</option>
@@ -83,7 +83,7 @@
                         <tr>
                             <th>Usuario</th>
                             <th>Nombre</th>
-                            <th>Email</th>
+                            <th>Activo Asignado</th>
                             <th>Identificación</th>
                             <th>Rol</th>
                             <th>Estado</th>
@@ -96,7 +96,7 @@
                                 <td class="fw-semibold">{{ u.username }}</td>
                                 <td>{{ u.get_full_name|default:"-" }}</td>
                                 <td>
-                                    <small class="text-muted">{{ u.email }}</small>
+                                    <small class="text-muted">{{ u.activo_asignado }}</small>
                                 </td>
                                 <td>
                                     <small class="text-muted">{{ u.numero_identificacion|default:"-" }}</small>
@@ -125,19 +125,49 @@
                                         <a href="{% url 'usuarios:editar_usuario' u.id %}" class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        {% if u != request.user %}
-                                        <form method="post" action="{% url 'usuarios:toggle_usuario' u.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm
-                                                {% if u.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
-                                                {% if u.is_active %}
-                                                    <i class="bi bi-slash-circle"></i>
-                                                {% else %}
-                                                    <i class="bi bi-check-circle"></i>
-                                                {% endif %}
+                                        <!-- Dropdown acciones secundarias -->
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots-vertical"></i>
                                             </button>
-                                        </form>
-                                        {% endif %}
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                {% if u.rol == 'TECNICO' and u.is_active %}
+                                                <li>
+                                                    <button class="dropdown-item btn-asignar-activo"
+                                                            data-id="{{ u.id }}"
+                                                            data-nombre="{{ u.get_full_name }}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalAsignarActivo">
+                                                        <i class="bi bi-diagram-3 me-2"></i> Asignar activo
+                                                    </button>
+                                                </li>
+                                                {% endif %}
+                                                <li>
+                                                    <button class="dropdown-item btn-cambiar-contrasena"
+                                                            data-id="{{ u.id }}"
+                                                            data-nombre="{{ u.get_full_name }}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#modalCambiarContrasena">
+                                                        <i class="bi bi-key me-2"></i> Cambiar contraseña
+                                                    </button>
+                                                </li>
+                                                {% if u != request.user %}
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li>
+                                                    <form method="post" action="{% url 'usuarios:toggle_usuario' u.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="dropdown-item {% if u.is_active %}text-danger{% else %}text-success{% endif %}">
+                                                            {% if u.is_active %}
+                                                                <i class="bi bi-slash-circle me-2"></i> Desactivar
+                                                            {% else %}
+                                                                <i class="bi bi-check-circle me-2"></i> Activar
+                                                            {% endif %}
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -194,5 +224,182 @@
         </div>
     </div>
 </div>
+<!-- MODAL ASIGNAR ACTIVO -->
+<div class="modal fade" id="modalAsignarActivo" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <div>
+                    <h5 class="modal-title fw-bold">Asignar activo</h5>
+                    <small class="text-muted" id="modal-nombre-tecnico"></small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Buscador -->
+                <div class="position-relative mb-3">
+                    <i class="bi bi-search position-absolute" style="left:10px; top:50%; transform:translateY(-50%); color:#64748b;"></i>
+                    <input type="text" id="input-buscar-activo" class="form-control form-control-sm ps-4"
+                        placeholder="Buscar activo..." oninput="filtrarActivos(this.value)">
+                </div>
+
+                <!-- Lista de activos -->
+                <div id="lista-activos-modal" style="max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
+                </div>
+
+                <!-- Activo seleccionado -->
+                <div id="activo-seleccionado-info" class="mt-3 p-3 rounded" 
+                     style="display:none; background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.3);">
+                    <small style="color: #f97316;">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Seleccionado: <strong id="nombre-activo-seleccionado"></strong>
+                    </small>
+                </div>
+
+            </div>
+            <div class="modal-footer border-0 justify-content-between">
+                <!-- Botón desasignar -->
+                <form id="form-desasignar" method="post" action="#">
+                    {% csrf_token %}
+                    <input type="hidden" name="activo_id" value="">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-slash-circle me-1"></i> Quitar asignación
+                    </button>
+                </form>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="form-asignar-activo" method="post" action="#">
+                        {% csrf_token %}
+                        <input type="hidden" name="activo_id" id="input-activo-id">
+                        <button type="submit" id="btn-confirmar-asignar" class="btn btn-primary btn-sm" disabled>
+                            Asignar activo
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CAMBIAR CONTRASEÑA -->
+<div class="modal fade" id="modalCambiarContrasena" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <div>
+                    <h5 class="modal-title fw-bold">Cambiar contraseña</h5>
+                    <small class="text-muted" id="modal-nombre-contrasena"></small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="form-cambiar-contrasena" method="post" action="#">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nueva contraseña</label>
+                        <input type="password" name="password1" class="form-control" 
+                               placeholder="Mínimo 8 caracteres" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirmar contraseña</label>
+                        <input type="password" name="password2" class="form-control" 
+                               placeholder="Repite la contraseña" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-sm px-3">
+                        <i class="bi bi-key me-1"></i> Actualizar contraseña
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let activosData = [];
+let usuarioIdActual = null;
+
+document.querySelectorAll('.btn-asignar-activo').forEach(btn => {
+    btn.addEventListener('click', function() {
+        usuarioIdActual = this.dataset.id;
+        document.getElementById('modal-nombre-tecnico').textContent = this.dataset.nombre;
+
+        // URL del form
+        const url = `/usuarios/${usuarioIdActual}/asignar-activo/`;
+        document.getElementById('form-asignar-activo').action = url;
+        document.getElementById('form-desasignar').action = url;
+
+        // Limpiar estado
+        document.getElementById('input-buscar-activo').value = '';
+        document.getElementById('activo-seleccionado-info').style.display = 'none';
+        document.getElementById('btn-confirmar-asignar').disabled = true;
+        document.getElementById('input-activo-id').value = '';
+
+        // Cargar activos via AJAX
+        fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                activosData = data.activos;
+                renderActivos(activosData);
+            });
+    });
+});
+
+function renderActivos(activos) {
+    const lista = document.getElementById('lista-activos-modal');
+    lista.innerHTML = '';
+    activos.forEach(activo => {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding: 10px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;';
+        
+        if (!activo.ocupado) {
+            div.style.cursor = 'pointer';
+            div.onclick = () => seleccionarActivo(activo.id, activo.nombre);
+            div.onmouseover = () => div.style.background = '#1e293b';
+            div.onmouseout = () => div.style.background = 'transparent';
+        } else {
+            div.style.opacity = '0.5';
+        }
+
+        div.innerHTML = `
+            <div>
+                <p style="font-size: 13px; font-weight: 600; color: #e2e8f0; margin: 0;">${activo.nombre}</p>
+                <small style="color: #64748b;">${activo.codigo}${activo.tecnico ? ' · Asignado a: ' + activo.tecnico : ''}</small>
+            </div>
+            <span class="badge" style="font-size: 11px; ${activo.ocupado ? 
+                'background:rgba(239,68,68,0.15); color:#f87171;' : 
+                'background:rgba(34,197,94,0.15); color:#4ade80;'}">
+                ${activo.ocupado ? 'Ocupado' : 'Disponible'}
+            </span>`;
+        lista.appendChild(div);
+    });
+}
+
+function filtrarActivos(val) {
+    const filtrados = activosData.filter(a => 
+        a.nombre.toLowerCase().includes(val.toLowerCase())
+    );
+    renderActivos(filtrados);
+}
+
+function seleccionarActivo(id, nombre) {
+    document.getElementById('input-activo-id').value = id;
+    document.getElementById('nombre-activo-seleccionado').textContent = nombre;
+    document.getElementById('activo-seleccionado-info').style.display = 'block';
+    document.getElementById('btn-confirmar-asignar').disabled = false;
+}
+</script>
+
+<script>
+document.querySelectorAll('.btn-cambiar-contrasena').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.getElementById('modal-nombre-contrasena').textContent = this.dataset.nombre;
+        document.getElementById('form-cambiar-contrasena').action = `/usuarios/${this.dataset.id}/cambiar-contrasena/`;
+    });
+});
+</script>
 
 {% endblock %}

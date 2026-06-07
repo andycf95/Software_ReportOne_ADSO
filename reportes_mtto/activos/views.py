@@ -16,14 +16,17 @@ from usuarios.views import solo_admin
 #Vista para mostrar la jerarquía de activos, sistemas y componentes en una sola página, utilizando prefetch_related para optimizar las consultas a la base de datos y evitar el problema de N+1 consultas.
 @login_required
 def lista_activos_jerarquia(request):
-    
-    activos = Activo.objects.prefetch_related('sistemas__componentes').all()
-    
-    contexto = {
-        'activos': activos
-    }
-    
-    return render(request, 'activos_list.html', contexto)
+    if request.user.rol == 'TECNICO':
+        if request.user.activo_asignado:
+            activos = Activo.objects.prefetch_related(
+                'sistemas__componentes'
+            ).filter(id=request.user.activo_asignado.id)
+        else:
+            activos = Activo.objects.none()
+    else:
+        activos = Activo.objects.prefetch_related('sistemas__componentes').all()
+
+    return render(request, 'activos_list.html', {'activos': activos})
 
 #Vista para crear un nuevo activo, utilizando un formulario basado en el modelo ActivoForm.
 # Si el formulario es válido, se guarda el nuevo activo y se redirige a la lista de activos.
@@ -174,7 +177,7 @@ def detalle_activo(request, id):
 # se muestra un guion como valor predeterminado.
 def detalle_sistema(request, id):
     sistema = get_object_or_404(Sistema, id=id)
-
+    total_solicitudes = Solicitud.objects.filter(sistema_activo=sistema).exclude(estado='CERRADA').count()
     return JsonResponse({
         "id": sistema.id,
         "tipo": "Sistema",
@@ -190,6 +193,7 @@ def detalle_sistema(request, id):
         "icono": "bi-gear-fill",
         "color": "#e0e7ff",
         "texto": "#3730a3",
+        'total_solicitudes': total_solicitudes
     })
 
 #Vista para mostrar los detalles de un componente específico en formato JSON, incluyendo su nombre, código,
@@ -197,6 +201,7 @@ def detalle_sistema(request, id):
 # Si el componente no tiene marca o modelo, se muestra un guion como valor predeterminado.
 def detalle_componente(request, id):
     componente = get_object_or_404(Componente, id=id)
+    total_solicitudes = Solicitud.objects.filter(componente_activo=componente).exclude(estado='CERRADA').count()
 
     return JsonResponse({
         "id": componente.id,
@@ -213,6 +218,7 @@ def detalle_componente(request, id):
         "icono": "bi-nut",
         "color": "#eff6ff",
         "texto": "#1d4ed8",
+        'total_solicitudes': total_solicitudes
     })
     
 
@@ -241,6 +247,7 @@ def obtener_componentes(request):
 
     return JsonResponse(list(componentes),safe=False)
 
+#Vista para eliminar un activo específico, utilizando el ID del activo pasado como parámetro en la solicitud POST.
 @login_required
 @solo_admin
 def eliminar_activo(request, id):
@@ -253,7 +260,7 @@ def eliminar_activo(request, id):
             messages.error(request, f'No se puede eliminar "{activo.nombre}" porque tiene solicitudes de mantenimiento asociadas.')
     return redirect('activos:lista_activos')
 
-
+#Vista para eliminar un sistema específico, utilizando el ID del sistema pasado como parámetro en la solicitud POST.
 @login_required
 @solo_admin
 def eliminar_sistema(request, id):
@@ -266,7 +273,7 @@ def eliminar_sistema(request, id):
             messages.error(request, f'No se puede eliminar "{sistema.nombre}" porque tiene solicitudes de mantenimiento asociadas.')
     return redirect('activos:lista_activos')
 
-
+#Vista para eliminar un componente específico, utilizando el ID del componente pasado como parámetro en la solicitud POST.
 @login_required
 @solo_admin
 def eliminar_componente(request, id):

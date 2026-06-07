@@ -48,10 +48,20 @@
                                 <label class="form-label">Criticidad</label>
                                 {{ form.criticidad }}
                             </div>
+                        {% if request.user.rol == 'TECNICO' %}
+                            <div class=" col-md-6 mb-3">
+                                <label class="form-label">Activo</label>
+                                <input type="text" class="form-control" 
+                                    value="{{ request.user.activo_asignado.nombre }}" 
+                                    disabled>
+                                <input type="hidden" name="activo" value="{{ request.user.activo_asignado.id }}">
+                            </div>
+                        {% else %}
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Activo</label>
                                 {{ form.activo }}
                             </div>
+                        {% endif %}
                         </div>
                         <!-- FILA 2 -->
                         <div class="row">
@@ -109,5 +119,24 @@
         </div>
     </div>
 </div>
+
+{% if request.user.rol == 'TECNICO' and request.user.activo_asignado %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const activoId = {{ request.user.activo_asignado.id }};
+    
+    // Disparar fetch de sistemas automáticamente
+    fetch(`/activos/ajax/sistemas/?activo_id=${activoId}`)
+        .then(r => r.json())
+        .then(data => {
+            const sistema = document.getElementById('id_sistema');
+            sistema.innerHTML = "<option value=''>Seleccione sistema</option>";
+            data.forEach(item => {
+                sistema.innerHTML += `<option value="${item.id}">${item.nombre}</option>`;
+            });
+        });
+});
+</script>
+{% endif %}
 
 {% endblock %}

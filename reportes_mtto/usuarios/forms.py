@@ -27,7 +27,7 @@ class UsuarioAdminForm(forms.ModelForm):
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'rol': forms.Select(attrs={'class': 'form-select'}),
         }
-
+    # Validación para asegurar que las contraseñas coincidan
     def clean(self):
         cleaned_data = super().clean()
         p1 = cleaned_data.get('password1')
@@ -35,7 +35,8 @@ class UsuarioAdminForm(forms.ModelForm):
         if p1 and p2 and p1 != p2:
             raise forms.ValidationError('Las contraseñas no coinciden.')
         return cleaned_data
-
+    
+    # Sobrescribir el método save para encriptar la contraseña antes de guardar el usuario
     def save(self, commit=True):
         usuario = super().save(commit=False)
         usuario.set_password(self.cleaned_data['password1']) #sirve para encriptar la contraseña
