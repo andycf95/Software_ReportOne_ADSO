@@ -44,7 +44,7 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-2 d-flex gap-2 align-items-end">
-                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <button type="submit" class="btn btn-sm w-100" style="background-color: #24324A; border: 1px solid #3B4A66; color: #F1F5F9;">
                             <i class="bi bi-search me-1"></i> Buscar
                         </button>
                         <a href="{% url 'usuarios:lista_usuarios' %}" class="btn btn-outline-secondary btn-sm">
@@ -83,32 +83,32 @@
                         <tr>
                             <th>Usuario</th>
                             <th>Nombre</th>
+                            <th>Rol</th>
                             <th>Activo Asignado</th>
                             <th>Identificación</th>
-                            <th>Rol</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for u in usuarios %}
-                            <tr>
+                            <tr  onclick="window.location='{% url "usuarios:detalle_usuario" id=u.id %}?next={{ request.path }}'" style="cursor:pointer;">
                                 <td class="fw-semibold">{{ u.username }}</td>
                                 <td>{{ u.get_full_name|default:"-" }}</td>
+                                <td>
+                                    {% if u.rol == 'ADMIN' %}
+                                        <span class="text-muted">Administrador</span>
+                                    {% elif u.rol == 'SUPERVISOR' %}
+                                        <span class="text-muted">Supervisor</span>
+                                    {% elif u.rol == 'TECNICO' %}
+                                        <span class="text-muted">Técnico</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <small class="text-muted">{{ u.activo_asignado }}</small>
                                 </td>
                                 <td>
                                     <small class="text-muted">{{ u.numero_identificacion|default:"-" }}</small>
-                                </td>
-                                <td>
-                                    {% if u.rol == 'ADMIN' %}
-                                        <span class="badge" style="background-color: rgba(249,115,22,0.15); color: #f97316; border: 1px solid rgba(249,115,22,0.3);">Administrador</span>
-                                    {% elif u.rol == 'SUPERVISOR' %}
-                                        <span class="badge" style="background-color: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3);">Supervisor</span>
-                                    {% elif u.rol == 'TECNICO' %}
-                                        <span class="badge" style="background-color: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3);">Técnico</span>
-                                    {% endif %}
                                 </td>
                                 <td>
                                     {% if u.is_active %}
@@ -117,31 +117,28 @@
                                         <span class="badge" style="background-color: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3);">Inactivo</span>
                                     {% endif %}
                                 </td>
-                                <td>
+                                <td onclick="event.stopPropagation()">
                                     <div class="d-flex gap-2">
-                                        <a href="{% url 'usuarios:detalle_usuario' u.id %}" class="btn btn-outline-secondary btn-sm">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a href="{% url 'usuarios:editar_usuario' u.id %}" class="btn btn-warning btn-sm">
+                                        <a href="{% url 'usuarios:editar_usuario' u.id %}" class="btn btn-sm"  style= "background-color: #24324A; border: 1px solid #4a5a7a; color: #60a5fa;">
                                             <i class="bi bi-pencil"></i>
                                         </a>
+                                        {% if u.rol == 'TECNICO' and u.is_active %}
+                                        <button type="button"
+                                                class="btn btn-sm btn-asignar-activo"
+                                                data-id="{{ u.id }}"
+                                                data-nombre="{{ u.get_full_name }}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalAsignarActivo"
+                                                style="background-color: #24324A; border: 1px solid #3B4A66; color: #94a3b8;">
+                                            <i class="bi bi-diagram-3"></i>
+                                        </button>
+                                        {% endif %}
                                         <!-- Dropdown acciones secundarias -->
                                         <div class="dropdown">
-                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="dropdown">
+                                            <button class="btn btn-sm" style="background-color: #1e293b; border: 1px solid #334155; color: #64748b;" data-bs-toggle="dropdown">
                                                 <i class="bi bi-three-dots-vertical"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
-                                                {% if u.rol == 'TECNICO' and u.is_active %}
-                                                <li>
-                                                    <button class="dropdown-item btn-asignar-activo"
-                                                            data-id="{{ u.id }}"
-                                                            data-nombre="{{ u.get_full_name }}"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#modalAsignarActivo">
-                                                        <i class="bi bi-diagram-3 me-2"></i> Asignar activo
-                                                    </button>
-                                                </li>
-                                                {% endif %}
                                                 <li>
                                                     <button class="dropdown-item btn-cambiar-contrasena"
                                                             data-id="{{ u.id }}"

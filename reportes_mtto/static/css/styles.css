@@ -307,6 +307,10 @@ hr {
     color: #ffffff !important;
 }
 
+.btn-editar:hover {
+    filter: brightness(1.15);
+}
+
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active {
@@ -566,25 +570,45 @@ select option {
    13. BOOTSTRAP OVERRIDES — DROPDOWN Y NAV
 --------------------------------------------------- */
 .dropdown-menu {
-    background-color: var(--bg-card) !important;
-    border-color: var(--border) !important;
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 12px !important;
+    padding: 8px !important;
+    min-width: 220px !important;
+    margin-top: 8px !important;
 }
 
 .dropdown-item {
-    color: var(--text-secondary) !important;
+    color: #94a3b8 !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    font-size: 0.875rem !important;
+    transition: background 0.15s, color 0.15s !important;
 }
 
 .dropdown-item:hover {
     background-color: #334155 !important;
-    color: var(--text-primary) !important;
+    color: #e2e8f0 !important;
+}
+
+.dropdown-item.text-danger {
+    color: #f87171 !important;
+}
+
+.dropdown-item.text-danger:hover {
+    background-color: rgba(239,68,68,0.1) !important;
+    color: #f87171 !important;
 }
 
 .dropdown-divider {
-    border-color: var(--border) !important;
+    border-color: #334155 !important;
+    margin: 6px 0 !important;
 }
 
 .dropdown-item-text {
-    color: var(--text-muted) !important;
+    color: #64748b !important;
+    padding: 6px 12px 8px !important;
+    font-size: 0.8rem !important;
 }
 
 .nav-tabs {

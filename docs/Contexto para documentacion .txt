@@ -244,6 +244,14 @@ Reglas de negocio:
 - Las sesiones expiran después de 25 minutos de inactividad con advertencia previa de 60 segundos
 - Solo el administrador puede agregar, editar y eliminar; activos componentes o sistemas 
 - Se usa @soloadmin para restringir desde el backend y desde el front se eliminan botones de acuerdo a su rol
+-Un técnico será asignado a un activo
+- El técnico no podrá ver editar eliminar detalle de solicitudes que sean de activos que no estes asignados a el
+- Sup y admin si pueden ver todas las solicitudes 
+- El admin es el único que puede cambiar contraseña de un usuario 
+ un usuario inactivo no puede tener activo asignado, al desactivarlo se desvincula automáticamente
+Restricción de vistas para técnicos: solo pueden ver su activo asignado en el árbol jerárquico
+
+
 
 URLs principales
 

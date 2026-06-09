@@ -225,7 +225,10 @@ def asignar_activo(request, id):
             usuario.activo_asignado = None  
 
         usuario.save()
-        messages.success(request, f'Activo {activo.nombre} actualizado correctamente para {usuario.get_full_name()}.')
+        if activo_id:
+            messages.success(request, f'Activo {activo.nombre} actualizado correctamente para {usuario.get_full_name()}.')
+        else:
+            messages.success(request, f'Activo desasignado correctamente para {usuario.get_full_name()}.')
         return redirect('usuarios:lista_usuarios')
 
     # GET — retorna activos disponibles en JSON para el modal

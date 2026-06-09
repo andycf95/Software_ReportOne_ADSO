@@ -1,3 +1,4 @@
+// JavaScript para funcionalidades comunes en toda la aplicación
 document.addEventListener("DOMContentLoaded", function () {
 
     // Auto cerrar alertas

@@ -46,7 +46,7 @@ def crear_activo(request):
         'btn_texto': 'Guardar'
     })
 
-
+#Vista para editar un activo existente, utilizando un formulario basado en el modelo ActivoForm.
 @login_required
 @solo_admin
 def editar_activo(request, id):
@@ -64,6 +64,7 @@ def editar_activo(request, id):
         'btn_texto': 'Actualizar'
     })
 
+#Vista para crear un nuevo sistema asociado a un activo específico, utilizando un formulario basado en el modelo SistemaForm.
 @login_required
 @solo_admin
 def crear_sistema(request, activo_id):
@@ -85,7 +86,7 @@ def crear_sistema(request, activo_id):
         'activo_padre': activo.nombre,
     })
 
-
+#Vista para editar un sistema existente, utilizando un formulario basado en el modelo SistemaForm.
 @login_required
 @solo_admin
 def editar_sistema(request, id):
@@ -104,7 +105,7 @@ def editar_sistema(request, id):
         'activo_padre': sistema.activo.nombre,
     })
 
-
+#Vista para crear un nuevo componente, utilizando un formulario basado en el modelo ComponenteForm.
 @login_required
 @solo_admin
 def crear_componente(request, sistema_id):
@@ -127,7 +128,7 @@ def crear_componente(request, sistema_id):
         'sistema_padre': sistema.nombre,
     })
 
-
+#Vista para editar un componente existente, utilizando un formulario basado en el modelo ComponenteForm.
 @login_required
 @solo_admin
 def editar_componente(request, id):
