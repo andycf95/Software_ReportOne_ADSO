@@ -11,6 +11,10 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from rapidfuzz import fuzz
+import json
 
 # Create your views here.
 
@@ -239,7 +243,7 @@ def editar_solicitud(request, id):
             if form.is_valid():
                 try:
                     form.save()
-                    messages.success(request, 'La solicitud se actualizó correctamente.')
+                    messages.success(request, f'La solicitud {solicitud.codigo} se actualizó correctamente.')
                     return redirect('solicitudes:lista')
                 except Exception as e:
                     messages.error(request, 'Ocurrió un error al guardar los cambios.')
@@ -254,7 +258,7 @@ def editar_solicitud(request, id):
                         usuario=request.user,
                         comentario=f'Actualización de proceso|{comentario}'
                     )
-                    messages.success(request, 'Comentario de seguimiento agregado.')
+                    messages.success(request, f'Comentario de seguimiento agregado a la solicitud {solicitud.codigo}.')
                 return redirect('solicitudes:lista')
             except Exception as e:
                 messages.error(request, 'Ocurrió un error al guardar el seguimiento.')
@@ -280,7 +284,7 @@ def cambiar_estado_en_proceso(request, id):
             comentario=( f"Cambio de estado|La orden paso de {estado_anterior} a {nuevo_estado}." )
         )
         
-        messages.success(request, 'La solicitud entró en proceso correctamente.')
+        messages.success(request, f'La solicitud {solicitud.codigo} entró en proceso correctamente.')
     except ValueError as error:
         messages.error(request, str(error))
         
@@ -324,7 +328,7 @@ def cerrar_solicitud(request, id):
                     f"Cambio de estado|La orden paso de {estado_anterior} a {nuevo_estado}."
                 )
             )
-            messages.success(request, 'La solicitud se cerró correctamente.')
+            messages.success(request, f'La solicitud {solicitud.codigo} se cerró correctamente.')
             return redirect('solicitudes:lista')
         except ValueError as error:
             return render(request, 'solicitud_cerrar.html', {
@@ -356,7 +360,7 @@ def eliminar_solicitud(request, id):
         return redirect('solicitudes:lista')
     try:
         solicitud.delete()
-        messages.success(request, 'La solicitud fue eliminada correctamente.')
+        messages.success(request, f'La solicitud {solicitud.codigo} fue eliminada correctamente.')
         return redirect('solicitudes:lista')
 
     except ValidationError as error:
@@ -364,4 +368,109 @@ def eliminar_solicitud(request, id):
         return redirect('solicitudes:lista')
     
     
-    
+##--------SECCION PARA VALIDACION DE SIMILITUD DE SOLICITUDES----------##
+
+
+# Función para calcular similitud entre dos solicitudes, combinando campos exactos y similitud de texto
+def calcular_similitud(solicitud_nueva, solicitud_existente, activo_id, sistema_id, componente_id):
+    """
+    Calcula el porcentaje de similitud entre dos solicitudes.
+    Combina campos exactos (75 pts) y similitud de texto (25 pts).
+    """
+    score = 0
+
+    # ─── CAMPOS EXACTOS (máx. 75 pts) ───
+    if solicitud_existente.activo_id == int(activo_id or 0):
+        score += 30
+    if solicitud_existente.sistema_activo_id == int(sistema_id or 0):
+        score += 25
+    if componente_id and solicitud_existente.componente_activo_id == int(componente_id):
+        score += 20
+
+    # ─── SIMILITUD DE TEXTO (máx. 25 pts) ───
+    titulo_score = fuzz.WRatio(
+        solicitud_nueva.get('titulo', ''),
+        solicitud_existente.titulo
+    )
+    descripcion_score = fuzz.WRatio(
+        solicitud_nueva.get('descripcion', ''),
+        solicitud_existente.descripcion
+    )
+
+    # Normalizar a sus pesos: título → 15 pts, descripción → 10 pts
+    score += round((titulo_score / 100) * 15)
+    score += round((descripcion_score / 100) * 10)
+
+    return score
+
+# Función para clasificar el nivel de similitud basado en el score total
+def clasificar_similitud(score):
+    """Clasifica el score en un nivel de alerta."""
+    if score >= 85:
+        return 'duplicado', 'Muy probable duplicado'
+    elif score >= 70:
+        return 'alto', 'Posible duplicado'
+    elif score >= 50:
+        return 'medio', 'Relacionado'
+    return None, None
+
+#Vista Ajax para validar similitud de solicitudes
+
+#Vista AJAX para verificar similitud de una nueva solicitud con las existentes, utilizando la función calcular_similitud y clasificando el nivel de similitud
+@login_required
+@require_POST
+def verificar_similitud(request):
+    """
+    Recibe los datos del formulario via AJAX y retorna
+    las solicitudes similares con su porcentaje de similitud.
+    """
+    try:
+        datos = json.loads(request.body)
+        titulo = datos.get('titulo', '').strip()
+        descripcion = datos.get('descripcion', '').strip()
+        activo_id = datos.get('activo_id')
+        sistema_id = datos.get('sistema_id')
+        componente_id = datos.get('componente_id')
+
+        # No buscar si el título está vacío o es muy corto
+        if len(titulo) < 5:
+            return JsonResponse({'similares': []})
+
+        # Solo buscar en solicitudes activas
+        solicitudes = Solicitud.objects.exclude(
+            estado='CERRADA'
+        ).select_related('activo', 'sistema_activo', 'componente_activo')
+
+        solicitud_nueva = {
+            'titulo': titulo,
+            'descripcion': descripcion,
+        }
+
+        resultados = []
+        for s in solicitudes:
+            score = calcular_similitud(
+                solicitud_nueva, s,
+                activo_id, sistema_id, componente_id
+            )
+            nivel, etiqueta = clasificar_similitud(score)
+
+            if nivel:  # Solo incluir si score >= 50
+                resultados.append({
+                    'id': s.id,
+                    'codigo': s.codigo,
+                    'titulo': s.titulo,
+                    'activo': str(s.activo),
+                    'estado': s.get_estado_display(),
+                    'score': score,
+                    'nivel': nivel,
+                    'etiqueta': etiqueta,
+                })
+
+        # Ordenar por score descendente y limitar a 5
+        resultados.sort(key=lambda x: x['score'], reverse=True)
+        resultados = resultados[:5]
+
+        return JsonResponse({'similares': resultados})
+
+    except Exception as e:
+        return JsonResponse({'similares': [], 'error': str(e)})

@@ -25,13 +25,12 @@ App solicitudes
 
 Modelo Solicitud:
 - usuario: usuario creador de la solicitud, relacionado con AUTH_USER_MODEL.
-- codigo: autogenerado con formato RQ-001.
+- codigo: autogenerado con formato RQ-000.
 - activo.
 - sistema_activo.
-- subsistema_activo.
+- componente_activo.
 - titulo.
 - descripcion.
-- repuestos_necesarios.
 - criticidad: entero con choices:
   1 Baja,
   2 Media,
@@ -39,9 +38,9 @@ Modelo Solicitud:
   4 Crítica,
   5 Emergencia.
 - estado: choices:
-  PENDIENTE,
-  EN_PROCESO,
-  CERRADA.
+  PENDIENTE (primer estado de la orden, pendiente por dar atención)
+  EN_PROCESO (orden que esta siendo atendida por el personal de mantenimiento)
+  CERRADA (orden que fue resuelta a satisfacción y cerrada con los comentarios pertinentes) 
 - fecha_creacion.
 - fecha_actualizacion.
 - fecha_cierre.
@@ -81,22 +80,34 @@ Vistas principales:
 - detalle_cierre. Muestra el detalle de olicitud trabajos realizados y observaciones de cierre
 - eliminar_solicitud: debe ser POST. elimina la solicitud
 
+Templates: 
+solicitud_list: Lista de solicitudes creadas, se tienen dos vistas con el mismo template lista_solicitudes y solicitudes_cerrada, contiene paginador, botones para editar y eliminar y el detalle de la solicitud esto haciendo click en cualquier lugar de la fila donde se encuentra la solicitud mediante JavaScript 
+solicitud_form: Formulario para la creación y edición de las solicitudes (agregar comentarios)
+solicitud_detail: Template para ver el detalle de la solicitud además del historial de la solicitud sus cambios de estado y comentarios, con dos botones para editar y volver a la tabla de donde viene
+solicitud_cierre: template para agregar detalle necesarios al cierre se ve desde el detalle de la solicitud
+solicitud_cierre_detail: muestra el detalle del cierre de la solicitud 
+ 
+
 
 App Usuarios
 Se tienen 3 roles en los usuarios técnico, supervisor y administrador
 
 Autenticación y usuarios:
 - Se creó una app usuarios.
+
 - Se usa un modelo personalizado Usuario basado en AbstractUser.
+
 - settings.py tiene:
   AUTH_USER_MODEL = 'usuarios.Usuario'
   LOGIN_URL = 'usuarios:login'
   LOGIN_REDIRECT_URL = 'home:index'
   LOGOUT_REDIRECT_URL = 'usuarios:login'
+
 - El usuario tiene campos adicionales:
   numero_identificacion,
   telefono,
   rol.
+
 - AbstractUser ya trae:
   username,
   first_name,
@@ -107,35 +118,71 @@ Autenticación y usuarios:
   is_superuser,
   groups,
   user_permissions.
+
 - email se puede sobrescribir como unique=True.
+
 - La Solicitud se relaciona con el usuario creador mediante:
   usuario = ForeignKey(settings.AUTH_USER_MODEL, on_delete=PROTECT, related_name='solicitudes_creadas', null=True, blank=True) no se puede eliminar usuarios que tengan solicitudes relacionadas
-- Se recomienda usar on_delete=PROTECT para no perder trazabilidad.
+
+- Se relaciona activo con el rol de usuario "TECNICO" activo_asignado = models.OneToOneField('activos.Activo', on_delete=models.SET_NULL, null=True, blank=True, related_name='tecnico_asignado', verbose_name='Activo asignado')
+
+
+Vistas: 
+  login_usuario: Se crea vista de login para personalizar mas el login, permite a los usuarios logearse
+  perfil_usuario: muestra el perfil del usuario las solicitudes los totales de las solicitudes creadas (a los técnicos solo les muestra las solicitudes del activo asignados e info del activo
+  solo_admin: función que permite establecer accesos a las vistas solos a usuarios con rol ADMIN
+  lista_usuarios: Lista de los usuarios creados con sus roles además de las acciones (vincular activo, desactivar usuario, activar usuario, editar usuario, cambio de contraseña, ver detalle de usuario) 
+  crear_usuario: Vista para crear usuarios
+  editar_usuario: vista para editar los datos del usuario menos su contraseña
+  cambiar_contrasena: Vista que permite cambio de constraaseña de un usuario
+  asignar_activo: Vista para signar un activo a un usuario determinado
+  toggle_usuario:n Vista para desactivar y activar un usuario
+  detalle_usuario: Vista para ver el detalle del usuario 
+
+
 - Las vistas sensibles deben usar login_required:
-  lista_solicitudes,
-  solicitudes_cerradas,
-  detalle_solicitud,
-  crear_solicitud,
-  editar_solicitud,
-  cambiar_estado_en_proceso,
+  lista_solicitudes: 
+  lista_solicitudes_cerradas
+  detalle_solicitud: 
+  crear_solicitud:
+  editar_solicitud: 
+  cambiar_estado_en_proceso: 
   cerrar_solicitud,
   detalle_cierre,
   eliminar_solicitud.
-  lista_activos
+
+  lista_activos_jerarquia
   crear_activo
   editar_activo
-	lo mismo con componentes y sistemas
+  crear_sistema
+  editar_sistema
+  crear_componente
+  editar_componente
+  eliminar_activo
+  eliminar_sistema
+  eliminar_componente
+
+- Se implementó el decorador solo_admin para proteger las vistas del módulo. Se eliminó el registro público y se habilitaron las vistas lista_usuarios, crear_usuario, editar_usuario, toggle_usuario y detalle_usuario, todas protegidas por rol ADMIN. 
+  - Las vistas sensibles a @solo_admin:
+  crear_activo
+  editar_activo
+  crear_sistema
+  editar_sistema
+  crear_componente
+  editar_componente
+  eliminar_activo
+  eliminar_sistema
+  eliminar_componente
+
 - logout pueden manejarse con LogoutView de Django.
+
 Login se realiza mendiante na vista para realizar alarmas cuando un usuario esta desactivado
 - Se crea vista crear usuario
 - Por seguridad, después del registro es mejor redirigir al login en vez de loguear automáticamente.
 - Se implementó un sistema de gestión de usuarios con control de acceso basado en roles (ADMIN, SUPERVISOR, TECNICO) usando AbstractUser con campos adicionales: rol, telefono, email único y numero_identificacion.
 - Se crearon los formularios UsuarioAdminForm y EditarUsuarioForm para creación y edición respectivamente, con encriptación de contraseña mediante set_password().
-- Se implementó el decorador solo_admin para proteger las vistas del módulo. Se eliminó el registro público y se habilitaron las vistas lista_usuarios, crear_usuario, editar_usuario, toggle_usuario y detalle_usuario, todas protegidas por rol ADMIN.
 - Los usuarios no se eliminan sino que se desactivan (is_active=False) para conservar trazabilidad. Las sesiones expiran tras 25 minutos de inactividad 
-- Se crea perfil de usuarios donde se puede ver todos los datos del usuarios conteo de soicitudes y solicitudes registradas reciente por el usuario
-- Se crea vista de lista_usuarios para que el administrador puedo gestionar los usuarios 
-
+- Se crea perfil de usuarios donde se puede ver todos los datos del usuarios conteo de soicitudes y solicitudes registradas reciente por el usuario (usuarios con rol TECNICO podrán ver solicitudes del activo asignado)
 
 Permite:
 
@@ -149,7 +196,7 @@ Contiene:
 - Página principal.
 - Dashboard inicial.
 - Navegación entre módulos.
-- landiung
+- landing page
 
 App Activos
 Administra la estructura jerárquica de los equipos.
@@ -222,6 +269,17 @@ Al seleccionar un subsistema:
 
 Sin necesidad de recargar la página.
 
+Templates
+activos_list.html
+Template principal del módulo de activos. Muestra el árbol jerárquico colapsable de activos, sistemas y componentes en la columna izquierda, y el panel de detalles dinámico en la columna derecha. Incluye modal de confirmación de eliminación. Para técnicos solo muestra su activo asignado y oculta los botones de gestión.
+form_activo.html
+Formulario reutilizable para crear y editar activos. Recibe las variables de contexto titulo y btn_texto para adaptarse a ambos casos. Incluye campos de nombre, marca, modelo, fecha de adquisición, descripción y estado operativo.
+form_sistema.html
+Formulario reutilizable para crear y editar sistemas. Muestra el activo padre como contexto jerárquico debajo del título. Incluye campos de nombre, tipo de sistema y descripción.
+form_componente.html
+Formulario reutilizable para crear y editar componentes. Muestra el activo padre y el sistema padre como contexto jerárquico debajo del título. Incluye campos de nombre, marca, modelo y descripción.
+Los cuatro templates extienden base.html y siguen el mismo estilo unificado con card border-0, card-body p-4, encabezado con botón X para volver y botones de acción en la parte inferior.
+
 Reglas de negocio:
 - Una solicitud nace en estado PENDIENTE.
 - El flujo válido es PENDIENTE -> EN_PROCESO -> CERRADA.
@@ -237,19 +295,19 @@ Reglas de negocio:
 - No se puede realizar eliminación permanente soft delete (solo pendientes)
 - Los  comentarios tampoco se puedes eliminar
 - Los activos, sistemas y componentes no se pueden eliminar si tienen solicitudes asignadas
-- Los activos solo pueden quedar fuera de servicio y que los sistemas y componentes herede este estadoSolo el administrador puede crear, editar y desactivar usuarios
+- Los activos solo pueden quedar fuera de servicio y que los sistemas y componentes herede este estado
 - Los usuarios no se eliminan sino que se desactivan para conservar trazabilidad
 - Un usuario desactivado no puede iniciar sesión y recibe un mensaje claro indicándolo
 - No se puede desactivar la propia cuenta del administrador
-- Las sesiones expiran después de 25 minutos de inactividad con advertencia previa de 60 segundos
+- Las sesiones expiran después de 25 minutos de inactividad
 - Solo el administrador puede agregar, editar y eliminar; activos componentes o sistemas 
 - Se usa @soloadmin para restringir desde el backend y desde el front se eliminan botones de acuerdo a su rol
--Un técnico será asignado a un activo
-- El técnico no podrá ver editar eliminar detalle de solicitudes que sean de activos que no estes asignados a el
+- Un técnico será asignado a un activo, y un activo solo podrá tener un técnico asignado
+- El técnico no podrá ver creara editar eliminar detalle de solicitudes que sean de activos que no estes asignados a el
 - Sup y admin si pueden ver todas las solicitudes 
 - El admin es el único que puede cambiar contraseña de un usuario 
- un usuario inactivo no puede tener activo asignado, al desactivarlo se desvincula automáticamente
-Restricción de vistas para técnicos: solo pueden ver su activo asignado en el árbol jerárquico
+- Un usuario inactivo no puede tener activo asignado, al desactivarlo se desvincula automáticamente
+- Restricción de vistas para técnicos: solo pueden ver su activo asignado en el árbol jerárquico
 
 
 
@@ -263,30 +321,48 @@ urlpatterns = [
     path('activos/', include('activos.urls')),
 ]
 
-Interfaz:
-- Bootstrap 5.
-- Diseño tipo sistema empresarial de tickets/órdenes de trabajo.
-- Cards, grids responsivos, badges de estado/criticidad.
-- Mensajes de Django con alerts automáticas.
-- Historial tipo tracking, similar a seguimiento de paquetes.
-- Formularios ordenados y visualmente limpios.
-- Árbol Jerarquico para activos, sistemas y componentes 
-- Tarjeta de detalle de activos sistemas y componentes utilzando ajax y JavaScript 
+Interfaz
+
+- Bootstrap 5 con modo oscuro completo, paleta de colores #0f172a como fondo base, #1e293b para cards y paneles, y #f97316 naranja como acento principal.
+- Layout con sidebar fijo de 240px, navbar superior de 56px y área de contenido principal responsiva.
+- Sidebar responsive con menú hamburguesa para dispositivos móviles con overlay y animación suave.
+- Diseño tipo sistema empresarial de tickets y órdenes de trabajo con cards sin bordes, grids responsivos y badges semitransparentes para estado y criticidad.
+- Mensajes de Django con alerts automáticas que se cierran después de 5 segundos.
+- Historial de seguimiento tipo tracking vertical similar al seguimiento de paquetes, agrupado por fecha con hora, acción en naranja y descripción del evento.
+- Formularios ordenados y visualmente limpios con inputs oscuros, labels en gris, focus en naranja y campos deshabilitados con estilo diferenciado.
+- Árbol jerárquico colapsable para activos, sistemas y componentes con indentación por niveles, íconos diferenciados, badges de tipo y scroll propio.
+- Panel de detalles lateral fijo con carga dinámica via AJAX al hacer clic en cualquier elemento del árbol, mostrando información, estadísticas de solicitudes activas y botones de acción según rol.
+- Modal de confirmación para eliminaciones con overlay oscuro.
+- Datepicker personalizado con Flatpickr integrado al modo oscuro con acento naranja.
+- Scrollbar personalizado delgado con acento naranja al hacer hover.
+- Sesión con temporizador de inactividad de 25 minutos con advertencia 
+- Control de acceso visual por rol: técnicos ven solo su activo asignado y sus solicitudes, administradores y supervisores tienen acceso completo.
+- Landing page independiente para usuarios no autenticados con hero, features y botón de acceso al sistema.
 
 
 Filtros:
 Solicitudes
-- Búsqueda por texto usando Q:
-  codigo, titulo, descripcion, activo, sistema_activo, subsistema_activo.
-- Filtro por estado para solicitudes activas.
+
+- Búsqueda por texto usando Q: codigo, titulo, descripcion, activo__nombre.
+- Filtro por estado para solicitudes activas: PENDIENTE, EN_PROCESO.
 - Filtro por criticidad usando los valores enteros de los choices.
 - Filtro por fecha_creacion.
 - En cerradas también filtro por fecha_cierre.
 - Los filtros se aplican antes del paginador.
-- Se usa una variable de contexto es_cerradas para que el template sepa si está mostrando activas o cerradas.
+- Se usa una variable de contexto es_cerrada para que el template sepa si está mostrando activas o cerradas.
+- Los filtros activos se muestran visualmente como badges en el formulario.
+- La paginación conserva los parámetros de filtro en la URL.
+- Para técnicos los filtros se aplican solo sobre las solicitudes de su activo asignado.
 
 Usuarios
-Filtros parecidos actualizar
+
+- Búsqueda por texto usando Q: username, first_name, last_name, email, numero_identificacion.
+- Filtro por rol: ADMIN, SUPERVISOR, TECNICO.
+- Filtro por estado: activo o inactivo usando el campo is_active.
+- Los filtros se aplican antes del paginador.
+- Los filtros activos se muestran visualmente como badges en el formulario.
+- La paginación conserva los parámetros de filtro en la URL.
+- Solo accesible para usuarios con rol ADMIN.
 
 
 Admin:
@@ -338,5 +414,18 @@ Documentación y código
 
 Comentarios detallados agregados a activos.js y usuarios.js
 
+
+26/06
+Detección de solicitudes similares
+
+Implementación de un sistema de verificación de similitud al crear solicitudes usando la librería rapidfuzz con el algoritmo WRatio
+Función calcular_similitud que combina campos exactos (activo 30pts, sistema 25pts, componente 20pts) y similitud de texto (título 15pts, descripción 10pts) para un total máximo de 100 puntos
+Función clasificar_similitud con cuatro niveles: No mostrar (< 50), Relacionado (50-70), Posible duplicado (70-85), Muy probable duplicado (> 85)
+Vista AJAX verificar_similitud que recibe los datos del formulario, calcula similitud contra todas las solicitudes activas y retorna las 5 más similares en formato JSON
+Modal de advertencia que se muestra antes de guardar si existen similares, con tabla de resultados, porcentaje con color según nivel y botón para continuar de todas formas
+JavaScript en el formulario de creación que intercepta el submit, verifica similitud via AJAX y controla el flujo con una bandera para evitar bucles infinitos
+Corrección del AJAX de activos en activos.js para técnicos donde el select de activo no existe en el DOM y causaba error de null
+Corrección de la toma del activo_id en el JS del formulario para técnicos donde el valor viene de un input hidden en vez de un select
+Identificación de problema de calibración donde la mayoría de solicitudes superaban el 70% por similitud de título, con propuesta de hacer el activo obligatorio como filtro previo
 
 

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
 
 <!-- Formulario para crear o editar una solicitud de mantenimiento, con campos para título, descripción, criticidad, activo, 
@@ -120,23 +120,74 @@
     </div>
 </div>
 
-{% if request.user.rol == 'TECNICO' and request.user.activo_asignado %}
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const activoId = {{ request.user.activo_asignado.id }};
-    
-    // Disparar fetch de sistemas automáticamente
-    fetch(`/activos/ajax/sistemas/?activo_id=${activoId}`)
-        .then(r => r.json())
-        .then(data => {
-            const sistema = document.getElementById('id_sistema');
-            sistema.innerHTML = "<option value=''>Seleccione sistema</option>";
-            data.forEach(item => {
-                sistema.innerHTML += `<option value="${item.id}">${item.nombre}</option>`;
-            });
-        });
-});
-</script>
-{% endif %}
+<!-- MODAL SIMILITUD -->
+<div class="modal fade" id="modalSimilitud" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-triangle" style="color: #fbbf24; font-size: 1.2rem;"></i>
+                    <h5 class="modal-title fw-bold">Se encontraron solicitudes similares</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">
+                    Revisa las solicitudes similares antes de crear una nueva.
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Código</th>
+                                <th>Título</th>
+                                <th>Activo</th>
+                                <th>Estado</th>
+                                <th>Similitud</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-similares">
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Leyenda -->
+                <div class="mt-3 d-flex gap-3 flex-wrap">
+                    <small class="d-flex align-items-center gap-1">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#f87171;display:inline-block;"></span>
+                        <span class="text-muted">&gt; 85% — Muy probable duplicado</span>
+                    </small>
+                    <small class="d-flex align-items-center gap-1">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#f97316;display:inline-block;"></span>
+                        <span class="text-muted">70–85% — Posible duplicado</span>
+                    </small>
+                    <small class="d-flex align-items-center gap-1">
+                        <span style="width:10px;height:10px;border-radius:50%;background:#fbbf24;display:inline-block;"></span>
+                        <span class="text-muted">50–70% — Relacionado</span>
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-between">
+                <a  href="{% url 'solicitudes:lista' %}" type="button" class="btn btn-outline-secondary btn-sm">Volver a la lista</a>
+                <button type="button" class="btn btn-primary btn-sm px-4" id="btn-continuar-de-todas-formas">
+                    Continuar de todas formas
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ajax-config"
+    data-activo-id="{% if request.user.rol == 'TECNICO' and request.user.activo_asignado %}{{ request.user.activo_asignado.id }}{% endif %}"
+    data-url-sistemas="/activos/ajax/sistemas/"
+    data-url-componentes="/activos/ajax/componentes/"
+    data-es-edicion="{% if solicitud %}true{% else %}false{% endif %}"
+    data-url-similitud="{% url 'solicitudes:verificar_similitud' %}">
+</div>
+
+{% block extra_js %}
+    <script src="{% static 'js/activos_ajax.js' %}"></script>
+    <script src="{% static 'js/verificar_similitud.js' %}"></script>
+{% endblock %}
 
 {% endblock %}

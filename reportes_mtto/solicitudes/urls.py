@@ -13,4 +13,5 @@ urlpatterns = [
     path('solicitud/<int:id>/eliminar/', views.eliminar_solicitud, name='eliminar'), # Vista para eliminar una solicitud (accesible solo para supervisores, y solo si la solicitud no está cerrada)
     path('solicitud/<int:id>/cerrar/', views.cerrar_solicitud, name='cerrar'), # Vista para cerrar una solicitud (accesible solo para supervisores, y solo si la solicitud no está cerrada)
     path('solicitud/<int:id>/cambiar-estado-en-proceso/', views.cambiar_estado_en_proceso, name='cambiar_estado_en_proceso'), # Vista para cambiar el estado de una solicitud a "En Proceso" (accesible solo para técnicos, y solo si la solicitud está en estado "Pendiente")
+    path('verificar-similitud/', views.verificar_similitud, name='verificar_similitud'), # Vista para verificar la similitud de una solicitud con otras existentes (accesible para técnicos y supervisores)
 ]

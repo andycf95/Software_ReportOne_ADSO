@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}   
 
 {% block content %}
 
@@ -315,7 +316,14 @@
     </div>
 </div>
 
-<script>
+
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/usuarios.js' %}"></script>
+{% endblock %}
+<!-- <script>
 let activosData = [];
 let usuarioIdActual = null;
 
@@ -397,6 +405,4 @@ document.querySelectorAll('.btn-cambiar-contrasena').forEach(btn => {
         document.getElementById('form-cambiar-contrasena').action = `/usuarios/${this.dataset.id}/cambiar-contrasena/`;
     });
 });
-</script>
-
-{% endblock %}
+</script> -->
