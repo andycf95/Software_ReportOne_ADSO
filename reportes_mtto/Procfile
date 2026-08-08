@@ -1,0 +1,1 @@
+web: gunicorn reportes_mtto.wsgi:application
