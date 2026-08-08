@@ -370,47 +370,110 @@ def eliminar_solicitud(request, id):
     
 ##--------SECCION PARA VALIDACION DE SIMILITUD DE SOLICITUDES----------##
 
+#Se establecen palabras comunes que se ignoran al calcular la similitud de texto entre solicitudes, para evitar coincidencias irrelevantes
+STOPWORDS = {'de', 'del', 'la', 'el', 'los', 'las', 'en', 'por', 'con', 'para', 'un', 'una', 'y', 'a'}
+
+def limpiar_texto(texto):
+    """Elimina palabras de relleno que inflan artificialmente el score."""
+    palabras = texto.lower().split()
+    return ' '.join(p for p in palabras if p not in STOPWORDS)
+
+
+def similitud_titulo(texto1, texto2):
+    """
+    Compara títulos combinando dos estrategias:
+    - ratio: sensible al orden exacto de las palabras
+    - token_sort_ratio: detecta el mismo contenido en distinto orden
+    El promedio de ambas es más preciso que usar una sola.
+    """
+    t1 = limpiar_texto(texto1)
+    t2 = limpiar_texto(texto2)
+    score_exacto = fuzz.ratio(t1, t2)
+    score_flexible = fuzz.token_sort_ratio(t1, t2)
+    return (score_exacto + score_flexible) / 2
+
+def similitud_descripcion(texto1, texto2):
+    t1 = limpiar_texto(texto1)
+    t2 = limpiar_texto(texto2)
+    score_exacto = fuzz.ratio(t1, t2)
+    score_flexible = fuzz.token_sort_ratio(t1, t2)
+    return (score_exacto + score_flexible) / 2
+
+
 
 # Función para calcular similitud entre dos solicitudes, combinando campos exactos y similitud de texto
 def calcular_similitud(solicitud_nueva, solicitud_existente, activo_id, sistema_id, componente_id):
     """
-    Calcula el porcentaje de similitud entre dos solicitudes.
-    Combina campos exactos (75 pts) y similitud de texto (25 pts).
+    Calcula el porcentaje de similitud entre una solicitud nueva
+    y una solicitud existente activa.
+
+    Retorna 0 si no son del mismo activo (filtro obligatorio).
+    Si son del mismo activo, calcula el score sobre 100 puntos
+    distribuidos así:
+        Sistema      → 20
+        Componente   → 15
+        Título       → 45
+        Descripción  → 20
     """
+    
+        # ── FILTRO OBLIGATORIO: solo comparar del mismo activo ──
+    if solicitud_nueva["activo_id"] != solicitud_existente.activo_id:
+        return 0
+    
     score = 0
 
-    # ─── CAMPOS EXACTOS (máx. 75 pts) ───
-    if solicitud_existente.activo_id == int(activo_id or 0):
-        score += 30
-    if solicitud_existente.sistema_activo_id == int(sistema_id or 0):
-        score += 25
-    if componente_id and solicitud_existente.componente_activo_id == int(componente_id):
-        score += 20
+# ── CAMPOS EXACTOS ──
+    pts_sistema = 0
+    pts_componente = 0
 
+    # ─── CAMPOS EXACTOS (máx. 75 pts) ───
+    if sistema_id and solicitud_existente.sistema_activo_id == int(sistema_id or 0):
+        pts_sistema = 20
+        score += pts_sistema
+        
+    if componente_id and solicitud_existente.componente_activo_id == int(componente_id):
+        pts_componente = 15
+        score += pts_componente
+
+    
+    
     # ─── SIMILITUD DE TEXTO (máx. 25 pts) ───
-    titulo_score = fuzz.WRatio(
+    titulo_score = similitud_titulo(
         solicitud_nueva.get('titulo', ''),
         solicitud_existente.titulo
     )
-    descripcion_score = fuzz.WRatio(
+    descripcion_score = similitud_descripcion(
         solicitud_nueva.get('descripcion', ''),
         solicitud_existente.descripcion
     )
 
-    # Normalizar a sus pesos: título → 15 pts, descripción → 10 pts
-    score += round((titulo_score / 100) * 15)
-    score += round((descripcion_score / 100) * 10)
+    pts_titulo = round((titulo_score / 100) * 45)
+    pts_descripcion = round((descripcion_score / 100) * 20)
+
+    score += pts_titulo
+    score += pts_descripcion
+
+    # ── LOG EN CONSOLA ──
+    print(f"""
+    ── Comparando con: {solicitud_existente.codigo} ──
+    Sistema:     {pts_sistema} pts
+    Componente:  {pts_componente} pts
+    Título:      {pts_titulo} pts  (WRatio: {titulo_score}%)
+    Descripción: {pts_descripcion} pts  (WRatio: {descripcion_score}%)
+    ─────────────────────────────
+    SCORE TOTAL: {score} pts
+    """)
 
     return score
 
 # Función para clasificar el nivel de similitud basado en el score total
 def clasificar_similitud(score):
     """Clasifica el score en un nivel de alerta."""
-    if score >= 85:
+    if score >= 90:
         return 'duplicado', 'Muy probable duplicado'
-    elif score >= 70:
+    elif score >= 80:
         return 'alto', 'Posible duplicado'
-    elif score >= 50:
+    elif score >= 65:
         return 'medio', 'Relacionado'
     return None, None
 
@@ -437,13 +500,16 @@ def verificar_similitud(request):
             return JsonResponse({'similares': []})
 
         # Solo buscar en solicitudes activas
-        solicitudes = Solicitud.objects.exclude(
+        solicitudes = Solicitud.objects.filter(
+            activo_id = activo_id,
+        ).exclude(
             estado='CERRADA'
         ).select_related('activo', 'sistema_activo', 'componente_activo')
 
         solicitud_nueva = {
             'titulo': titulo,
             'descripcion': descripcion,
+            'activo_id': int(activo_id or 0),
         }
 
         resultados = []
@@ -454,7 +520,7 @@ def verificar_similitud(request):
             )
             nivel, etiqueta = clasificar_similitud(score)
 
-            if nivel:  # Solo incluir si score >= 50
+            if nivel:  # Solo incluir si score >= 65
                 resultados.append({
                     'id': s.id,
                     'codigo': s.codigo,

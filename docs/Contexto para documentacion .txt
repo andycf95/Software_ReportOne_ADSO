@@ -428,4 +428,4 @@ Corrección del AJAX de activos en activos.js para técnicos donde el select de 
 Corrección de la toma del activo_id en el JS del formulario para técnicos donde el valor viene de un input hidden en vez de un select
 Identificación de problema de calibración donde la mayoría de solicitudes superaban el 70% por similitud de título, con propuesta de hacer el activo obligatorio como filtro previo
 
-
+Se separo los js y se asignaron a los templates necsarios. 

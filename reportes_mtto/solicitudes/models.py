@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MinLengthValidator
 # Create your models here.
 
 #Se crea modelo para solicitud de mantenimiento, con campos para título, descripción, estado, criticidad, activo, sistema activo y componente activo
@@ -58,8 +59,8 @@ class Solicitud(models.Model):
         verbose_name="Componente Afectado"
     )
     
-    titulo = models.CharField(max_length=100)
-    descripcion = models.TextField()
+    titulo = models.CharField(max_length=150, validators=[MinLengthValidator(15, "El título debe tener al menos 15 caracteres.")])
+    descripcion = models.TextField(validators=[MinLengthValidator(30, "La descripción debe tener al menos 30 caracteres.")])
     repuestos_necesarios = models.TextField()
     criticidad = models.IntegerField( choices=CRITICIDAD, default=1)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE')
@@ -72,11 +73,10 @@ class Solicitud(models.Model):
         # Campo soft delete
     eliminado = models.BooleanField(default=False)
     
-    
-    
     objects = SolicitudManager()
 
     todos = models.Manager()
+    
     
     # Sobrescribe el método save para generar el código automáticamente al crear una nueva solicitud
     def save(self, *args, **kwargs):

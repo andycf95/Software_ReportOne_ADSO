@@ -1,0 +1,60 @@
+
+Por hacer:
+- Revisar los ponderajes de similitud para llegar a un mayor acierto 
+
+- Hacer mas pruyebas de similitudes
+- Al dar en la x no se va a lista queda en blanco
+- Al dar cick en el detalle no se puede volver a la creacion de la orden 
+
+
+- Cambiar la forma de hacer comentarios para no tener que ingresar en el form de editar
+- Hacer despligue de aplicacion
+- Seleccionar base de datos a utilizar 
+- Establecer con claude el plan de pruebas y ejecutarlo de acuerdo a lo que se vaya solicitando
+
+- Hacer el despligue en render ver video de fast sobre el despligue, tener en cuenta que para la base de datos usa Postgresql en neon y hacer la conexion con render
+
+
+
+Carcaza de filtro de aceite de caja reductor partido
+Se evidencia fuga de aceite constante en la sentina se busca procedencia, si el portafiltros esta partido en la base del mismo
+
+Hecho: 
+- Se crea orden duplicada, VER EN QUE PUNTO SE DUPLICA LA ORDEN Y POR QUE? 
+- Verificar pyanywhere si se despliga aqui o donde la tengo que desplegar
+- Verificar si se deben hacer pruebas antes o despues del despligue
+- Actualizar MER y agregar que los usuarios tambien crean activos sistemas y componentes o- Actualizar MER y agregar que los usuarios tambien crean activos sistemas y componentes ok
+
+Pruebas unitarias: verifican que cada función o componente funcione correctamente.
+Pruebas de integración: comprueban que los módulos interactúan correctamente.
+Pruebas del sistema: validan el funcionamiento completo de la aplicación.
+Pruebas de aceptación (UAT): el cliente o usuario verifica que el software cumple los requisitos.
+
+Para la solicitud de script de bases de datos, puedo entregar las migraciones y tambien un esquema de base de datos en postgradesql pg_dump --schema-only nombre_base > esquema.sql
+13/07/2026
+Se separo los js y se asignaron a los templates necsarios. 
+
+
+STOPWORDS = {'de', 'del', 'la', 'el', 'los', 'las', 'en', 'por', 
+             'con', 'para', 'un', 'una', 'y', 'a'}
+
+def limpiar_texto(texto):
+    palabras = texto.lower().split()
+    return ' '.join(p for p in palabras if p not in STOPWORDS)
+
+def similitud_titulo(texto1, texto2):
+    t1 = limpiar_texto(texto1)
+    t2 = limpiar_texto(texto2)
+    score_exacto = fuzz.ratio(t1, t2)
+    score_flexible = fuzz.token_sort_ratio(t1, t2)
+    return (score_exacto + score_flexible) / 2
+
+# Tu caso real
+titulo1 = "fuga de aceite por sello"
+titulo2 = "Fuga de aceite por sello "
+
+print("Texto limpio 1:", limpiar_texto(titulo1))
+print("Texto limpio 2:", limpiar_texto(titulo2))
+print("ratio puro:", fuzz.ratio(titulo1, titulo2))
+print("token_sort_ratio puro:", fuzz.token_sort_ratio(titulo1, titulo2))
+print("Score final combinado:", similitud_titulo(titulo1, titulo2))
